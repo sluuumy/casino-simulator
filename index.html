@@ -1,1552 +1,206 @@
-
 <!DOCTYPE html>
-<html lang="fr" class="dark">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber Casino - Multi-Comptes & Jeux Virtuels</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Canvas Confetti -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        gold: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' },
-                        casino: {
-                            dark: '#07080d',
-                            card: '#0f111a',
-                            border: '#1f2438',
-                            accent: '#3b82f6',
-                            purple: '#8b5cf6',
-                            rose: '#f43f5e',
-                            green: '#10b981'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Outfit', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #07080d; }
-        ::-webkit-scrollbar-thumb { background: #1f2438; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
-
-        .glow-text-gold { text-shadow: 0 0 12px rgba(245, 158, 11, 0.4); }
-        .glow-text-rose { text-shadow: 0 0 12px rgba(244, 63, 94, 0.5); }
-        .glow-text-blue { text-shadow: 0 0 12px rgba(59, 130, 246, 0.5); }
-
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-45px) scale(1.1); }
-        }
-        .floating-text {
-            position: absolute;
-            pointer-events: none;
-            animation: floatUp 0.75s ease-out forwards;
-            font-weight: 800;
-            color: #fbbf24;
-            z-index: 50;
-        }
-
-        .tile-flip { transition: transform 0.25s ease, background-color 0.25s ease; }
-        .tile-flip:active { transform: scale(0.92); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casino Virtuel Multijoueur</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }
+    .tab-btn.active { border-b-2 border-indigo-500 text-indigo-400 font-bold; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  </style>
 </head>
-<body class="bg-casino-dark text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-casino-accent selection:text-white">
+<body class="min-h-screen flex flex-col justify-between">
 
-    <!-- MODAL AUTHENTIFICATION -->
-    <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity">
-        <div class="bg-casino-card border border-casino-border w-full max-w-md rounded-2xl p-6 shadow-2xl relative overflow-hidden">
-            <!-- Header Modal -->
-            <div class="text-center mb-6">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-casino-accent via-indigo-600 to-casino-purple flex items-center justify-center text-white font-black text-2xl mx-auto mb-3 shadow-lg shadow-blue-500/20">
-                    <i data-lucide="shield-check"></i>
-                </div>
-                <h2 class="text-2xl font-black text-white">Connexion au Casino</h2>
-                <p class="text-xs text-slate-400 mt-1">Choisissez un pseudo et un mot de passe (sans email)</p>
-            </div>
-
-            <!-- Tabs Modal (Connexion / Inscription) -->
-            <div class="flex bg-casino-dark p-1 rounded-xl border border-casino-border mb-6">
-                <button onclick="switchAuthTab('login')" id="auth-tab-login" class="flex-1 py-2 text-xs font-bold rounded-lg transition bg-casino-accent text-white shadow">
-                    Connexion
-                </button>
-                <button onclick="switchAuthTab('register')" id="auth-tab-register" class="flex-1 py-2 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white">
-                    Créer un compte
-                </button>
-            </div>
-
-            <!-- Formulaire Connexion -->
-            <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-1">Pseudo</label>
-                    <div class="relative">
-                        <i data-lucide="user" class="w-4 h-4 absolute left-3 top-3 text-slate-500"></i>
-                        <input type="text" id="login-username" required placeholder="Votre pseudo" class="w-full bg-casino-dark border border-casino-border rounded-xl pl-9 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-casino-accent">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-1">Mot de passe</label>
-                    <div class="relative">
-                        <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-3 text-slate-500"></i>
-                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-casino-dark border border-casino-border rounded-xl pl-9 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-casino-accent">
-                    </div>
-                </div>
-                <button type="submit" class="w-full py-3 bg-casino-accent hover:bg-blue-500 text-white font-bold text-sm rounded-xl transition shadow-lg shadow-blue-500/20">
-                    Se connecter 🚀
-                </button>
-            </form>
-
-            <!-- Formulaire Inscription -->
-            <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-1">Choisissez un pseudo</label>
-                    <div class="relative">
-                        <i data-lucide="user-plus" class="w-4 h-4 absolute left-3 top-3 text-slate-500"></i>
-                        <input type="text" id="reg-username" required minlength="3" placeholder="Pseudo (min. 3 car.)" class="w-full bg-casino-dark border border-casino-border rounded-xl pl-9 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-casino-accent">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-1">Mot de passe</label>
-                    <div class="relative">
-                        <i data-lucide="key" class="w-4 h-4 absolute left-3 top-3 text-slate-500"></i>
-                        <input type="password" id="reg-password" required minlength="4" placeholder="Mot de passe (min. 4 car.)" class="w-full bg-casino-dark border border-casino-border rounded-xl pl-9 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-casino-accent">
-                    </div>
-                </div>
-                <button type="submit" class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm rounded-xl transition shadow-lg shadow-emerald-500/20">
-                    Créer mon compte ✨
-                </button>
-            </form>
-
-            <!-- Mode Invité -->
-            <div class="mt-6 pt-4 border-t border-casino-border text-center">
-                <button onclick="playAsGuest()" class="text-xs text-slate-400 hover:text-white underline underline-offset-4">
-                    Jouer en mode Invité (sauvegarde temporaire)
-                </button>
-            </div>
-        </div>
+  <!-- HEADER -->
+  <header class="bg-slate-900 border-b border-slate-800 p-4 flex flex-wrap justify-between items-center gap-4">
+    <div class="flex items-center space-x-3">
+      <i class="fa-solid font-bold text-2xl text-yellow-400 fa-dice"></i>
+      <h1 class="text-xl font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
+        Casino Multi
+      </h1>
     </div>
 
-    <!-- HEADER -->
-    <header class="border-b border-casino-border bg-casino-card/90 backdrop-blur-md sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
-            <!-- Brand -->
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-casino-accent via-indigo-600 to-casino-purple flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-500/20">
-                    <i data-lucide="gamepad-2"></i>
-                </div>
-                <div>
-                    <h1 class="font-black text-lg tracking-wider text-white flex items-center gap-1.5">
-                        CYBER <span class="text-casino-accent glow-text-blue">CASINO</span>
-                    </h1>
-                    <span class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded-full">
-                        100% Virtuel • Sans Risque
-                    </span>
-                </div>
-            </div>
+    <!-- Infos Joueur & Solde -->
+    <div class="flex items-center space-x-6">
+      <div class="text-right">
+        <div class="text-xs text-slate-400">Joueur : <span id="usernameDisplay" class="font-bold text-slate-200">Invité</span></div>
+        <div class="text-xl font-black text-emerald-400">$<span id="balanceDisplay">10.00</span></div>
+      </div>
+      <button id="authBtn" onclick="openAuthModal()" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded-lg text-sm font-semibold transition">
+        Compte / Connexion
+      </button>
+    </div>
+  </header>
 
-            <!-- Solde / Balance -->
-            <div class="flex items-center gap-3 bg-casino-dark/90 border border-casino-border px-5 py-2 rounded-2xl">
-                <div class="w-8 h-8 rounded-full bg-gold-500/10 flex items-center justify-center text-gold-400">
-                    <i data-lucide="coins"></i>
-                </div>
-                <div>
-                    <div class="text-[10px] uppercase font-bold text-slate-400">Solde Virtuel</div>
-                    <div id="balance" class="text-xl font-black text-gold-400 tracking-tight">0,00 $</div>
-                </div>
-            </div>
+  <!-- CONTENU PRINCIPAL + CHAT SIDEBAR -->
+  <div class="flex-1 flex flex-col lg:flex-row gap-4 p-4 max-w-7xl mx-auto w-full">
+    
+    <!-- NAVIGATION & JEUX -->
+    <main class="flex-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-4 flex flex-col">
+      <!-- Tabs -->
+      <nav class="flex border-b border-slate-800 mb-4 overflow-x-auto space-x-4">
+        <button onclick="switchTab('clicker')" id="tab-clicker" class="tab-btn active px-3 py-2 text-sm">⚡ Clicker</button>
+        <button onclick="switchTab('crash')" id="tab-crash" class="tab-btn px-3 py-2 text-sm">🚀 Crash</button>
+        <button onclick="switchTab('mines')" id="tab-mines" class="tab-btn px-3 py-2 text-sm">💣 Mines</button>
+      </nav>
 
-            <!-- Profile & Account Info -->
-            <div class="flex items-center gap-3">
-                <div class="flex items-center gap-2 bg-casino-dark border border-casino-border px-3 py-1.5 rounded-xl">
-                    <div class="w-7 h-7 rounded-lg bg-casino-accent/20 text-casino-accent flex items-center justify-center font-bold text-xs">
-                        <i data-lucide="user" class="w-4 h-4"></i>
-                    </div>
-                    <div class="text-left">
-                        <div id="user-display-name" class="text-xs font-bold text-white">Invité</div>
-                        <div id="user-display-status" class="text-[9px] text-slate-500">Compte local</div>
-                    </div>
-                </div>
+      <!-- TAB CLICKER -->
+      <section id="sec-clicker" class="flex-1 flex flex-col items-center justify-center py-6">
+        <button id="clickerBtn" onclick="handleClick()" class="w-40 h-40 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 hover:scale-105 active:scale-95 transition flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <i class="fa-solid fa-hand-pointer text-5xl text-white"></i>
+        </button>
+        <p class="mt-4 text-sm text-slate-400">+<span id="clickPowerDisplay">0.10</span>$ par clic</p>
+      </section>
 
-                <button onclick="logout()" title="Déconnexion / Changer de compte" class="p-2 rounded-xl border border-casino-border bg-casino-dark hover:bg-rose-950/40 hover:border-rose-800 hover:text-rose-400 transition text-slate-400">
-                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                </button>
-            </div>
+      <!-- TAB CRASH -->
+      <section id="sec-crash" class="hidden flex-1 flex flex-col items-center justify-center">
+        <div class="w-full max-w-lg bg-slate-950 p-6 rounded-xl border border-slate-800 text-center">
+          <div id="crashMulti" class="text-5xl font-black text-amber-400 mb-6">1.00x</div>
+          <div class="flex gap-2 justify-center mb-4">
+            <input id="crashBet" type="number" value="1" min="0.1" step="0.5" class="bg-slate-900 border border-slate-700 px-3 py-2 rounded w-32 text-center text-white">
+            <button onclick="playCrash()" id="crashBtn" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded font-bold">Miser</button>
+          </div>
         </div>
-    </header>
+      </section>
 
-    <!-- NAVIGATION -->
-    <nav class="bg-casino-dark/70 border-b border-casino-border px-4 py-2 sticky top-[61px] z-30 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
-            <button onclick="switchTab('tab-clicker')" id="btn-tab-clicker" class="tab-btn active px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap bg-casino-accent text-white shadow-lg shadow-blue-500/20">
-                <i data-lucide="mouse-pointer-click" class="w-4 h-4"></i> Travail / Clics
-            </button>
-            <button onclick="switchTab('tab-crash')" id="btn-tab-crash" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
-                <i data-lucide="trending-up" class="w-4 h-4 text-emerald-400"></i> Aviateur (Crash)
-            </button>
-            <button onclick="switchTab('tab-mines')" id="btn-tab-mines" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
-                <i data-lucide="bomb" class="w-4 h-4 text-rose-400"></i> Démineur (Mines)
-            </button>
-            <button onclick="switchTab('tab-roulette')" id="btn-tab-roulette" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
-                <i data-lucide="disc" class="w-4 h-4 text-red-400"></i> Roulette
-            </button>
-            <button onclick="switchTab('tab-slots')" id="btn-tab-slots" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
-                <i data-lucide="sparkles" class="w-4 h-4 text-gold-400"></i> Machine à sous
-            </button>
-            <button onclick="switchTab('tab-blackjack')" id="btn-tab-blackjack" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
-                <i data-lucide="spade" class="w-4 h-4 text-indigo-400"></i> Blackjack
-            </button>
-            <button onclick="switchTab('tab-coinflip')" id="btn-tab-coinflip" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
-                <i data-lucide="circle-dot" class="w-4 h-4 text-amber-400"></i> Coin Flip
-            </button>
-            <button onclick="switchTab('tab-stats')" id="btn-tab-stats" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
-                <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Stats & Succès
-            </button>
-            <button onclick="switchTab('tab-multiplayer')" id="btn-tab-multiplayer" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
-                <i data-lucide="network" class="w-4 h-4 text-purple-400"></i> Multijoueur ?
-            </button>
+      <!-- TAB MINES -->
+      <section id="sec-mines" class="hidden flex-1 flex flex-col items-center justify-center">
+        <div class="text-center mb-4">
+          <p class="text-sm text-slate-400">Grille Démineur 5x5</p>
         </div>
-    </nav>
-
-    <!-- MAIN CONTENT -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
-
-        <!-- TAB 1: CLICKER (HARDENED) -->
-        <section id="tab-clicker" class="tab-content grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Left: Clicker Area -->
-            <div class="lg:col-span-1 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
-                <div class="mb-4">
-                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-gold-400 bg-gold-500/10 border border-gold-500/20 px-3 py-1 rounded-full">
-                        Économie Exigeante
-                    </span>
-                </div>
-                <h2 class="text-xl font-black text-white mb-1">Gagner vos premiers cents</h2>
-                <p class="text-xs text-slate-400 mb-6">Travaillez dur pour vous constituer un capital de jeu !</p>
-
-                <div id="clicker-area" class="relative my-4 cursor-pointer select-none">
-                    <button id="main-click-btn" class="w-44 h-44 rounded-full bg-gradient-to-b from-indigo-600 via-blue-600 to-slate-900 border-4 border-indigo-400 shadow-2xl shadow-blue-500/30 active:scale-95 transition-transform duration-75 flex flex-col items-center justify-center group relative overflow-hidden">
-                        <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <i data-lucide="briefcase" class="w-14 h-14 text-white mb-1 group-hover:scale-110 transition-transform"></i>
-                        <span class="text-white font-black text-xs uppercase tracking-wider">Travailler</span>
-                    </button>
-                </div>
-
-                <div class="w-full grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-casino-border text-left">
-                    <div class="bg-casino-dark p-3 rounded-xl border border-casino-border">
-                        <span class="text-[10px] text-slate-400 block uppercase font-bold">Par Clic</span>
-                        <span id="stat-per-click" class="text-base font-bold text-gold-400">+0,10 $</span>
-                    </div>
-                    <div class="bg-casino-dark p-3 rounded-xl border border-casino-border">
-                        <span class="text-[10px] text-slate-400 block uppercase font-bold">Passif / sec</span>
-                        <span id="stat-per-sec" class="text-base font-bold text-emerald-400">0,00 $/s</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right: Upgrades Store -->
-            <div class="lg:col-span-2 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col">
-                <div class="flex items-center justify-between mb-4 pb-3 border-b border-casino-border">
-                    <div>
-                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i data-lucide="shopping-cart" class="text-casino-accent"></i> Améliorations Économiques
-                        </h2>
-                        <p class="text-xs text-slate-400">Coûts exponentiels : Investissez judicieusement.</p>
-                    </div>
-                </div>
-
-                <div id="upgrades-list" class="space-y-3 overflow-y-auto max-h-[480px] pr-1">
-                    <!-- Upgrades injected via JS -->
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 2: GAME - CRASH (AVIATEUR) -->
-        <section id="tab-crash" class="tab-content hidden space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden min-h-[420px]">
-                    <div class="flex items-center justify-between z-10">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="plane" class="text-casino-accent"></i>
-                            <h2 class="font-extrabold text-white text-lg">CRASH / AVIATEUR</h2>
-                        </div>
-                        <div id="crash-status-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">
-                            En attente
-                        </div>
-                    </div>
-
-                    <div class="relative flex-1 my-4 flex items-center justify-center">
-                        <canvas id="crash-canvas" class="absolute inset-0 w-full h-full"></canvas>
-                        <div class="relative z-10 text-center select-none">
-                            <div id="crash-multiplier-text" class="text-6xl md:text-7xl font-black text-white tracking-tight">1.00x</div>
-                            <div id="crash-subtext" class="text-xs font-bold uppercase tracking-widest text-slate-400 mt-2">Préparez vos paris</div>
-                        </div>
-                    </div>
-
-                    <div class="z-10 flex items-center gap-2 overflow-x-auto no-scrollbar pt-2 border-t border-casino-border text-xs">
-                        <span class="text-[10px] uppercase font-bold text-slate-500">Historique:</span>
-                        <div id="crash-history-strip" class="flex gap-1.5"></div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-1 space-y-4 flex flex-col justify-between">
-                    <div class="bg-casino-card border border-casino-border p-5 rounded-2xl space-y-4">
-                        <h3 class="font-bold text-sm text-white flex items-center gap-2">
-                            <i data-lucide="sliders" class="w-4 h-4 text-gold-400"></i> Panneau de Pari
-                        </h3>
-                        <div>
-                            <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
-                            <div class="flex gap-2">
-                                <input type="number" id="crash-bet-input" min="0.1" value="5" step="0.5" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none focus:border-casino-accent text-right">
-                                <button onclick="adjustBet('crash-bet-input', 0.5)" class="px-2.5 py-1 bg-casino-dark border border-casino-border rounded-xl text-xs font-bold hover:bg-slate-800">½</button>
-                                <button onclick="adjustBet('crash-bet-input', 2)" class="px-2.5 py-1 bg-casino-dark border border-casino-border rounded-xl text-xs font-bold hover:bg-slate-800">x2</button>
-                                <button onclick="setBetMax('crash-bet-input')" class="px-2.5 py-1 bg-gold-500/20 text-gold-400 border border-gold-500/30 rounded-xl text-xs font-bold">MAX</button>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="text-xs text-slate-400 font-medium block mb-1">Auto Cashout (0 = Désactivé)</label>
-                            <input type="number" id="crash-autocash-input" min="1.05" value="2.00" step="0.1" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-emerald-400 font-bold focus:outline-none focus:border-emerald-500 text-right">
-                        </div>
-                        <button onclick="handleCrashAction()" id="btn-crash-action" class="w-full py-4 rounded-xl font-black text-base transition duration-150 bg-emerald-500 hover:bg-emerald-400 text-black shadow-lg shadow-emerald-500/20">
-                            PLACER LE PARI 🚀
-                        </button>
-                    </div>
-
-                    <div class="bg-casino-card border border-casino-border p-4 rounded-2xl flex-1 flex flex-col">
-                        <div class="flex items-center justify-between text-xs mb-3 pb-2 border-b border-casino-border">
-                            <span class="font-bold text-slate-300 flex items-center gap-1">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Salle en direct
-                            </span>
-                            <span id="fake-player-count" class="text-slate-500">14 joueurs</span>
-                        </div>
-                        <div id="crash-players-list" class="space-y-2 overflow-y-auto max-h-[160px] text-xs flex-1"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 3: GAME - MINES (DÉMINEUR) -->
-        <section id="tab-mines" class="tab-content hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-1 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col justify-between">
-                    <div class="space-y-4">
-                        <div class="flex items-center gap-2 mb-2">
-                            <i data-lucide="bomb" class="text-rose-500"></i>
-                            <h2 class="font-extrabold text-white text-lg">MINES / DÉMINEUR</h2>
-                        </div>
-                        <div>
-                            <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
-                            <input type="number" id="mines-bet-input" min="0.1" value="5" step="0.5" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none focus:border-rose-500 text-right">
-                        </div>
-                        <div>
-                            <label class="text-xs text-slate-400 font-medium block mb-1">Nombre de Bombes (1 - 20)</label>
-                            <select id="mines-count-select" onchange="updateMinesMultiplierPreview()" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-rose-400 font-bold focus:outline-none">
-                                <option value="1">1 Bombe (Faible Risque)</option>
-                                <option value="3" selected>3 Bombes (Équilibré)</option>
-                                <option value="5">5 Bombes (Moyen)</option>
-                                <option value="10">10 Bombes (Élevé)</option>
-                                <option value="15">15 Bombes (Extreme)</option>
-                                <option value="20">20 Bombes (DANGER)</option>
-                            </select>
-                        </div>
-                        <div class="bg-casino-dark p-4 rounded-xl border border-casino-border space-y-2">
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="text-slate-400">Multiplicateur Actuel:</span>
-                                <span id="mines-curr-mult" class="font-bold text-emerald-400 text-base">1.00x</span>
-                            </div>
-                            <div class="flex justify-between items-center text-xs border-t border-casino-border/50 pt-2">
-                                <span class="text-slate-400">Prochaine Case:</span>
-                                <span id="mines-next-mult" class="font-bold text-gold-400">1.12x</span>
-                            </div>
-                            <div class="flex justify-between items-center text-xs border-t border-casino-border/50 pt-2">
-                                <span class="text-slate-400">Gain Potentiel:</span>
-                                <span id="mines-potential-win" class="font-bold text-white">0,00 $</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="space-y-2 mt-6">
-                        <button onclick="startMinesGame()" id="btn-mines-start" class="w-full py-3.5 bg-rose-600 hover:bg-rose-500 text-white font-black text-sm rounded-xl transition shadow-lg shadow-rose-600/20">
-                            COMMENCER LA PARTIE 💣
-                        </button>
-                        <button onclick="cashoutMines()" id="btn-mines-cashout" disabled class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm rounded-xl transition disabled:opacity-30 disabled:cursor-not-allowed">
-                            ENCAISSER LES GAINS 💰
-                        </button>
-                    </div>
-                </div>
-                <div class="lg:col-span-2 bg-casino-card border border-casino-border rounded-2xl p-6 flex items-center justify-center">
-                    <div id="mines-grid" class="grid grid-cols-5 gap-2.5 w-full max-w-md aspect-square"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 4: GAME - ROULETTE -->
-        <section id="tab-roulette" class="tab-content hidden space-y-6">
-            <div class="bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div class="flex-1 space-y-4">
-                    <h2 class="text-xl font-black text-white flex items-center gap-2"><i data-lucide="disc" class="text-red-500"></i> ROULETTE EUROPÉENNE</h2>
-                    <div>
-                        <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
-                        <input type="number" id="roulette-bet-input" min="0.1" value="5" step="0.5" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-400 font-medium block mb-2">Choisissez votre pari</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="playRoulette('red')" class="py-2.5 bg-red-600 hover:bg-red-500 font-bold text-xs rounded-xl text-white">ROUGE (x2)</button>
-                            <button onclick="playRoulette('black')" class="py-2.5 bg-slate-900 border border-slate-700 hover:bg-slate-800 font-bold text-xs rounded-xl text-white">NOIR (x2)</button>
-                            <button onclick="playRoulette('even')" class="py-2.5 bg-casino-dark border border-casino-border font-bold text-xs rounded-xl text-slate-300">PAIR (x2)</button>
-                            <button onclick="playRoulette('odd')" class="py-2.5 bg-casino-dark border border-casino-border font-bold text-xs rounded-xl text-slate-300">IMPAIR (x2)</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="w-full md:w-64 h-64 bg-casino-dark border-4 border-casino-border rounded-full flex items-center justify-center relative overflow-hidden shadow-2xl">
-                    <div id="roulette-wheel-display" class="text-5xl font-black text-white transition-all duration-1000">0</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 5: GAME - SLOTS -->
-        <section id="tab-slots" class="tab-content hidden space-y-6">
-            <div class="bg-casino-card border border-casino-border rounded-2xl p-6 text-center max-w-xl mx-auto space-y-6">
-                <h2 class="text-xl font-black text-white flex items-center justify-center gap-2"><i data-lucide="sparkles" class="text-gold-400"></i> MACHINE À SOUS</h2>
-                <div class="flex justify-center gap-4 bg-casino-dark p-6 rounded-2xl border border-casino-border">
-                    <div id="slot-1" class="w-20 h-24 bg-casino-card border border-casino-border rounded-xl flex items-center justify-center text-4xl font-black">7️⃣</div>
-                    <div id="slot-2" class="w-20 h-24 bg-casino-card border border-casino-border rounded-xl flex items-center justify-center text-4xl font-black">7️⃣</div>
-                    <div id="slot-3" class="w-20 h-24 bg-casino-card border border-casino-border rounded-xl flex items-center justify-center text-4xl font-black">7️⃣</div>
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
-                    <input type="number" id="slots-bet-input" min="0.1" value="2" step="0.5" class="w-full max-w-xs bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none mx-auto text-center">
-                </div>
-                <button onclick="spinSlots()" id="btn-spin-slots" class="w-full max-w-xs py-3.5 bg-gold-500 hover:bg-gold-400 text-black font-black text-sm rounded-xl transition shadow-lg shadow-gold-500/20">
-                    TOURNER LES ROULEAUX 🎰
-                </button>
-            </div>
-        </section>
-
-        <!-- TAB 6: GAME - BLACKJACK -->
-        <section id="tab-blackjack" class="tab-content hidden space-y-6">
-            <div class="bg-casino-card border border-casino-border rounded-2xl p-6 space-y-6">
-                <h2 class="text-xl font-black text-white flex items-center gap-2"><i data-lucide="spade" class="text-indigo-400"></i> BLACKJACK 21</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-casino-dark p-4 rounded-xl border border-casino-border space-y-2">
-                        <div class="text-xs font-bold text-slate-400 flex justify-between">
-                            <span>Main du Croupier</span>
-                            <span id="bj-dealer-score">Score: 0</span>
-                        </div>
-                        <div id="bj-dealer-cards" class="flex gap-2 min-h-[60px] items-center"></div>
-                    </div>
-                    <div class="bg-casino-dark p-4 rounded-xl border border-casino-border space-y-2">
-                        <div class="text-xs font-bold text-slate-400 flex justify-between">
-                            <span>Votre Main</span>
-                            <span id="bj-player-score">Score: 0</span>
-                        </div>
-                        <div id="bj-player-cards" class="flex gap-2 min-h-[60px] items-center"></div>
-                    </div>
-                </div>
-                <div class="flex flex-wrap gap-3 items-center justify-between pt-4 border-t border-casino-border">
-                    <div class="flex gap-2 items-center">
-                        <span class="text-xs text-slate-400">Mise:</span>
-                        <input type="number" id="bj-bet-input" min="0.1" value="5" class="w-24 bg-casino-dark border border-casino-border rounded-xl px-3 py-1.5 text-gold-400 font-bold text-xs">
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="startBlackjack()" id="btn-bj-start" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 font-bold text-xs rounded-xl text-white">Nouvelle Partie</button>
-                        <button onclick="hitBlackjack()" id="btn-bj-hit" disabled class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 font-bold text-xs rounded-xl text-white disabled:opacity-30">Tirer</button>
-                        <button onclick="standBlackjack()" id="btn-bj-stand" disabled class="px-4 py-2 bg-amber-600 hover:bg-amber-500 font-bold text-xs rounded-xl text-white disabled:opacity-30">Rester</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 7: GAME - COIN FLIP -->
-        <section id="tab-coinflip" class="tab-content hidden space-y-6">
-            <div class="bg-casino-card border border-casino-border rounded-2xl p-6 text-center max-w-md mx-auto space-y-6">
-                <h2 class="text-xl font-black text-white flex items-center justify-center gap-2"><i data-lucide="circle-dot" class="text-amber-400"></i> COIN FLIP (PILE OU FACE)</h2>
-                <div id="coin-element" class="w-32 h-32 rounded-full bg-gradient-to-tr from-amber-500 to-gold-400 border-4 border-amber-300 mx-auto flex items-center justify-center text-3xl font-black text-black shadow-xl transition-transform duration-500">
-                    🪙
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
-                    <input type="number" id="coin-bet-input" min="0.1" value="5" step="0.5" class="w-full max-w-xs bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none mx-auto text-center">
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="playCoinFlip('heads')" class="flex-1 py-3 bg-amber-500 hover:bg-amber-400 text-black font-black text-xs rounded-xl">PILE (x2)</button>
-                    <button onclick="playCoinFlip('tails')" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white font-black text-xs rounded-xl">FACE (x2)</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 8: STATS & ACHIEVEMENTS -->
-        <section id="tab-stats" class="tab-content hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-casino-card border border-casino-border p-5 rounded-2xl">
-                    <div class="text-xs text-slate-400 mb-1">Gains Totaux Réalisés</div>
-                    <div id="stat-total-won" class="text-2xl font-black text-emerald-400">0,00 $</div>
-                </div>
-                <div class="bg-casino-card border border-casino-border p-5 rounded-2xl">
-                    <div class="text-xs text-slate-400 mb-1">Pertes Totales</div>
-                    <div id="stat-total-lost" class="text-2xl font-black text-rose-400">0,00 $</div>
-                </div>
-                <div class="bg-casino-card border border-casino-border p-5 rounded-2xl">
-                    <div class="text-xs text-slate-400 mb-1">Plus Gros Multiplicateur</div>
-                    <div id="stat-biggest-mult" class="text-2xl font-black text-gold-400">1.00x</div>
-                </div>
-            </div>
-
-            <!-- Succès / Badges -->
-            <div class="bg-casino-card border border-casino-border p-6 rounded-2xl space-y-4">
-                <h3 class="font-bold text-white flex items-center gap-2"><i data-lucide="award" class="text-gold-400"></i> Succès & Badges</h3>
-                <div id="achievements-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
-                    <!-- Badges JS -->
-                </div>
-            </div>
-
-            <!-- Historique -->
-            <div class="bg-casino-card border border-casino-border p-6 rounded-2xl">
-                <h3 class="font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="history" class="text-casino-accent"></i> Historique des Paris Récents</h3>
-                <div id="history-feed" class="space-y-2 max-h-[300px] overflow-y-auto text-xs pr-1">
-                    <p class="text-slate-500 italic text-center py-6">Aucun pari enregistré pour le moment.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 9: MULTIPLAYER EXPLANATION -->
-        <section id="tab-multiplayer" class="tab-content hidden space-y-6">
-            <div class="bg-casino-card border border-casino-border p-6 rounded-2xl space-y-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center text-xl">
-                        <i data-lucide="network"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-xl font-black text-white">Comment fonctionne le Multijoueur Web ?</h2>
-                        <p class="text-xs text-slate-400">Explication technique d'une vraie salle de jeux en temps réel.</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-casino-border">
-                    <div class="bg-casino-dark p-4 rounded-xl border border-casino-border space-y-2">
-                        <div class="text-purple-400 font-bold text-sm flex items-center gap-1.5"><i data-lucide="server" class="w-4 h-4"></i> 1. Serveur Central</div>
-                        <p class="text-xs text-slate-400 leading-relaxed">Un serveur centralisé (Node.js/Python) calcule le point de crash et gère l'état global du jeu.</p>
-                    </div>
-                    <div class="bg-casino-dark p-4 rounded-xl border border-casino-border space-y-2">
-                        <div class="text-casino-accent font-bold text-sm flex items-center gap-1.5"><i data-lucide="zap" class="w-4 h-4"></i> 2. WebSockets</div>
-                        <p class="text-xs text-slate-400 leading-relaxed">Protocole temps réel permettant d'envoyer la position de l'avion à des milliers de joueurs simultanément.</p>
-                    </div>
-                    <div class="bg-casino-dark p-4 rounded-xl border border-casino-border space-y-2">
-                        <div class="text-emerald-400 font-bold text-sm flex items-center gap-1.5"><i data-lucide="shield-check" class="w-4 h-4"></i> 3. Provably Fair</div>
-                        <p class="text-xs text-slate-400 leading-relaxed">Utilisation d'algorithmes SHA-256 pour prouver que le résultat du tirage n'a pas été manipulé.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
+        <div id="minesGrid" class="grid grid-cols-5 gap-2 w-64 h-64 mb-4"></div>
+        <button onclick="initMines()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded text-sm font-bold">Nouvelle Partie</button>
+      </section>
     </main>
 
-    <!-- TOAST CONTAINER -->
-    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+    <!-- SIDEBAR MULTIJOUEUR (CHAT & ENVOI D'ARGENT) -->
+    <aside class="w-full lg:w-80 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col h-[500px] lg:h-auto">
+      <h2 class="text-md font-bold mb-3 flex items-center gap-2 border-b border-slate-800 pb-2">
+        <i class="fa-solid fa-comments text-indigo-400"></i> Tchat En Direct
+      </h2>
 
-    <script>
-        /* ==========================================================================
-           1. LOCAL ACCOUNT & STORAGE SYSTEM (OPTION A)
-           ========================================================================== */
-        const DEFAULT_STATE = {
-            balance: 5.00,
-            clickValue: 0.10,
-            autoIncome: 0.00,
-            totalClicks: 0,
-            totalWon: 0.00,
-            totalLost: 0.00,
-            biggestMult: 1.00,
-            upgrades: { c1: 0, c2: 0, c3: 0, a1: 0, a2: 0, a3: 0 },
-            achievements: {}
-        };
+      <!-- Zone des messages -->
+      <div id="chatBox" class="flex-1 overflow-y-auto custom-scroll space-y-2 mb-3 text-xs pr-1"></div>
 
-        let currentUsername = null;
-        let gameState = { ...DEFAULT_STATE };
+      <!-- Envoi de message -->
+      <div class="flex gap-2 mb-3">
+        <input id="chatInput" type="text" placeholder="Votre message..." class="flex-1 bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+        <button onclick="sendChat()" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-paper-plane"></i></button>
+      </div>
 
-        const Auth = {
-            getUsers() {
-                try { return JSON.parse(localStorage.getItem('cyber_casino_users') || '{}'); } catch(e){ return {}; }
-            },
-            saveUsers(users) {
-                localStorage.setItem('cyber_casino_users', JSON.stringify(users));
-            },
-            register(username, password) {
-                if (!username || username.length < 3) return { success: false, msg: "Pseudo trop court (min. 3 car.) !" };
-                if (!password || password.length < 4) return { success: false, msg: "Mot de passe trop court (min. 4 car.) !" };
+      <!-- Donner de l'argent -->
+      <div class="border-t border-slate-800 pt-3">
+        <span class="text-xs font-semibold text-slate-400 block mb-2">🎁 Donner de l'argent</span>
+        <div class="flex gap-2">
+          <input id="giveUser" type="text" placeholder="Pseudo" class="w-1/2 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white">
+          <input id="giveAmount" type="number" placeholder="Montant" class="w-1/2 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white">
+        </div>
+        <button onclick="sendMoney()" class="w-full mt-2 bg-emerald-600 hover:bg-emerald-500 py-1 rounded text-xs font-bold">Envoyer</button>
+      </div>
+    </aside>
+  </div>
 
-                const users = this.getUsers();
-                if (users[username]) return { success: false, msg: "Ce pseudo existe déjà !" };
+  <!-- SCRIPT JAVASCRIPT & SOCKET.IO -->
+  <script>
+    // ⚠️ REMPLACEZ PAR VOTRE URL RENDER
+    const RENDER_URL = "https://VOTRE-SERVEUR.onrender.com"; 
+    
+    let socket;
+    let state = {
+      username: "Joueur_" + Math.floor(Math.random() * 8999 + 1000),
+      balance: 10.00,
+      clickPower: 0.10
+    };
 
-                users[username] = {
-                    password: password,
-                    state: { ...DEFAULT_STATE }
-                };
-                this.saveUsers(users);
-                return { success: true, msg: "Compte créé avec succès !" };
-            },
-            login(username, password) {
-                const users = this.getUsers();
-                if (!users[username] || users[username].password !== password) {
-                    return { success: false, msg: "Identifiants incorrects !" };
-                }
-                return { success: true, data: users[username].state };
-            },
-            saveState(username, state) {
-                if (!username || username === 'Invité') {
-                    localStorage.setItem('cyber_casino_guest_save', JSON.stringify(state));
-                    return;
-                }
-                const users = this.getUsers();
-                if (users[username]) {
-                    users[username].state = state;
-                    this.saveUsers(users);
-                }
-            }
-        };
+    // Initialisation Socket.io
+    try {
+      socket = io(RENDER_URL);
+      socket.on('connect', () => {
+        socket.emit('user_join', { username: state.username, balance: state.balance });
+      });
 
-        function switchAuthTab(type) {
-            if (type === 'login') {
-                document.getElementById('form-login').classList.remove('hidden');
-                document.getElementById('form-register').classList.add('hidden');
-                document.getElementById('auth-tab-login').className = "flex-1 py-2 text-xs font-bold rounded-lg transition bg-casino-accent text-white shadow";
-                document.getElementById('auth-tab-register').className = "flex-1 py-2 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white";
-            } else {
-                document.getElementById('form-login').classList.add('hidden');
-                document.getElementById('form-register').classList.remove('hidden');
-                document.getElementById('auth-tab-register').className = "flex-1 py-2 text-xs font-bold rounded-lg transition bg-emerald-500 text-black shadow";
-                document.getElementById('auth-tab-login').className = "flex-1 py-2 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white";
-            }
+      socket.on('chat_message', (data) => {
+        const chatBox = document.getElementById('chatBox');
+        const msgDiv = document.createElement('div');
+        if (data.system) {
+          msgDiv.className = "text-amber-400 italic text-[11px]";
+          msgDiv.innerText = `[Système] ${data.text}`;
+        } else {
+          msgDiv.innerHTML = `<b class="text-indigo-400">${data.username}:</b> ${data.text}`;
         }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const u = document.getElementById('login-username').value.trim();
-            const p = document.getElementById('login-password').value;
-
-            const res = Auth.login(u, p);
-            if (res.success) {
-                currentUsername = u;
-                gameState = { ...DEFAULT_STATE, ...res.data };
-                localStorage.setItem('cyber_casino_active_user', u);
-                closeAuthModal();
-                initAfterAuth();
-                showToast(`Ravi de vous revoir, ${u} !`, "success");
-            } else {
-                showToast(res.msg, "error");
-            }
-        }
-
-        function handleRegister(e) {
-            e.preventDefault();
-            const u = document.getElementById('reg-username').value.trim();
-            const p = document.getElementById('reg-password').value;
-
-            const res = Auth.register(u, p);
-            if (res.success) {
-                currentUsername = u;
-                gameState = { ...DEFAULT_STATE };
-                localStorage.setItem('cyber_casino_active_user', u);
-                closeAuthModal();
-                initAfterAuth();
-                showToast("Compte créé avec succès !", "success");
-            } else {
-                showToast(res.msg, "error");
-            }
-        }
-
-        function playAsGuest() {
-            currentUsername = "Invité";
-            const guestSaved = localStorage.getItem('cyber_casino_guest_save');
-            if (guestSaved) {
-                try { gameState = { ...DEFAULT_STATE, ...JSON.parse(guestSaved) }; } catch(e){}
-            } else {
-                gameState = { ...DEFAULT_STATE };
-            }
-            localStorage.setItem('cyber_casino_active_user', "Invité");
-            closeAuthModal();
-            initAfterAuth();
-            showToast("Mode Invité activé", "info");
-        }
-
-        function logout() {
-            saveGame();
-            currentUsername = null;
-            localStorage.removeItem('cyber_casino_active_user');
-            document.getElementById('auth-modal').classList.remove('hidden');
-            showToast("Déconnecté avec succès", "info");
-        }
-
-        function closeAuthModal() {
-            document.getElementById('auth-modal').classList.add('hidden');
-        }
-
-        function saveGame() {
-            if (currentUsername) {
-                Auth.saveState(currentUsername, gameState);
-            }
-        }
-
-        function checkAutoLogin() {
-            const active = localStorage.getItem('cyber_casino_active_user');
-            if (active) {
-                if (active === 'Invité') {
-                    playAsGuest();
-                } else {
-                    const users = Auth.getUsers();
-                    if (users[active]) {
-                        currentUsername = active;
-                        gameState = { ...DEFAULT_STATE, ...users[active].state };
-                        closeAuthModal();
-                        initAfterAuth();
-                    }
-                }
-            }
-        }
-
-        /* ==========================================================================
-           2. UPGRADES & CLICKER CONFIGURATION
-           ========================================================================== */
-        const UPGRADES_DEF = [
-            { id: 'c1', name: 'Gants de travail', desc: '+0,05 $ / clic', baseCost: 3.00, clickAdd: 0.05, autoAdd: 0, icon: 'hand' },
-            { id: 'c2', name: 'Outils améliorés', desc: '+0.25 $ / clic', baseCost: 20.00, clickAdd: 0.25, autoAdd: 0, icon: 'wrench' },
-            { id: 'c3', name: 'Formation Pro', desc: '+1.20 $ / clic', baseCost: 120.00, clickAdd: 1.20, autoAdd: 0, icon: 'award' },
-            { id: 'a1', name: 'Petit Stagiaire', desc: '+0.10 $ / sec', baseCost: 10.00, clickAdd: 0, autoAdd: 0.10, icon: 'user' },
-            { id: 'a2', name: 'Script Automatisé', desc: '+0.80 $ / sec', baseCost: 85.00, clickAdd: 0, autoAdd: 0.80, icon: 'code' },
-            { id: 'a3', name: 'Ferme de Minage', desc: '+4.50 $ / sec', baseCost: 500.00, clickAdd: 0, autoAdd: 4.50, icon: 'cpu' }
-        ];
-
-        const ACHIEVEMENTS_DEF = [
-            { id: 'clicks_10', title: 'Débutant', desc: 'Cliquer 10 fois', check: () => gameState.totalClicks >= 10 },
-            { id: 'clicks_100', title: 'Acharne', desc: 'Cliquer 100 fois', check: () => gameState.totalClicks >= 100 },
-            { id: 'win_100', title: 'Riche Virtuel', desc: 'Gagner au moins 100 $ au total', check: () => gameState.totalWon >= 100 },
-            { id: 'mult_5', title: 'Envolée', desc: 'Obtenir un multiplicateur >= 5.0x', check: () => gameState.biggestMult >= 5.0 }
-        ];
-
-        /* ==========================================================================
-           3. INITIALIZATION & UI
-           ========================================================================== */
-        window.onload = function() {
-            initMinesGrid();
-            initCrashCanvas();
-            checkAutoLogin();
-            lucide.createIcons();
-
-            // Passive Loop
-            setInterval(() => {
-                if (gameState.autoIncome > 0 && currentUsername) {
-                    addBalance(gameState.autoIncome / 10);
-                }
-            }, 100);
-
-            // Auto Save
-            setInterval(saveGame, 5000);
-
-            // Fake Players updater
-            setInterval(updateFakeRoomPlayers, 3000);
-        };
-
-        function initAfterAuth() {
-            recalculateRates();
-            updateUI();
-            initUpgradesUI();
-            checkAchievements();
-            document.getElementById('user-display-name').innerText = currentUsername;
-            document.getElementById('user-display-status').innerText = currentUsername === 'Invité' ? 'Mode Invité' : 'Sauvegardé';
-        }
-
-        document.getElementById('main-click-btn').addEventListener('click', (e) => {
-            if (!currentUsername) return;
-            addBalance(gameState.clickValue);
-            gameState.totalClicks++;
-
-            const area = document.getElementById('clicker-area');
-            const rect = area.getBoundingClientRect();
-            const el = document.createElement('div');
-            el.className = 'floating-text';
-            el.innerText = `+${formatMoney(gameState.clickValue)}`;
-            el.style.left = `${e.clientX - rect.left - 15}px`;
-            el.style.top = `${e.clientY - rect.top - 20}px`;
-            area.appendChild(el);
-            setTimeout(() => el.remove(), 750);
-
-            checkAchievements();
-            updateUI();
-        });
-
-        function recalculateRates() {
-            let c = 0.10;
-            let a = 0.00;
-            UPGRADES_DEF.forEach(u => {
-                const count = gameState.upgrades[u.id] || 0;
-                c += u.clickAdd * count;
-                a += u.autoAdd * count;
-            });
-            gameState.clickValue = c;
-            gameState.autoIncome = a;
-        }
-
-        function getUpgradeCost(upg) {
-            const count = gameState.upgrades[upg.id] || 0;
-            return upg.baseCost * Math.pow(1.22, count);
-        }
-
-        function buyUpgrade(id) {
-            const upg = UPGRADES_DEF.find(u => u.id === id);
-            if (!upg) return;
-            const cost = getUpgradeCost(upg);
-            if (gameState.balance >= cost) {
-                gameState.balance -= cost;
-                gameState.upgrades[id] = (gameState.upgrades[id] || 0) + 1;
-                recalculateRates();
-                updateUI();
-                initUpgradesUI();
-                saveGame();
-                showToast(`Acheté: ${upg.name}`, "success");
-            } else {
-                showToast("Solde insuffisant !", "error");
-            }
-        }
-
-        function initUpgradesUI() {
-            const list = document.getElementById('upgrades-list');
-            if (!list) return;
-            list.innerHTML = '';
-            UPGRADES_DEF.forEach(upg => {
-                const count = gameState.upgrades[upg.id] || 0;
-                const cost = getUpgradeCost(upg);
-                const canAfford = gameState.balance >= cost;
-
-                const item = document.createElement('div');
-                item.className = `p-3.5 rounded-xl border flex items-center justify-between gap-3 transition ${
-                    canAfford ? 'bg-casino-dark/80 border-casino-border hover:border-casino-accent' : 'bg-casino-dark/30 border-casino-border/40 opacity-50'
-                }`;
-
-                item.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-casino-accent/10 text-casino-accent flex items-center justify-center">
-                            <i data-lucide="${upg.icon}" class="w-4 h-4"></i>
-                        </div>
-                        <div>
-                            <div class="font-bold text-xs text-white">${upg.name} <span class="text-casino-accent font-normal">x${count}</span></div>
-                            <div class="text-[11px] text-slate-400">${upg.desc}</div>
-                        </div>
-                    </div>
-                    <button onclick="buyUpgrade('${upg.id}')" ${!canAfford ? 'disabled' : ''} class="px-3 py-1.5 rounded-lg font-bold text-xs transition ${
-                        canAfford ? 'bg-casino-accent hover:bg-blue-400 text-white shadow-md' : 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                    }">
-                        ${formatMoney(cost)}
-                    </button>
-                `;
-                list.appendChild(item);
-            });
-            lucide.createIcons();
-        }
-
-        function checkAchievements() {
-            ACHIEVEMENTS_DEF.forEach(ach => {
-                if (!gameState.achievements[ach.id] && ach.check()) {
-                    gameState.achievements[ach.id] = true;
-                    showToast(`🏆 Succès Débloqué: ${ach.title}`, "success");
-                    triggerConfetti();
-                }
-            });
-            renderAchievements();
-        }
-
-        function renderAchievements() {
-            const list = document.getElementById('achievements-list');
-            if (!list) return;
-            list.innerHTML = '';
-            ACHIEVEMENTS_DEF.forEach(ach => {
-                const unlocked = gameState.achievements[ach.id];
-                const item = document.createElement('div');
-                item.className = `p-3 rounded-xl border flex items-center gap-3 ${unlocked ? 'bg-emerald-950/30 border-emerald-800/40 text-emerald-300' : 'bg-casino-dark/40 border-casino-border text-slate-500 opacity-60'}`;
-                item.innerHTML = `
-                    <div class="text-xl">${unlocked ? '🏆' : '🔒'}</div>
-                    <div>
-                        <div class="font-bold text-xs">${ach.title}</div>
-                        <div class="text-[10px] opacity-80">${ach.desc}</div>
-                    </div>
-                `;
-                list.appendChild(item);
-            });
-        }
-
-        /* ==========================================================================
-           4. GAME 1: CRASH (AVIATEUR)
-           ========================================================================== */
-        let crashState = 'idle';
-        let crashMultiplier = 1.00;
-        let crashPoint = 1.00;
-        let crashBet = 0;
-        let crashHasBetted = false;
-        let crashAnimFrame = null;
-        let crashStartTime = 0;
-
-        function handleCrashAction() {
-            if (crashState === 'idle') {
-                const betInput = parseFloat(document.getElementById('crash-bet-input').value);
-                if (isNaN(betInput) || betInput <= 0 || betInput > gameState.balance) {
-                    showToast("Mise invalide ou solde insuffisant !", "error");
-                    return;
-                }
-                gameState.balance -= betInput;
-                crashBet = betInput;
-                crashHasBetted = true;
-                updateUI();
-                startCrashGame();
-            } else if (crashState === 'running' && crashHasBetted) {
-                cashoutCrash();
-            }
-        }
-
-        function startCrashGame() {
-            crashState = 'running';
-            crashMultiplier = 1.00;
-            const rand = Math.random();
-            if (rand < 0.05) crashPoint = 1.00;
-            else crashPoint = parseFloat((1.01 + Math.pow(Math.random(), 3) * 15 + (Math.random() < 0.1 ? 20 : 0)).toFixed(2));
-
-            crashStartTime = Date.now();
-            const btn = document.getElementById('btn-crash-action');
-            btn.innerText = `ENCAISSER (${formatMoney(crashBet * crashMultiplier)}) 💰`;
-            btn.className = "w-full py-4 rounded-xl font-black text-base transition duration-150 bg-gold-500 hover:bg-gold-400 text-black shadow-lg shadow-gold-500/20";
-
-            document.getElementById('crash-status-badge').innerText = "EN VOL...";
-            document.getElementById('crash-status-badge').className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-950 text-emerald-400 border border-emerald-800 animate-pulse";
-
-            animateCrash();
-        }
-
-        function animateCrash() {
-            const elapsed = (Date.now() - crashStartTime) / 1000;
-            crashMultiplier = parseFloat((Math.pow(1.06, elapsed * 3)).toFixed(2));
-
-            const autocash = parseFloat(document.getElementById('crash-autocash-input').value) || 0;
-            if (crashHasBetted && autocash > 1.0 && crashMultiplier >= autocash) {
-                cashoutCrash();
-            }
-
-            if (crashMultiplier >= crashPoint) {
-                triggerCrashEnd();
-                return;
-            }
-
-            document.getElementById('crash-multiplier-text').innerText = `${crashMultiplier.toFixed(2)}x`;
-            document.getElementById('crash-multiplier-text').className = "text-6xl md:text-7xl font-black text-emerald-400 tracking-tight glow-text-blue";
-            if (crashHasBetted) {
-                document.getElementById('btn-crash-action').innerText = `ENCAISSER (${formatMoney(crashBet * crashMultiplier)}) 💰`;
-            }
-
-            renderCrashCanvas(elapsed, false);
-            crashAnimFrame = requestAnimationFrame(animateCrash);
-        }
-
-        function cashoutCrash() {
-            if (!crashHasBetted || crashState !== 'running') return;
-
-            const winAmount = crashBet * crashMultiplier;
-            addBalance(winAmount);
-            gameState.totalWon += winAmount - crashBet;
-            if (crashMultiplier > gameState.biggestMult) gameState.biggestMult = crashMultiplier;
-
-            showToast(`Gagné ${formatMoney(winAmount)} (${crashMultiplier.toFixed(2)}x) !`, "success");
-            recordHistory("Aviateur", crashBet, winAmount, crashMultiplier);
-            checkAchievements();
-            triggerConfetti();
-
-            crashHasBetted = false;
-            const btn = document.getElementById('btn-crash-action');
-            btn.disabled = true;
-            btn.innerText = "ENCAISSÉ ! EN ATTENTE...";
-            btn.className = "w-full py-4 rounded-xl font-bold text-sm bg-slate-800 text-slate-400 cursor-not-allowed";
-        }
-
-        function triggerCrashEnd() {
-            cancelAnimationFrame(crashAnimFrame);
-            crashState = 'crashed';
-
-            document.getElementById('crash-multiplier-text').innerText = `${crashPoint.toFixed(2)}x`;
-            document.getElementById('crash-multiplier-text').className = "text-6xl md:text-7xl font-black text-rose-500 tracking-tight glow-text-rose";
-            document.getElementById('crash-subtext').innerText = "L'AVION S'EST CRASHÉ !";
-
-            document.getElementById('crash-status-badge').innerText = "CRASHED";
-            document.getElementById('crash-status-badge').className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-950 text-rose-400 border border-rose-800";
-
-            if (crashHasBetted) {
-                gameState.totalLost += crashBet;
-                recordHistory("Aviateur", crashBet, 0, crashPoint);
-                showToast(`Crash à ${crashPoint.toFixed(2)}x - Perdu.`, "error");
-            }
-
-            pushCrashHistoryStrip(crashPoint);
-            renderCrashCanvas(0, true);
-
-            setTimeout(() => {
-                crashState = 'idle';
-                crashHasBetted = false;
-                document.getElementById('crash-subtext').innerText = "Préparez vos paris";
-                document.getElementById('crash-multiplier-text').innerText = "1.00x";
-                document.getElementById('crash-multiplier-text').className = "text-6xl md:text-7xl font-black text-white tracking-tight";
-                
-                const btn = document.getElementById('btn-crash-action');
-                btn.disabled = false;
-                btn.innerText = "PLACER LE PARI 🚀";
-                btn.className = "w-full py-4 rounded-xl font-black text-base transition duration-150 bg-emerald-500 hover:bg-emerald-400 text-black shadow-lg shadow-emerald-500/20";
-
-                document.getElementById('crash-status-badge').innerText = "En attente";
-                document.getElementById('crash-status-badge').className = "px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700";
-            }, 3000);
-        }
-
-        function pushCrashHistoryStrip(val) {
-            const strip = document.getElementById('crash-history-strip');
-            const el = document.createElement('span');
-            const isHigh = val >= 2.0;
-            el.className = `px-2 py-0.5 rounded text-[11px] font-bold ${isHigh ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-slate-800 text-slate-300'}`;
-            el.innerText = `${val.toFixed(2)}x`;
-            strip.prepend(el);
-            if (strip.children.length > 8) strip.lastChild.remove();
-        }
-
-        let canvas, ctx;
-        function initCrashCanvas() {
-            canvas = document.getElementById('crash-canvas');
-            if (!canvas) return;
-            ctx = canvas.getContext('2d');
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
-        }
-
-        function resizeCanvas() {
-            if (!canvas) return;
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-        }
-
-        function renderCrashCanvas(time, isCrashed) {
-            if (!ctx) return;
-            const w = canvas.width;
-            const h = canvas.height;
-            ctx.clearRect(0, 0, w, h);
-
-            ctx.strokeStyle = "rgba(31, 36, 56, 0.4)";
-            ctx.lineWidth = 1;
-            for(let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
-            for(let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
-
-            if (crashState === 'idle') return;
-
-            const startX = 40;
-            const startY = h - 40;
-            const progress = Math.min(1, time / 8);
-            const currentX = startX + (w - 100) * progress;
-            const currentY = startY - (h - 100) * Math.pow(progress, 2);
-
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.quadraticCurveTo((startX + currentX)/2, startY, currentX, currentY);
-            ctx.lineTo(currentX, startY);
-            ctx.closePath();
-            
-            const grad = ctx.createLinearGradient(0, 0, 0, h);
-            if (isCrashed) {
-                grad.addColorStop(0, "rgba(244, 63, 94, 0.3)");
-                grad.addColorStop(1, "rgba(244, 63, 94, 0)");
-            } else {
-                grad.addColorStop(0, "rgba(59, 130, 246, 0.3)");
-                grad.addColorStop(1, "rgba(59, 130, 246, 0)");
-            }
-            ctx.fillStyle = grad;
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.quadraticCurveTo((startX + currentX)/2, startY, currentX, currentY);
-            ctx.strokeStyle = isCrashed ? '#f43f5e' : '#3b82f6';
-            ctx.lineWidth = 4;
-            ctx.stroke();
-
-            ctx.fillStyle = isCrashed ? '#f43f5e' : '#fbbf24';
-            ctx.beginPath();
-            ctx.arc(currentX, currentY, 8, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        /* ==========================================================================
-           5. GAME 2: MINES (DÉMINEUR)
-           ========================================================================== */
-        let minesGrid = [];
-        let minesActive = false;
-        let minesBet = 0;
-        let minesCount = 3;
-        let minesDiamondsFound = 0;
-
-        function initMinesGrid() {
-            const container = document.getElementById('mines-grid');
-            if (!container) return;
-            container.innerHTML = '';
-            for (let i = 0; i < 25; i++) {
-                const tile = document.createElement('button');
-                tile.className = "w-full h-full aspect-square bg-casino-dark border border-casino-border rounded-xl flex items-center justify-center text-xl font-black tile-flip hover:border-rose-500/50";
-                tile.innerText = '❓';
-                tile.onclick = () => clickMinesTile(i);
-                container.appendChild(tile);
-            }
-            updateMinesMultiplierPreview();
-        }
-
-        function updateMinesMultiplierPreview() {
-            minesCount = parseInt(document.getElementById('mines-count-select').value);
-            const bet = parseFloat(document.getElementById('mines-bet-input').value) || 0;
-            const nextMult = calculateMinesMult(minesCount, minesDiamondsFound + 1);
-            const currMult = calculateMinesMult(minesCount, minesDiamondsFound);
-
-            document.getElementById('mines-curr-mult').innerText = `${currMult.toFixed(2)}x`;
-            document.getElementById('mines-next-mult').innerText = `${nextMult.toFixed(2)}x`;
-            document.getElementById('mines-potential-win').innerText = formatMoney(bet * currMult);
-        }
-
-        function calculateMinesMult(bombs, diamonds) {
-            if (diamonds === 0) return 1.00;
-            let mult = 0.97;
-            for (let i = 0; i < diamonds; i++) {
-                mult *= (25 - i) / (25 - bombs - i);
-            }
-            return parseFloat(mult.toFixed(2));
-        }
-
-        function startMinesGame() {
-            const betInput = parseFloat(document.getElementById('mines-bet-input').value);
-            if (isNaN(betInput) || betInput <= 0 || betInput > gameState.balance) {
-                showToast("Mise invalide ou solde insuffisant !", "error");
-                return;
-            }
-
-            gameState.balance -= betInput;
-            minesBet = betInput;
-            minesCount = parseInt(document.getElementById('mines-count-select').value);
-            minesDiamondsFound = 0;
-            minesActive = true;
-            updateUI();
-
-            minesGrid = Array(25).fill(null).map(() => ({ isBomb: false, revealed: false }));
-            let planted = 0;
-            while (planted < minesCount) {
-                const idx = Math.floor(Math.random() * 25);
-                if (!minesGrid[idx].isBomb) {
-                    minesGrid[idx].isBomb = true;
-                    planted++;
-                }
-            }
-
-            const container = document.getElementById('mines-grid');
-            const tiles = container.children;
-            for (let i = 0; i < 25; i++) {
-                tiles[i].className = "w-full h-full aspect-square bg-casino-dark border border-casino-border rounded-xl flex items-center justify-center text-xl font-black tile-flip hover:border-rose-500/50 cursor-pointer";
-                tiles[i].innerText = '';
-                tiles[i].disabled = false;
-            }
-
-            document.getElementById('btn-mines-start').disabled = true;
-            document.getElementById('btn-mines-cashout').disabled = false;
-            updateMinesMultiplierPreview();
-        }
-
-        function clickMinesTile(idx) {
-            if (!minesActive || minesGrid[idx].revealed) return;
-
-            minesGrid[idx].revealed = true;
-            const container = document.getElementById('mines-grid');
-            const tile = container.children[idx];
-
-            if (minesGrid[idx].isBomb) {
-                tile.className = "w-full h-full aspect-square bg-rose-600 text-white rounded-xl flex items-center justify-center text-2xl animate-bounce";
-                tile.innerText = '💣';
-                gameState.totalLost += minesBet;
-                recordHistory("Mines", minesBet, 0, 0);
-                showToast("BOOM ! Explosion !", "error");
-                revealAllMines();
-                endMinesGame();
-            } else {
-                tile.className = "w-full h-full aspect-square bg-emerald-950/80 border border-emerald-500/50 text-emerald-400 rounded-xl flex items-center justify-center text-2xl";
-                tile.innerText = '💎';
-                minesDiamondsFound++;
-                updateMinesMultiplierPreview();
-
-                if (minesDiamondsFound === 25 - minesCount) cashoutMines();
-            }
-        }
-
-        function cashoutMines() {
-            if (!minesActive || minesDiamondsFound === 0) return;
-            const mult = calculateMinesMult(minesCount, minesDiamondsFound);
-            const winAmount = minesBet * mult;
-
-            addBalance(winAmount);
-            gameState.totalWon += winAmount - minesBet;
-            if (mult > gameState.biggestMult) gameState.biggestMult = mult;
-
-            showToast(`Gagné ${formatMoney(winAmount)} (${mult.toFixed(2)}x) !`, "success");
-            recordHistory("Mines", minesBet, winAmount, mult);
-            checkAchievements();
-            triggerConfetti();
-
-            revealAllMines();
-            endMinesGame();
-        }
-
-        function revealAllMines() {
-            const container = document.getElementById('mines-grid');
-            const tiles = container.children;
-            for (let i = 0; i < 25; i++) {
-                tiles[i].disabled = true;
-                if (!minesGrid[i].revealed) {
-                    if (minesGrid[i].isBomb) {
-                        tiles[i].innerText = '💣';
-                        tiles[i].className = "w-full h-full aspect-square bg-rose-950/40 border border-rose-900/30 text-rose-400 rounded-xl flex items-center justify-center text-xl opacity-60";
-                    } else {
-                        tiles[i].innerText = '💎';
-                        tiles[i].className = "w-full h-full aspect-square bg-casino-dark/50 border border-casino-border rounded-xl flex items-center justify-center text-xl opacity-40";
-                    }
-                }
-            }
-        }
-
-        function endMinesGame() {
-            minesActive = false;
-            document.getElementById('btn-mines-start').disabled = false;
-            document.getElementById('btn-mines-cashout').disabled = true;
-        }
-
-        /* ==========================================================================
-           6. GAME 3: ROULETTE
-           ========================================================================== */
-        const ROULETTE_RED = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
-        function playRoulette(type) {
-            const bet = parseFloat(document.getElementById('roulette-bet-input').value);
-            if (isNaN(bet) || bet <= 0 || bet > gameState.balance) {
-                showToast("Mise invalide !", "error");
-                return;
-            }
-
-            gameState.balance -= bet;
-            updateUI();
-
-            const num = Math.floor(Math.random() * 37);
-            const display = document.getElementById('roulette-wheel-display');
-            display.innerText = "...";
-
-            setTimeout(() => {
-                display.innerText = num;
-                const isRed = ROULETTE_RED.includes(num);
-                const isBlack = num !== 0 && !isRed;
-                const isEven = num !== 0 && num % 2 === 0;
-                const isOdd = num !== 0 && num % 2 !== 0;
-
-                let win = false;
-                if (type === 'red' && isRed) win = true;
-                if (type === 'black' && isBlack) win = true;
-                if (type === 'even' && isEven) win = true;
-                if (type === 'odd' && isOdd) win = true;
-
-                if (win) {
-                    const winAmt = bet * 2;
-                    addBalance(winAmt);
-                    gameState.totalWon += bet;
-                    recordHistory("Roulette", bet, winAmt, 2.0);
-                    showToast(`Gagné ${formatMoney(winAmt)} !`, "success");
-                    triggerConfetti();
-                } else {
-                    gameState.totalLost += bet;
-                    recordHistory("Roulette", bet, 0, 0);
-                    showToast(`Perdu. Le numéro était ${num}`, "error");
-                }
-                checkAchievements();
-            }, 800);
-        }
-
-        /* ==========================================================================
-           7. GAME 4: SLOTS
-           ========================================================================== */
-        const SLOT_SYMBOLS = ['🍒', '🍋', '🔔', '💎', '7️⃣'];
-        function spinSlots() {
-            const bet = parseFloat(document.getElementById('slots-bet-input').value);
-            if (isNaN(bet) || bet <= 0 || bet > gameState.balance) {
-                showToast("Mise invalide !", "error");
-                return;
-            }
-
-            gameState.balance -= bet;
-            updateUI();
-
-            const s1 = SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)];
-            const s2 = SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)];
-            const s3 = SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)];
-
-            document.getElementById('slot-1').innerText = s1;
-            document.getElementById('slot-2').innerText = s2;
-            document.getElementById('slot-3').innerText = s3;
-
-            let mult = 0;
-            if (s1 === s2 && s2 === s3) mult = s1 === '7️⃣' ? 10 : 5;
-            else if (s1 === s2 || s2 === s3 || s1 === s3) mult = 2;
-
-            if (mult > 0) {
-                const winAmt = bet * mult;
-                addBalance(winAmt);
-                gameState.totalWon += winAmt - bet;
-                recordHistory("Slots", bet, winAmt, mult);
-                showToast(`JACKPOT ! Gagné ${formatMoney(winAmt)} (${mult}x)`, "success");
-                triggerConfetti();
-            } else {
-                gameState.totalLost += bet;
-                recordHistory("Slots", bet, 0, 0);
-                showToast("Pas de chance cette fois.", "error");
-            }
-            checkAchievements();
-        }
-
-        /* ==========================================================================
-           8. GAME 5: BLACKJACK
-           ========================================================================== */
-        let bjDeck = [], bjPlayer = [], bjDealer = [], bjBet = 0, bjActive = false;
-        function startBlackjack() {
-            const bet = parseFloat(document.getElementById('bj-bet-input').value);
-            if (isNaN(bet) || bet <= 0 || bet > gameState.balance) {
-                showToast("Mise invalide !", "error");
-                return;
-            }
-
-            gameState.balance -= bet;
-            bjBet = bet;
-            bjActive = true;
-            updateUI();
-
-            bjDeck = [2,3,4,5,6,7,8,9,10,10,10,10,11];
-            bjPlayer = [drawCard(), drawCard()];
-            bjDealer = [drawCard()];
-
-            renderBlackjack();
-            document.getElementById('btn-bj-start').disabled = true;
-            document.getElementById('btn-bj-hit').disabled = false;
-            document.getElementById('btn-bj-stand').disabled = false;
-        }
-
-        function drawCard() {
-            return bjDeck[Math.floor(Math.random() * bjDeck.length)];
-        }
-
-        function getHandScore(hand) {
-            let score = hand.reduce((a,b) => a+b, 0);
-            if (score > 21 && hand.includes(11)) score -= 10;
-            return score;
-        }
-
-        function hitBlackjack() {
-            if (!bjActive) return;
-            bjPlayer.push(drawCard());
-            renderBlackjack();
-
-            if (getHandScore(bjPlayer) > 21) {
-                showToast("Bust ! Vous avez dépassé 21.", "error");
-                gameState.totalLost += bjBet;
-                recordHistory("Blackjack", bjBet, 0, 0);
-                endBlackjack();
-            }
-        }
-
-        function standBlackjack() {
-            if (!bjActive) return;
-            while (getHandScore(bjDealer) < 17) {
-                bjDealer.push(drawCard());
-            }
-            renderBlackjack();
-
-            const pScore = getHandScore(bjPlayer);
-            const dScore = getHandScore(bjDealer);
-
-            if (dScore > 21 || pScore > dScore) {
-                const winAmt = bjBet * 2;
-                addBalance(winAmt);
-                gameState.totalWon += bjBet;
-                recordHistory("Blackjack", bjBet, winAmt, 2.0);
-                showToast(`Victoire ! Gagné ${formatMoney(winAmt)}`, "success");
-                triggerConfetti();
-            } else if (pScore === dScore) {
-                addBalance(bjBet);
-                showToast("Égalité !", "info");
-            } else {
-                gameState.totalLost += bjBet;
-                recordHistory("Blackjack", bjBet, 0, 0);
-                showToast("Le croupier gagne.", "error");
-            }
-            endBlackjack();
-        }
-
-        function renderBlackjack() {
-            document.getElementById('bj-player-cards').innerHTML = bjPlayer.map(c => `<span class="px-3 py-2 bg-casino-card border border-casino-border rounded-lg font-bold text-white">${c}</span>`).join('');
-            document.getElementById('bj-dealer-cards').innerHTML = bjDealer.map(c => `<span class="px-3 py-2 bg-casino-card border border-casino-border rounded-lg font-bold text-white">${c}</span>`).join('');
-
-            document.getElementById('bj-player-score').innerText = `Score: ${getHandScore(bjPlayer)}`;
-            document.getElementById('bj-dealer-score').innerText = `Score: ${getHandScore(bjDealer)}`;
-        }
-
-        function endBlackjack() {
-            bjActive = false;
-            document.getElementById('btn-bj-start').disabled = false;
-            document.getElementById('btn-bj-hit').disabled = true;
-            document.getElementById('btn-bj-stand').disabled = true;
-            checkAchievements();
-        }
-
-        /* ==========================================================================
-           9. GAME 6: COIN FLIP
-           ========================================================================== */
-        function playCoinFlip(choice) {
-            const bet = parseFloat(document.getElementById('coin-bet-input').value);
-            if (isNaN(bet) || bet <= 0 || bet > gameState.balance) {
-                showToast("Mise invalide !", "error");
-                return;
-            }
-
-            gameState.balance -= bet;
-            updateUI();
-
-            const el = document.getElementById('coin-element');
-            el.style.transform = 'rotateY(720deg) scale(1.1)';
-
-            setTimeout(() => {
-                const result = Math.random() < 0.5 ? 'heads' : 'tails';
-                el.innerText = result === 'heads' ? '🪙 PILE' : '🪙 FACE';
-                el.style.transform = 'rotateY(0deg) scale(1)';
-
-                if (choice === result) {
-                    const winAmt = bet * 2;
-                    addBalance(winAmt);
-                    gameState.totalWon += bet;
-                    recordHistory("Coin Flip", bet, winAmt, 2.0);
-                    showToast(`Bien joué ! Gagné ${formatMoney(winAmt)}`, "success");
-                    triggerConfetti();
-                } else {
-                    gameState.totalLost += bet;
-                    recordHistory("Coin Flip", bet, 0, 0);
-                    showToast("Raté !", "error");
-                }
-                checkAchievements();
-            }, 500);
-        }
-
-        /* ==========================================================================
-           10. GENERAL UTILITIES
-           ========================================================================== */
-        function adjustBet(inputId, mult) {
-            const input = document.getElementById(inputId);
-            if (input) input.value = Math.max(0.1, (parseFloat(input.value) || 1) * mult).toFixed(2);
-        }
-
-        function setBetMax(inputId) {
-            const input = document.getElementById(inputId);
-            if (input) input.value = Math.max(0.1, gameState.balance).toFixed(2);
-        }
-
-        function addBalance(amt) {
-            gameState.balance += amt;
-            updateUI();
-        }
-
-        function formatMoney(num) {
-            return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'USD' }).format(num || 0);
-        }
-
-        function updateUI() {
-            document.getElementById('balance').innerText = formatMoney(gameState.balance);
-            document.getElementById('stat-per-click').innerText = `+${formatMoney(gameState.clickValue)}`;
-            document.getElementById('stat-per-sec').innerText = `${formatMoney(gameState.autoIncome)}/s`;
-
-            document.getElementById('stat-total-won').innerText = formatMoney(gameState.totalWon);
-            document.getElementById('stat-total-lost').innerText = formatMoney(gameState.totalLost);
-            document.getElementById('stat-biggest-mult').innerText = `${gameState.biggestMult.toFixed(2)}x`;
-
-            initUpgradesUI();
-        }
-
-        function recordHistory(game, bet, win, mult) {
-            const feed = document.getElementById('history-feed');
-            if (feed.children[0] && feed.children[0].tagName === 'P') feed.innerHTML = '';
-
-            const net = win - bet;
-            const entry = document.createElement('div');
-            entry.className = `p-2.5 rounded-xl border flex justify-between items-center ${net >= 0 ? 'bg-emerald-950/30 border-emerald-800/30 text-emerald-300' : 'bg-rose-950/30 border-rose-800/30 text-rose-300'}`;
-            entry.innerHTML = `
-                <span><strong>${game}</strong> ${mult > 0 ? `(${mult.toFixed(2)}x)` : ''}</span>
-                <span>${net >= 0 ? '+' : ''}${formatMoney(net)}</span>
-            `;
-            feed.prepend(entry);
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(b => {
-                b.className = "tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card";
-            });
-
-            document.getElementById(tabId).classList.remove('hidden');
-            const activeBtn = document.getElementById(`btn-${tabId}`);
-            if (activeBtn) {
-                activeBtn.className = "tab-btn active px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap bg-casino-accent text-white shadow-lg shadow-blue-500/20";
-            }
-        }
-
-        function updateFakeRoomPlayers() {
-            const list = document.getElementById('crash-players-list');
-            if (!list) return;
-            list.innerHTML = '';
-            const names = ['AstroX', 'CryptoKing', 'LuckyNico', 'Satoshi99', 'Elena_Win'];
-            for (let i = 0; i < 5; i++) {
-                const name = names[i];
-                const bet = (Math.random() * 50 + 5).toFixed(2);
-                const cashed = Math.random() < 0.6;
-                const mult = (1.2 + Math.random() * 3).toFixed(2);
-                const el = document.createElement('div');
-                el.className = "flex justify-between items-center text-slate-400";
-                el.innerHTML = `<span>${name}</span><span class="${cashed ? 'text-emerald-400 font-bold' : 'text-slate-500'}">${cashed ? `@${mult}x (+${formatMoney(bet * mult)})` : 'En jeu...'}</span>`;
-                list.appendChild(el);
-            }
-        }
-
-        function showToast(msg, type = "info") {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            let bg = "bg-casino-card border-casino-border text-white";
-            if (type === "success") bg = "bg-emerald-950 border-emerald-600 text-emerald-200";
-            if (type === "error") bg = "bg-rose-950 border-rose-600 text-rose-200";
-
-            toast.className = `px-4 py-3 rounded-xl border text-xs font-bold shadow-2xl transition-all duration-300 transform translate-y-2 opacity-0 ${bg}`;
-            toast.innerText = msg;
-            container.appendChild(toast);
-
-            requestAnimationFrame(() => toast.classList.remove('translate-y-2', 'opacity-0'));
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        function triggerConfetti() {
-            if (typeof confetti === 'function') confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
-        }
-    </script>
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      });
+
+      socket.on('receive_money', (data) => {
+        state.balance += parseFloat(data.amount);
+        updateUI();
+        alert(`🎁 Vous avez reçu $${data.amount} de ${data.from} !`);
+      });
+    } catch(e) {
+      console.log("Erreur connexion serveur:", e);
+    }
+
+    function updateUI() {
+      document.getElementById('balanceDisplay').innerText = state.balance.toFixed(2);
+      document.getElementById('usernameDisplay').innerText = state.username;
+      document.getElementById('clickPowerDisplay').innerText = state.clickPower.toFixed(2);
+    }
+
+    function handleClick() {
+      state.balance += state.clickPower;
+      updateUI();
+    }
+
+    function sendChat() {
+      const input = document.getElementById('chatInput');
+      if (input.value.trim() !== '' && socket) {
+        socket.emit('send_message', input.value);
+        input.value = '';
+      }
+    }
+
+    function sendMoney() {
+      const target = document.getElementById('giveUser').value.trim();
+      const amount = parseFloat(document.getElementById('giveAmount').value);
+      if (!target || isNaN(amount) || amount <= 0) return alert("Saisie invalide");
+      if (amount > state.balance) return alert("Solde insuffisant");
+
+      state.balance -= amount;
+      updateUI();
+      if (socket) {
+        socket.emit('send_money', { targetUser: target, amount: amount });
+      }
+    }
+
+    function switchTab(tab) {
+      ['clicker', 'crash', 'mines'].forEach(t => {
+        document.getElementById(`sec-${t}`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).classList.remove('active');
+      });
+      document.getElementById(`sec-${tab}`).classList.remove('hidden');
+      document.getElementById(`tab-${tab}`).classList.add('active');
+    }
+
+    // Initialiser les Mines
+    function initMines() {
+      const grid = document.getElementById('minesGrid');
+      grid.innerHTML = '';
+      for (let i = 0; i < 25; i++) {
+        const btn = document.createElement('button');
+        btn.className = "bg-slate-800 hover:bg-slate-700 rounded transition font-bold text-xs";
+        btn.onclick = () => btn.innerText = Math.random() < 0.2 ? '💣' : '💎';
+        grid.appendChild(btn);
+      }
+    }
+
+    initMines();
+    updateUI();
+  </script>
 </body>
 </html>
