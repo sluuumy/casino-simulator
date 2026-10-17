@@ -147,7 +147,7 @@
                         CYBER <span class="text-casino-accent glow-text-blue">CASINO</span>
                     </h1>
                     <span class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded-full">
-                        Multijoueur en Direct • Départ 150$
+                        Multijoueur • 150$ de départ
                     </span>
                 </div>
             </div>
@@ -222,7 +222,7 @@
                     </span>
                 </div>
                 <h2 class="text-xl font-black text-white mb-1">Gagner vos premiers cents</h2>
-                <p class="text-xs text-slate-400 mb-6">Travaillez dur (Clics très lents au début)</p>
+                <p class="text-xs text-slate-400 mb-6">Travaillez dur pour accumuler du capital</p>
 
                 <div id="clicker-area" class="relative my-4 cursor-pointer select-none">
                     <button id="main-click-btn" class="w-44 h-44 rounded-full bg-gradient-to-b from-indigo-600 via-blue-600 to-slate-900 border-4 border-indigo-400 shadow-2xl shadow-blue-500/30 active:scale-95 transition-transform duration-75 flex flex-col items-center justify-center group relative overflow-hidden">
@@ -248,7 +248,7 @@
                 <div class="flex items-center justify-between mb-4 pb-3 border-b border-casino-border">
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i data-lucide="shopping-cart" class="text-casino-accent"></i> Améliorations Économiques (Coûts Exponentiels Sévères)
+                            <i data-lucide="shopping-cart" class="text-casino-accent"></i> Améliorations Économiques
                         </h2>
                         <p class="text-xs text-slate-400">Chaque achat augmente drastiquement de prix !</p>
                     </div>
@@ -272,11 +272,11 @@
                         </div>
                     </div>
 
-                    <!-- Indicateur de multiplication au centre du canvas -->
+                    <!-- Indicateur central de multiplication -->
                     <div class="relative flex-1 my-4 flex items-center justify-center">
                         <canvas id="crash-canvas" class="absolute inset-0 w-full h-full"></canvas>
                         <div class="relative z-10 text-center select-none">
-                            <div id="crash-multiplier-text" class="text-6xl md:text-7xl font-black text-white tracking-tight">5.0s</div>
+                            <div id="crash-multiplier-text" class="text-6xl md:text-7xl font-black text-white tracking-tight glow-text-gold">5.0s</div>
                             <div id="crash-subtext" class="text-xs font-bold uppercase tracking-widest text-amber-400 mt-2">Cooldown de synchronisation</div>
                         </div>
                     </div>
@@ -439,7 +439,7 @@
             </div>
         </section>
 
-        <!-- TAB 6: SHOP (BOUTIQUE LUXE - COSMÉTIQUE) -->
+        <!-- TAB 6: SHOP (BOUTIQUE LUXE ULTRA CHÈRE) -->
         <section id="tab-shop" class="tab-content hidden space-y-6">
             <div class="bg-casino-card border border-casino-border p-6 rounded-2xl space-y-4">
                 <div class="flex items-center gap-3 pb-3 border-b border-casino-border">
@@ -447,8 +447,8 @@
                         <i data-lucide="shopping-bag"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-black text-white">Boutique de Prestige (Cosmétique Pur)</h2>
-                        <p class="text-xs text-slate-400">Ces articles hors de prix ne donnent <strong class="text-rose-400">aucun avantage en jeu</strong>, mais affichent votre statut de milliardaire aux autres joueurs !</p>
+                        <h2 class="text-lg font-black text-white">Boutique de Prestige (Titres de $100k à $100 Millions)</h2>
+                        <p class="text-xs text-slate-400">Articles purement cosmétiques et extrêmement exclusifs. Ne donnent <strong class="text-rose-400">aucun avantage en jeu</strong>.</p>
                     </div>
                 </div>
 
@@ -474,7 +474,7 @@
             </div>
 
             <div class="bg-casino-card border border-casino-border p-6 rounded-2xl space-y-4">
-                <h3 class="font-bold text-white flex items-center gap-2"><i data-lucide="award" class="text-gold-400"></i> Succès & Badges (Complexes)</h3>
+                <h3 class="font-bold text-white flex items-center gap-2"><i data-lucide="award" class="text-gold-400"></i> Objectifs & Succès Avancés</h3>
                 <div id="achievements-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs"></div>
             </div>
 
@@ -567,12 +567,25 @@
                     const box = document.getElementById('chat-messages');
                     if (!box) return;
                     const msg = document.createElement('div');
+                    
                     if (data.system) {
                         msg.className = "text-amber-400 italic text-[11px] bg-amber-500/10 p-1.5 rounded-lg border border-amber-500/20";
                         msg.innerText = `[Système] ${data.text}`;
                     } else {
                         const badgeHtml = data.badge ? `<span class="px-1.5 py-0.5 bg-gold-500/20 text-gold-400 rounded text-[10px] font-bold mr-1">${data.badge}</span>` : '';
-                        msg.innerHTML = `${badgeHtml}<span class="font-bold text-purple-400">${data.username}:</span> <span class="text-slate-200">${data.text}</span>`;
+                        
+                        // Extraction sécurisée du texte pour éviter l'affichage de [object Object]
+                        let messageContent = "";
+                        if (typeof data.text === 'string') {
+                            messageContent = data.text;
+                        } else if (data.text && typeof data.text === 'object') {
+                            messageContent = data.text.text || JSON.stringify(data.text);
+                        } else if (typeof data === 'string') {
+                            messageContent = data;
+                        }
+
+                        msg.innerHTML = `${badgeHtml}<span class="font-bold text-purple-400">${data.username || 'Joueur'}:</span> <span class="text-slate-200"></span>`;
+                        msg.querySelector('.text-slate-200').textContent = messageContent;
                     }
                     box.appendChild(msg);
                     box.scrollTop = box.scrollHeight;
@@ -620,7 +633,7 @@
             const input = document.getElementById('chat-input');
             const text = input.value.trim();
             if (text !== '' && socket) {
-                socket.emit('send_message', { text, badge: gameState.equippedBadge });
+                socket.emit('send_message', { text: text, badge: gameState.equippedBadge });
                 input.value = '';
             }
         }
@@ -650,7 +663,7 @@
            1. LOCAL ACCOUNT & STORAGE SYSTEM (DÉPART 150$)
            ========================================================================== */
         const DEFAULT_STATE = {
-            balance: 150.00, // Mis à 150$ pour les nouveaux joueurs
+            balance: 150.00,
             clickValue: 0.001,
             autoIncome: 0.00,
             totalClicks: 0,
@@ -807,7 +820,7 @@
         }
 
         /* ==========================================================================
-           2. UPGRADES, ACHIEVEMENTS & LUXURY SHOP CONFIGURATION
+           2. UPGRADES, OBJECTIFS & BOUTIQUE DE LUXE (100k À 100 MILLIONS)
            ========================================================================== */
         const UPGRADES_DEF = [
             { id: 'c1', name: 'Gants de travail', desc: '+0,005 $ / clic', baseCost: 1.00, clickAdd: 0.005, autoAdd: 0, icon: 'hand' },
@@ -818,21 +831,25 @@
             { id: 'a3', name: 'Ferme de Minage', desc: '+1,00 $ / sec', baseCost: 150.00, clickAdd: 0, autoAdd: 1.00, icon: 'cpu' }
         ];
 
-        // Succès complexes et exigeants
+        // Objectifs et Succès (Riches en défis)
         const ACHIEVEMENTS_DEF = [
             { id: 'clicks_500', title: 'Acharné du Travail', desc: 'Effectuer 500 clics manuels', check: () => gameState.totalClicks >= 500 },
+            { id: 'clicks_2000', title: 'Doigts d\'Acier', desc: 'Effectuer 2 000 clics manuels', check: () => gameState.totalClicks >= 2000 },
             { id: 'profit_1000', title: 'Parieur Averti', desc: 'Gagner plus de 1 000 $ de profits cumulés', check: () => gameState.totalWon >= 1000 },
-            { id: 'profit_10000', title: 'Légende du Casino', desc: 'Gagner plus de 10 000 $ de profits cumulés', check: () => gameState.totalWon >= 10000 },
+            { id: 'profit_50000', title: 'Gros Bonnets', desc: 'Gagner plus de 50 000 $ de profits cumulés', check: () => gameState.totalWon >= 50000 },
+            { id: 'profit_1000000', title: 'Millionnaire du Casino', desc: 'Accumuler plus de 1 000 000 $ de gains totaux !', check: () => gameState.totalWon >= 1000000 },
             { id: 'mult_15', title: 'Pilote Suprême', desc: 'Atteindre un multiplicateur >= 15.0x sur l\'Aviateur', check: () => gameState.biggestMult >= 15.0 },
-            { id: 'mult_50', title: 'Cosmique', desc: 'Atteindre un multiplicateur >= 50.0x sur l\'Aviateur', check: () => gameState.biggestMult >= 50.0 }
+            { id: 'mult_50', title: 'Cosmique', desc: 'Atteindre un multiplicateur >= 50.0x sur l\'Aviateur', check: () => gameState.biggestMult >= 50.0 },
+            { id: 'mult_200', title: 'Hors Norme', desc: 'Décrocher un multiplicateur mythique >= 200.0x', check: () => gameState.biggestMult >= 200.0 }
         ];
 
-        // Boutique de Prestige (Purement cosmétique, très cher, sans aucun avantage)
+        // Boutique de Prestige Ultra Chère (100k à 100 Millions)
         const LUXURY_SHOP_DEF = [
-            { id: 'badge_vip', name: 'Titre [VIP]', desc: 'Affiche le badge VIP à côté de votre pseudo dans le tchat.', price: 500.00, tag: 'VIP' },
-            { id: 'badge_whale', name: 'Titre [BALEINE]', desc: 'Affiche [BALEINE] pour prouver votre fortune excessive.', price: 2500.00, tag: 'BALEINE' },
-            { id: 'badge_legend', name: 'Titre [LÉGENDE]', desc: 'Le badge suprême visible par tous les joueurs.', price: 10000.00, tag: 'LÉGENDE' },
-            { id: 'crown_gold', name: 'Couronne en Or Virtuelle', desc: 'Purement décoratif dans votre inventaire et profil.', price: 25000.00, tag: '👑 ROI' }
+            { id: 'badge_vip', name: 'Titre [VIP]', desc: 'Badge VIP discret.', price: 100000.00, tag: 'VIP' }, // 100k
+            { id: 'badge_millionaire', name: 'Titre [MILLIONNAIRE]', desc: 'Affiche [MILLIONNAIRE] dans le tchat.', price: 1000000.00, tag: 'MILLIONNAIRE' }, // 1 Million
+            { id: 'badge_whale', name: 'Titre [BALEINE]', desc: 'Pour les joueurs aux poches infinies.', price: 5000000.00, tag: 'BALEINE' }, // 5 Millions
+            { id: 'badge_tycoon', name: 'Titre [TYCOON]', desc: 'Seuls les vrais maîtres du capital l\'obtiennent.', price: 25000000.00, tag: 'TYCOON' }, // 25 Millions
+            { id: 'badge_billionaire', name: 'Titre [BILLIONNAIRE]', desc: 'Le sommet absolu de la richesse virtuelle.', price: 100000000.00, tag: 'BILLIONNAIRE' } // 100 Millions
         ];
 
         /* ==========================================================================
@@ -959,7 +976,7 @@
             lucide.createIcons();
         }
 
-        // Boutique de Luxe (Cosmétique)
+        // Boutique Ultra Chère (100k à 100 Millions)
         function initShopUI() {
             const grid = document.getElementById('shop-items-grid');
             if (!grid) return;
@@ -999,7 +1016,7 @@
 
         function buyShopItem(id, price) {
             if (gameState.balance < price) {
-                showToast("Solde insuffisant pour cet article de luxe !", "error");
+                showToast("Solde insuffisant pour ce titre d'élite !", "error");
                 return;
             }
             gameState.balance -= price;
@@ -1012,7 +1029,7 @@
             initShopUI();
             updateEquippedBadgeDisplay();
             saveGame();
-            showToast("✨ Achat de luxe effectué ! Visible par tous les joueurs.", "success");
+            showToast("✨ Titre de prestige acquis ! Visible par tous les joueurs.", "success");
             triggerConfetti();
 
             if (socket && socket.connected) {
@@ -1058,7 +1075,7 @@
             ACHIEVEMENTS_DEF.forEach(ach => {
                 if (!gameState.achievements[ach.id] && ach.check()) {
                     gameState.achievements[ach.id] = true;
-                    showToast(`🏆 Succès Débloqué: ${ach.title}`, "success");
+                    showToast(`🏆 Objectif Accompli: ${ach.title}`, "success");
                     triggerConfetti();
                 }
             });
@@ -1085,7 +1102,7 @@
         }
 
         /* ==========================================================================
-           4. GAME 1: CRASH (AVIATEUR) - MULTIPLICATEUR AU CENTRE DU CANVAS
+           4. GAME 1: CRASH (AVIATEUR) - MULTIPLICATEUR AU CENTRE
            ========================================================================== */
         let crashState = 'cooldown';
         let crashMultiplier = 1.00;
@@ -1162,7 +1179,7 @@
             crashMultiplier = 1.00;
             const rand = Math.random();
             if (rand < 0.05) crashPoint = 1.00;
-            else crashPoint = parseFloat((1.01 + Math.pow(Math.random(), 3) * 15 + (Math.random() < 0.1 ? 40 : 0)).toFixed(2));
+            else crashPoint = parseFloat((1.01 + Math.pow(Math.random(), 3) * 15 + (Math.random() < 0.1 ? 60 : 0)).toFixed(2));
 
             crashStartTime = Date.now();
             
@@ -1185,7 +1202,6 @@
 
             const elapsed = (Date.now() - crashStartTime) / 1000;
             
-            // 5 à 6 secondes entre 1.00x et 2.00x
             if (elapsed < 5.5) {
                 crashMultiplier = parseFloat((1.0 + elapsed * (1.0 / 5.5)).toFixed(2)); 
             } else {
