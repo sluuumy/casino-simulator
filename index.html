@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber Casino - Multi-Comptes & Jeux Virtuels</title>
+    <title>Cyber Casino - Multijoueur Complet</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Socket.io -->
@@ -60,7 +60,6 @@
             color: #fbbf24;
             z-index: 50;
         }
-
         .tile-flip { transition: transform 0.25s ease, background-color 0.25s ease; }
         .tile-flip:active { transform: scale(0.92); }
     </style>
@@ -184,7 +183,7 @@
     <nav class="bg-casino-dark/70 border-b border-casino-border px-4 py-2 sticky top-[61px] z-30 backdrop-blur-md">
         <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
             <button onclick="switchTab('tab-clicker')" id="btn-tab-clicker" class="tab-btn active px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap bg-casino-accent text-white shadow-lg shadow-blue-500/20">
-                <i data-lucide="mouse-pointer-click" class="w-4 h-4"></i> Travail / Clics
+                <i data-lucide="mouse-pointer-click" class="w-4 h-4"></i> Zone de Secours (Clic)
             </button>
             <button onclick="switchTab('tab-crash')" id="btn-tab-crash" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
                 <i data-lucide="trending-up" class="w-4 h-4 text-emerald-400"></i> Aviateur (Crash)
@@ -213,48 +212,28 @@
     <!-- MAIN CONTENT -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
 
-        <!-- TAB 1: CLICKER -->
-        <section id="tab-clicker" class="tab-content grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-1 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
+        <!-- TAB 1: CLICKER (ZONE DE SECOURS - SANS AMÉLIORATION) -->
+        <section id="tab-clicker" class="tab-content flex flex-col items-center justify-center text-center py-12">
+            <div class="bg-casino-card border border-casino-border rounded-3xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden">
                 <div class="mb-4">
-                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-rose-400 bg-rose-500/10 border border-rose-500/20 px-3 py-1 rounded-full">
-                        Économie Difficile ⚠️
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-gold-400 bg-gold-500/10 border border-gold-500/20 px-3 py-1 rounded-full">
+                        Zone de Secours 🛡️
                     </span>
                 </div>
-                <h2 class="text-xl font-black text-white mb-1">Gagner vos premiers cents</h2>
-                <p class="text-xs text-slate-400 mb-6">Travaillez dur pour accumuler du capital</p>
+                <h2 class="text-2xl font-black text-white mb-1">Besoin de fonds ?</h2>
+                <p class="text-xs text-slate-400 mb-8">Cliquez pour gagner quelques centimes et vous refaire une santé financière (sans amélioration ni passif).</p>
 
-                <div id="clicker-area" class="relative my-4 cursor-pointer select-none">
-                    <button id="main-click-btn" class="w-44 h-44 rounded-full bg-gradient-to-b from-indigo-600 via-blue-600 to-slate-900 border-4 border-indigo-400 shadow-2xl shadow-blue-500/30 active:scale-95 transition-transform duration-75 flex flex-col items-center justify-center group relative overflow-hidden">
+                <div id="clicker-area" class="relative my-6 cursor-pointer select-none inline-block">
+                    <button id="main-click-btn" class="w-48 h-48 rounded-full bg-gradient-to-b from-blue-600 via-indigo-600 to-slate-900 border-4 border-indigo-400 shadow-2xl shadow-blue-500/30 active:scale-95 transition-transform duration-75 flex flex-col items-center justify-center group relative overflow-hidden mx-auto">
                         <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <i data-lucide="briefcase" class="w-14 h-14 text-white mb-1 group-hover:scale-110 transition-transform"></i>
-                        <span class="text-white font-black text-xs uppercase tracking-wider">Travailler</span>
+                        <i data-lucide="coins" class="w-16 h-16 text-gold-400 mb-2 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-white font-black text-xs uppercase tracking-wider">Récupérer 0,10 $</span>
                     </button>
                 </div>
 
-                <div class="w-full grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-casino-border text-left">
-                    <div class="bg-casino-dark p-3 rounded-xl border border-casino-border">
-                        <span class="text-[10px] text-slate-400 block uppercase font-bold">Par Clic</span>
-                        <span id="stat-per-click" class="text-base font-bold text-gold-400">+0,001 $</span>
-                    </div>
-                    <div class="bg-casino-dark p-3 rounded-xl border border-casino-border">
-                        <span class="text-[10px] text-slate-400 block uppercase font-bold">Passif / sec</span>
-                        <span id="stat-per-sec" class="text-base font-bold text-emerald-400">0,00 $/s</span>
-                    </div>
+                <div class="mt-6 pt-6 border-t border-casino-border text-xs text-slate-400">
+                    Chaque clic vous rapporte <strong class="text-gold-400">+0,10 $</strong> directement dans votre solde.
                 </div>
-            </div>
-
-            <div class="lg:col-span-2 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col">
-                <div class="flex items-center justify-between mb-4 pb-3 border-b border-casino-border">
-                    <div>
-                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i data-lucide="shopping-cart" class="text-casino-accent"></i> Améliorations Économiques
-                        </h2>
-                        <p class="text-xs text-slate-400">Chaque achat augmente drastiquement de prix !</p>
-                    </div>
-                </div>
-
-                <div id="upgrades-list" class="space-y-3 overflow-y-auto max-h-[480px] pr-1"></div>
             </div>
         </section>
 
@@ -322,18 +301,18 @@
             </div>
         </section>
 
-        <!-- TAB 3: GAME - MINES -->
+        <!-- TAB 3: GAME - MINES (SANS MISE MINIMUM) -->
         <section id="tab-mines" class="tab-content hidden">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-1 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col justify-between">
                     <div class="space-y-4">
                         <div class="flex items-center gap-2 mb-2">
                             <i data-lucide="bomb" class="text-rose-500"></i>
-                            <h2 class="font-extrabold text-white text-lg">MINES / DÉMINEUR (Min. 10$)</h2>
+                            <h2 class="font-extrabold text-white text-lg">MINES / DÉMINEUR (Sans minimum)</h2>
                         </div>
                         <div>
                             <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
-                            <input type="number" id="mines-bet-input" min="10" value="10" step="5" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none focus:border-rose-500 text-right">
+                            <input type="number" id="mines-bet-input" min="0.01" value="1.00" step="1" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none focus:border-rose-500 text-right">
                         </div>
                         <div>
                             <label class="text-xs text-slate-400 font-medium block mb-1">Nombre de Bombes (1 - 20)</label>
@@ -376,18 +355,22 @@
             </div>
         </section>
 
-        <!-- TAB 4: GAME - BLACKJACK MULTIPLAYER -->
+        <!-- TAB 4: GAME - BLACKJACK MULTIPLAYER (AU TOUR PAR TOUR AVEC BOUTON PRÊT) -->
         <section id="tab-blackjack" class="tab-content hidden space-y-6">
             <div class="bg-casino-card border border-casino-border rounded-2xl p-6 space-y-6">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-xl font-black text-white flex items-center gap-2"><i data-lucide="spade" class="text-indigo-400"></i> BLACKJACK MULTIJOUEUR (Min. 10$)</h2>
-                    <span class="text-xs text-purple-400 bg-purple-950/40 border border-purple-800/40 px-3 py-1 rounded-full font-bold">Table en Ligne Partagée</span>
+                    <div>
+                        <h2 class="text-xl font-black text-white flex items-center gap-2"><i data-lucide="spade" class="text-indigo-400"></i> BLACKJACK MULTIJOUEUR AU TOUR PAR TOUR</h2>
+                        <p id="bj-phase-status" class="text-xs text-amber-400 font-bold mt-1">Phase de mise : Placez votre mise et cliquez sur Prêt !</p>
+                    </div>
+                    <span class="text-xs text-purple-400 bg-purple-950/40 border border-purple-800/40 px-3 py-1 rounded-full font-bold">Synchronisé en Ligne</span>
                 </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-casino-dark p-4 rounded-xl border border-casino-border space-y-2">
                         <div class="text-xs font-bold text-slate-400 flex justify-between">
                             <span>Main du Croupier</span>
-                            <span id="bj-dealer-score">Score: 0</span>
+                            <span id="bj-dealer-score">Score: ?</span>
                         </div>
                         <div id="bj-dealer-cards" class="flex gap-2 min-h-[60px] items-center"></div>
                     </div>
@@ -400,11 +383,12 @@
                     </div>
                 </div>
 
+                <!-- Panneau des mains des autres joueurs connectés -->
                 <div class="bg-casino-dark/60 p-4 rounded-xl border border-casino-border space-y-2">
                     <div class="text-xs font-bold text-slate-400 flex items-center gap-2">
-                        <i data-lucide="users" class="w-4 h-4 text-casino-accent"></i> Joueurs autour de la table de Blackjack
+                        <i data-lucide="users" class="w-4 h-4 text-casino-accent"></i> Tables et Mains des autres joueurs en direct
                     </div>
-                    <div id="bj-table-players" class="flex flex-wrap gap-2 text-xs text-slate-300 italic">En attente de mise des participants...</div>
+                    <div id="bj-table-players" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-300">En attente de la table...</div>
                 </div>
 
                 <div class="flex flex-wrap gap-3 items-center justify-between pt-4 border-t border-casino-border">
@@ -413,9 +397,9 @@
                         <input type="number" id="bj-bet-input" min="10" value="10" class="w-28 bg-casino-dark border border-casino-border rounded-xl px-3 py-1.5 text-gold-400 font-bold text-xs">
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="startBlackjack()" id="btn-bj-start" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 font-bold text-xs rounded-xl text-white">Nouvelle Partie</button>
-                        <button onclick="hitBlackjack()" id="btn-bj-hit" disabled class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 font-bold text-xs rounded-xl text-white disabled:opacity-30">Tirer</button>
-                        <button onclick="standBlackjack()" id="btn-bj-stand" disabled class="px-4 py-2 bg-amber-600 hover:bg-amber-500 font-bold text-xs rounded-xl text-white disabled:opacity-30">Rester</button>
+                        <button onclick="setBlackjackReady()" id="btn-bj-ready" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 font-bold text-xs rounded-xl text-white shadow-lg shadow-emerald-600/20">Je suis Prêt 🚀</button>
+                        <button onclick="hitBlackjack()" id="btn-bj-hit" disabled class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 font-bold text-xs rounded-xl text-white disabled:opacity-30">Tirer (Hit)</button>
+                        <button onclick="standBlackjack()" id="btn-bj-stand" disabled class="px-4 py-2.5 bg-amber-600 hover:bg-amber-500 font-bold text-xs rounded-xl text-white disabled:opacity-30">Rester (Stand)</button>
                     </div>
                 </div>
             </div>
@@ -559,7 +543,7 @@
                 socket.on('connect', () => {
                     console.log("Connecté au serveur Socket.io en ligne !");
                     if (currentUsername) {
-                        socket.emit('user_join', { username: currentUsername, balance: gameState.balance, badge: gameState.equippedBadge });
+                        socket.emit('user_join', { username: currentUsername, balance: gameState.balance, badge: gameState.equippedBadge, bjState: bjPlayerState });
                     }
                 });
 
@@ -573,16 +557,7 @@
                         msg.innerText = `[Système] ${data.text}`;
                     } else {
                         const badgeHtml = data.badge ? `<span class="px-1.5 py-0.5 bg-gold-500/20 text-gold-400 rounded text-[10px] font-bold mr-1">${data.badge}</span>` : '';
-                        
-                        // Extraction sécurisée du texte pour éviter l'affichage de [object Object]
-                        let messageContent = "";
-                        if (typeof data.text === 'string') {
-                            messageContent = data.text;
-                        } else if (data.text && typeof data.text === 'object') {
-                            messageContent = data.text.text || JSON.stringify(data.text);
-                        } else if (typeof data === 'string') {
-                            messageContent = data;
-                        }
+                        let messageContent = typeof data.text === 'string' ? data.text : (data.text?.text || JSON.stringify(data.text));
 
                         msg.innerHTML = `${badgeHtml}<span class="font-bold text-purple-400">${data.username || 'Joueur'}:</span> <span class="text-slate-200"></span>`;
                         msg.querySelector('.text-slate-200').textContent = messageContent;
@@ -604,7 +579,12 @@
 
                     const bjTable = document.getElementById('bj-table-players');
                     if (bjTable && users.length > 0) {
-                        bjTable.innerHTML = users.map(u => `<span class="px-2.5 py-1 bg-casino-dark border border-casino-border rounded-lg text-white font-bold">${u.badge ? '['+u.badge+'] ' : ''}${u.username} ($${u.balance?.toFixed(0) || 0})</span>`).join(' ');
+                        bjTable.innerHTML = users.map(u => {
+                            const cardsStr = u.bjCards ? u.bjCards.join(', ') : 'En attente';
+                            const scoreVal = u.bjScore || 0;
+                            const readyBadge = u.bjReady ? '<span class="text-emerald-400 font-bold">[PRÊT]</span>' : '<span class="text-amber-400 font-bold">[EN ATTENTE]</span>';
+                            return `<div class="bg-casino-dark p-2 rounded-lg border border-casino-border flex justify-between items-center"><div><span class="font-bold text-white">${u.username}</span> ${readyBadge}</div><div class="text-right text-slate-400">Cartes: [${cardsStr}] (Score: ${scoreVal})</div></div>`;
+                        }).join('');
                     }
                 });
 
@@ -664,13 +644,10 @@
            ========================================================================== */
         const DEFAULT_STATE = {
             balance: 150.00,
-            clickValue: 0.001,
-            autoIncome: 0.00,
             totalClicks: 0,
             totalWon: 0.00,
             totalLost: 0.00,
             biggestMult: 1.00,
-            upgrades: { c1: 0, c2: 0, c3: 0, a1: 0, a2: 0, a3: 0 },
             achievements: {},
             inventory: {},
             equippedBadge: ''
@@ -820,18 +797,8 @@
         }
 
         /* ==========================================================================
-           2. UPGRADES, OBJECTIFS & BOUTIQUE DE LUXE (100k À 100 MILLIONS)
+           2. OBJECTIFS & BOUTIQUE DE LUXE
            ========================================================================== */
-        const UPGRADES_DEF = [
-            { id: 'c1', name: 'Gants de travail', desc: '+0,005 $ / clic', baseCost: 1.00, clickAdd: 0.005, autoAdd: 0, icon: 'hand' },
-            { id: 'c2', name: 'Outils améliorés', desc: '+0,02 $ / clic', baseCost: 6.00, clickAdd: 0.02, autoAdd: 0, icon: 'wrench' },
-            { id: 'c3', name: 'Formation Pro', desc: '+0,10 $ / clic', baseCost: 30.00, clickAdd: 0.10, autoAdd: 0, icon: 'award' },
-            { id: 'a1', name: 'Petit Stagiaire', desc: '+0,02 $ / sec', baseCost: 4.00, clickAdd: 0, autoAdd: 0.02, icon: 'user' },
-            { id: 'a2', name: 'Script Automatisé', desc: '+0,15 $ / sec', baseCost: 25.00, clickAdd: 0, autoAdd: 0.15, icon: 'code' },
-            { id: 'a3', name: 'Ferme de Minage', desc: '+1,00 $ / sec', baseCost: 150.00, clickAdd: 0, autoAdd: 1.00, icon: 'cpu' }
-        ];
-
-        // Objectifs et Succès (Riches en défis)
         const ACHIEVEMENTS_DEF = [
             { id: 'clicks_500', title: 'Acharné du Travail', desc: 'Effectuer 500 clics manuels', check: () => gameState.totalClicks >= 500 },
             { id: 'clicks_2000', title: 'Doigts d\'Acier', desc: 'Effectuer 2 000 clics manuels', check: () => gameState.totalClicks >= 2000 },
@@ -843,13 +810,12 @@
             { id: 'mult_200', title: 'Hors Norme', desc: 'Décrocher un multiplicateur mythique >= 200.0x', check: () => gameState.biggestMult >= 200.0 }
         ];
 
-        // Boutique de Prestige Ultra Chère (100k à 100 Millions)
         const LUXURY_SHOP_DEF = [
-            { id: 'badge_vip', name: 'Titre [VIP]', desc: 'Badge VIP discret.', price: 100000.00, tag: 'VIP' }, // 100k
-            { id: 'badge_millionaire', name: 'Titre [MILLIONNAIRE]', desc: 'Affiche [MILLIONNAIRE] dans le tchat.', price: 1000000.00, tag: 'MILLIONNAIRE' }, // 1 Million
-            { id: 'badge_whale', name: 'Titre [BALEINE]', desc: 'Pour les joueurs aux poches infinies.', price: 5000000.00, tag: 'BALEINE' }, // 5 Millions
-            { id: 'badge_tycoon', name: 'Titre [TYCOON]', desc: 'Seuls les vrais maîtres du capital l\'obtiennent.', price: 25000000.00, tag: 'TYCOON' }, // 25 Millions
-            { id: 'badge_billionaire', name: 'Titre [BILLIONNAIRE]', desc: 'Le sommet absolu de la richesse virtuelle.', price: 100000000.00, tag: 'BILLIONNAIRE' } // 100 Millions
+            { id: 'badge_vip', name: 'Titre [VIP]', desc: 'Badge VIP discret.', price: 100000.00, tag: 'VIP' },
+            { id: 'badge_millionaire', name: 'Titre [MILLIONNAIRE]', desc: 'Affiche [MILLIONNAIRE] dans le tchat.', price: 1000000.00, tag: 'MILLIONNAIRE' },
+            { id: 'badge_whale', name: 'Titre [BALEINE]', desc: 'Pour les joueurs aux poches infinies.', price: 5000000.00, tag: 'BALEINE' },
+            { id: 'badge_tycoon', name: 'Titre [TYCOON]', desc: 'Seuls les vrais maîtres du capital l\'obtiennent.', price: 25000000.00, tag: 'TYCOON' },
+            { id: 'badge_billionaire', name: 'Titre [BILLIONNAIRE]', desc: 'Le sommet absolu de la richesse virtuelle.', price: 100000000.00, tag: 'BILLIONNAIRE' }
         ];
 
         /* ==========================================================================
@@ -863,19 +829,11 @@
             initSocket();
             startCrashLoop();
 
-            setInterval(() => {
-                if (gameState.autoIncome > 0 && currentUsername) {
-                    addBalance(gameState.autoIncome / 10);
-                }
-            }, 100);
-
             setInterval(saveGame, 5000);
         };
 
         function initAfterAuth() {
-            recalculateRates();
             updateUI();
-            initUpgradesUI();
             initShopUI();
             checkAchievements();
             document.getElementById('user-display-name').innerText = currentUsername;
@@ -888,16 +846,17 @@
             }
         }
 
+        // Zone de secours : clic pour se refaire (0,10$ par clic, sans amélioration)
         document.getElementById('main-click-btn').addEventListener('click', (e) => {
             if (!currentUsername) return;
-            addBalance(gameState.clickValue);
+            addBalance(0.10);
             gameState.totalClicks++;
 
             const area = document.getElementById('clicker-area');
             const rect = area.getBoundingClientRect();
             const el = document.createElement('div');
             el.className = 'floating-text';
-            el.innerText = `+${formatMoney(gameState.clickValue)}`;
+            el.innerText = `+0,10 $`;
             el.style.left = `${e.clientX - rect.left - 15}px`;
             el.style.top = `${e.clientY - rect.top - 20}px`;
             area.appendChild(el);
@@ -907,76 +866,6 @@
             updateUI();
         });
 
-        function recalculateRates() {
-            let c = 0.001;
-            let a = 0.00;
-            UPGRADES_DEF.forEach(u => {
-                const count = gameState.upgrades[u.id] || 0;
-                c += u.clickAdd * count;
-                a += u.autoAdd * count;
-            });
-            gameState.clickValue = c;
-            gameState.autoIncome = a;
-        }
-
-        function getUpgradeCost(upg) {
-            const count = gameState.upgrades[upg.id] || 0;
-            return upg.baseCost * Math.pow(1.85, count);
-        }
-
-        function buyUpgrade(id) {
-            const upg = UPGRADES_DEF.find(u => u.id === id);
-            if (!upg) return;
-            const cost = getUpgradeCost(upg);
-            if (gameState.balance >= cost) {
-                gameState.balance -= cost;
-                gameState.upgrades[id] = (gameState.upgrades[id] || 0) + 1;
-                recalculateRates();
-                updateUI();
-                initUpgradesUI();
-                saveGame();
-                showToast(`Acheté: ${upg.name}`, "success");
-            } else {
-                showToast("Solde insuffisant !", "error");
-            }
-        }
-
-        function initUpgradesUI() {
-            const list = document.getElementById('upgrades-list');
-            if (!list) return;
-            list.innerHTML = '';
-            UPGRADES_DEF.forEach(upg => {
-                const count = gameState.upgrades[upg.id] || 0;
-                const cost = getUpgradeCost(upg);
-                const canAfford = gameState.balance >= cost;
-
-                const item = document.createElement('div');
-                item.className = `p-3.5 rounded-xl border flex items-center justify-between gap-3 transition ${
-                    canAfford ? 'bg-casino-dark/80 border-casino-border hover:border-casino-accent' : 'bg-casino-dark/30 border-casino-border/40 opacity-50'
-                }`;
-
-                item.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-casino-accent/10 text-casino-accent flex items-center justify-center">
-                            <i data-lucide="${upg.icon}" class="w-4 h-4"></i>
-                        </div>
-                        <div>
-                            <div class="font-bold text-xs text-white">${upg.name} <span class="text-casino-accent font-normal">x${count}</span></div>
-                            <div class="text-[11px] text-slate-400">${upg.desc}</div>
-                        </div>
-                    </div>
-                    <button onclick="buyUpgrade('${upg.id}')" ${!canAfford ? 'disabled' : ''} class="px-3 py-1.5 rounded-lg font-bold text-xs transition ${
-                        canAfford ? 'bg-casino-accent hover:bg-blue-400 text-white shadow-md' : 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                    }">
-                        ${formatMoney(cost)}
-                    </button>
-                `;
-                list.appendChild(item);
-            });
-            lucide.createIcons();
-        }
-
-        // Boutique Ultra Chère (100k à 100 Millions)
         function initShopUI() {
             const grid = document.getElementById('shop-items-grid');
             if (!grid) return;
@@ -1102,7 +991,7 @@
         }
 
         /* ==========================================================================
-           4. GAME 1: CRASH (AVIATEUR) - MULTIPLICATEUR AU CENTRE
+           4. GAME 1: CRASH (AVIATEUR)
            ========================================================================== */
         let crashState = 'cooldown';
         let crashMultiplier = 1.00;
@@ -1355,7 +1244,7 @@
         }
 
         /* ==========================================================================
-           5. GAME 2: MINES (DÉMINEUR) - MIN. 10$
+           5. GAME 2: MINES (SANS MISE MINIMUM)
            ========================================================================== */
         let minesGrid = [];
         let minesActive = false;
@@ -1399,8 +1288,8 @@
 
         function startMinesGame() {
             const betInput = parseFloat(document.getElementById('mines-bet-input').value);
-            if (isNaN(betInput) || betInput < 10) {
-                showToast("La mise minimum est de 10.00 $ !", "error");
+            if (isNaN(betInput) || betInput <= 0) {
+                showToast("Veuillez saisir une mise valide supérieure à 0 !", "error");
                 return;
             }
             if (betInput > gameState.balance) {
@@ -1505,13 +1394,15 @@
         }
 
         /* ==========================================================================
-           6. GAME 3: BLACKJACK MULTIJOUEUR - MIN. 10$
+           6. GAME 3: BLACKJACK MULTIJOUEUR AU TOUR PAR TOUR (BOUTON PRÊT & SYNCHRO)
            ========================================================================== */
-        let bjDeck = [], bjPlayer = [], bjDealer = [], bjBet = 0, bjActive = false;
-        function startBlackjack() {
+        let bjDeck = [], bjPlayer = [], bjDealer = [], bjBet = 0, bjReadyState = false, bjActive = false;
+        let bjPlayerState = { cards: [], score: 0, ready: false, finished: false };
+
+        function setBlackjackReady() {
             const bet = parseFloat(document.getElementById('bj-bet-input').value);
             if (isNaN(bet) || bet < 10) {
-                showToast("La mise minimum est de 10.00 $ !", "error");
+                showToast("La mise minimum au Blackjack est de 10.00 $ !", "error");
                 return;
             }
             if (bet > gameState.balance) {
@@ -1521,22 +1412,31 @@
 
             gameState.balance -= bet;
             bjBet = bet;
-            bjActive = true;
             updateUI();
 
+            bjReadyState = true;
             bjDeck = [2,3,4,5,6,7,8,9,10,10,10,10,11];
             bjPlayer = [drawCard(), drawCard()];
             bjDealer = [drawCard()];
 
+            bjPlayerState = {
+                cards: bjPlayer,
+                score: getHandScore(bjPlayer),
+                ready: true,
+                finished: false
+            };
+
             renderBlackjack();
-            document.getElementById('btn-bj-start').disabled = true;
+            document.getElementById('btn-bj-ready').disabled = true;
             document.getElementById('btn-bj-hit').disabled = false;
             document.getElementById('btn-bj-stand').disabled = false;
+            document.getElementById('bj-phase-status').innerText = "En attente des autres joueurs pour lancer le tour...";
 
             if (socket) {
+                socket.emit('bj_update', bjPlayerState);
                 socket.emit('place_bet', { game: 'Blackjack Multi', amount: bjBet, win: false, payout: 0 });
             }
-            showToast("Partie de Blackjack lancée à la table multijoueur !", "info");
+            showToast("Vous êtes prêt ! En attente des participants...", "info");
         }
 
         function drawCard() {
@@ -1550,24 +1450,44 @@
         }
 
         function hitBlackjack() {
-            if (!bjActive) return;
+            if (!bjReadyState || bjPlayerState.finished) return;
             bjPlayer.push(drawCard());
+            bjPlayerState.score = getHandScore(bjPlayer);
+            bjPlayerState.cards = bjPlayer;
             renderBlackjack();
 
-            if (getHandScore(bjPlayer) > 21) {
+            if (bjPlayerState.score > 21) {
                 showToast("Bust ! Vous avez dépassé 21.", "error");
                 gameState.totalLost += bjBet;
                 recordHistory("Blackjack Multi", bjBet, 0, 0);
-                endBlackjack();
+                bjPlayerState.finished = true;
+                lockBlackjackTurn();
             }
+
+            if (socket) socket.emit('bj_update', bjPlayerState);
         }
 
         function standBlackjack() {
-            if (!bjActive) return;
+            if (!bjReadyState || bjPlayerState.finished) return;
+            bjPlayerState.finished = true;
+            lockBlackjackTurn();
+            showToast("Tour terminé. En attente de la fin des autres joueurs...", "info");
+
+            if (socket) socket.emit('bj_update', bjPlayerState);
+            checkAllPlayersFinished();
+        }
+
+        function lockBlackjackTurn() {
+            document.getElementById('btn-bj-hit').disabled = true;
+            document.getElementById('btn-bj-stand').disabled = true;
+        }
+
+        function checkAllPlayersFinished() {
+            // Le croupier joue après que tout le monde ait terminé
             while (getHandScore(bjDealer) < 17) {
                 bjDealer.push(drawCard());
             }
-            renderBlackjack();
+            renderBlackjack(true);
 
             const pScore = getHandScore(bjPlayer);
             const dScore = getHandScore(bjDealer);
@@ -1587,27 +1507,26 @@
                 recordHistory("Blackjack Multi", bjBet, 0, 0);
                 showToast("Le croupier l'emporte sur la table.", "error");
             }
-            endBlackjack();
+            endBlackjackRound();
         }
 
-        function renderBlackjack() {
+        function renderBlackjack(revealDealer = false) {
             document.getElementById('bj-player-cards').innerHTML = bjPlayer.map(c => `<span class="px-3 py-2 bg-casino-card border border-casino-border rounded-lg font-bold text-white">${c}</span>`).join('');
             document.getElementById('bj-dealer-cards').innerHTML = bjDealer.map(c => `<span class="px-3 py-2 bg-casino-card border border-casino-border rounded-lg font-bold text-white">${c}</span>`).join('');
 
             document.getElementById('bj-player-score').innerText = `Score: ${getHandScore(bjPlayer)}`;
-            document.getElementById('bj-dealer-score').innerText = `Score: ${getHandScore(bjDealer)}`;
+            document.getElementById('bj-dealer-score').innerText = revealDealer ? `Score: ${getHandScore(bjDealer)}` : `Score: ?`;
         }
 
-        function endBlackjack() {
-            bjActive = false;
-            document.getElementById('btn-bj-start').disabled = false;
-            document.getElementById('btn-bj-hit').disabled = true;
-            document.getElementById('btn-bj-stand').disabled = true;
+        function endBlackjackRound() {
+            bjReadyState = false;
+            document.getElementById('btn-bj-ready').disabled = false;
+            document.getElementById('bj-phase-status').innerText = "Phase de mise : Placez votre mise et cliquez sur Prêt !";
             checkAchievements();
         }
 
         /* ==========================================================================
-           7. GAME 4: COIN FLIP - MIN. 10$
+           7. GAME 4: COIN FLIP
            ========================================================================== */
         function playCoinFlip(choice) {
             const bet = parseFloat(document.getElementById('coin-bet-input').value);
@@ -1671,14 +1590,9 @@
 
         function updateUI() {
             document.getElementById('balance').innerText = formatMoney(gameState.balance);
-            document.getElementById('stat-per-click').innerText = `+${formatMoney(gameState.clickValue)}`;
-            document.getElementById('stat-per-sec').innerText = `${formatMoney(gameState.autoIncome)}/s`;
-
             document.getElementById('stat-total-won').innerText = formatMoney(gameState.totalWon);
             document.getElementById('stat-total-lost').innerText = formatMoney(gameState.totalLost);
             document.getElementById('stat-biggest-mult').innerText = `${gameState.biggestMult.toFixed(2)}x`;
-
-            initUpgradesUI();
             initShopUI();
         }
 
