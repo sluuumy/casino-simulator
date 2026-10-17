@@ -192,14 +192,8 @@
             <button onclick="switchTab('tab-mines')" id="btn-tab-mines" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
                 <i data-lucide="bomb" class="w-4 h-4 text-rose-400"></i> Démineur (Mines)
             </button>
-            <button onclick="switchTab('tab-roulette')" id="btn-tab-roulette" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
-                <i data-lucide="disc" class="w-4 h-4 text-red-400"></i> Roulette
-            </button>
-            <button onclick="switchTab('tab-slots')" id="btn-tab-slots" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
-                <i data-lucide="sparkles" class="w-4 h-4 text-gold-400"></i> Machine à sous
-            </button>
             <button onclick="switchTab('tab-blackjack')" id="btn-tab-blackjack" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
-                <i data-lucide="spade" class="w-4 h-4 text-indigo-400"></i> Blackjack
+                <i data-lucide="spade" class="w-4 h-4 text-indigo-400"></i> Blackjack Multi
             </button>
             <button onclick="switchTab('tab-coinflip')" id="btn-tab-coinflip" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
                 <i data-lucide="circle-dot" class="w-4 h-4 text-amber-400"></i> Coin Flip
@@ -220,8 +214,8 @@
         <section id="tab-clicker" class="tab-content grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-1 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
                 <div class="mb-4">
-                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-gold-400 bg-gold-500/10 border border-gold-500/20 px-3 py-1 rounded-full">
-                        Économie Exigeante
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-rose-400 bg-rose-500/10 border border-rose-500/20 px-3 py-1 rounded-full">
+                        Économie Difficile ⚠️
                     </span>
                 </div>
                 <h2 class="text-xl font-black text-white mb-1">Gagner vos premiers cents</h2>
@@ -238,7 +232,7 @@
                 <div class="w-full grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-casino-border text-left">
                     <div class="bg-casino-dark p-3 rounded-xl border border-casino-border">
                         <span class="text-[10px] text-slate-400 block uppercase font-bold">Par Clic</span>
-                        <span id="stat-per-click" class="text-base font-bold text-gold-400">+0,10 $</span>
+                        <span id="stat-per-click" class="text-base font-bold text-gold-400">+0,02 $</span>
                     </div>
                     <div class="bg-casino-dark p-3 rounded-xl border border-casino-border">
                         <span class="text-[10px] text-slate-400 block uppercase font-bold">Passif / sec</span>
@@ -251,9 +245,9 @@
                 <div class="flex items-center justify-between mb-4 pb-3 border-b border-casino-border">
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i data-lucide="shopping-cart" class="text-casino-accent"></i> Améliorations Économiques
+                            <i data-lucide="shopping-cart" class="text-casino-accent"></i> Améliorations Économiques (Coûts Exponentiels)
                         </h2>
-                        <p class="text-xs text-slate-400">Coûts exponentiels : Investissez judicieusement.</p>
+                        <p class="text-xs text-slate-400">Investissez judicieusement, chaque achat coûte beaucoup plus cher !</p>
                     </div>
                 </div>
 
@@ -268,18 +262,18 @@
                     <div class="flex items-center justify-between z-10">
                         <div class="flex items-center gap-2">
                             <i data-lucide="plane" class="text-casino-accent"></i>
-                            <h2 class="font-extrabold text-white text-lg">CRASH / AVIATEUR</h2>
+                            <h2 class="font-extrabold text-white text-lg">CRASH / AVIATEUR (Trajectoire Parabolique)</h2>
                         </div>
-                        <div id="crash-status-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">
-                            En attente
+                        <div id="crash-status-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-950 text-amber-400 border border-amber-800 animate-pulse">
+                            En attente de mises... (5s)
                         </div>
                     </div>
 
                     <div class="relative flex-1 my-4 flex items-center justify-center">
                         <canvas id="crash-canvas" class="absolute inset-0 w-full h-full"></canvas>
                         <div class="relative z-10 text-center select-none">
-                            <div id="crash-multiplier-text" class="text-6xl md:text-7xl font-black text-white tracking-tight">1.00x</div>
-                            <div id="crash-subtext" class="text-xs font-bold uppercase tracking-widest text-slate-400 mt-2">Préparez vos paris</div>
+                            <div id="crash-multiplier-text" class="text-6xl md:text-7xl font-black text-white tracking-tight">5.0s</div>
+                            <div id="crash-subtext" class="text-xs font-bold uppercase tracking-widest text-amber-400 mt-2">Cooldown de synchronisation globale</div>
                         </div>
                     </div>
 
@@ -308,7 +302,7 @@
                             <input type="number" id="crash-autocash-input" min="1.05" value="2.00" step="0.1" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-emerald-400 font-bold focus:outline-none focus:border-emerald-500 text-right">
                         </div>
                         <button onclick="handleCrashAction()" id="btn-crash-action" class="w-full py-4 rounded-xl font-black text-base transition duration-150 bg-emerald-500 hover:bg-emerald-400 text-black shadow-lg shadow-emerald-500/20">
-                            PLACER LE PARI 🚀
+                            VALIDER LE PARI 🚀
                         </button>
                     </div>
 
@@ -378,54 +372,13 @@
             </div>
         </section>
 
-        <!-- TAB 4: GAME - ROULETTE -->
-        <section id="tab-roulette" class="tab-content hidden space-y-6">
-            <div class="bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div class="flex-1 space-y-4">
-                    <h2 class="text-xl font-black text-white flex items-center gap-2"><i data-lucide="disc" class="text-red-500"></i> ROULETTE EUROPÉENNE</h2>
-                    <div>
-                        <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
-                        <input type="number" id="roulette-bet-input" min="0.1" value="5" step="0.5" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-400 font-medium block mb-2">Choisissez votre pari</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="playRoulette('red')" class="py-2.5 bg-red-600 hover:bg-red-500 font-bold text-xs rounded-xl text-white">ROUGE (x2)</button>
-                            <button onclick="playRoulette('black')" class="py-2.5 bg-slate-900 border border-slate-700 hover:bg-slate-800 font-bold text-xs rounded-xl text-white">NOIR (x2)</button>
-                            <button onclick="playRoulette('even')" class="py-2.5 bg-casino-dark border border-casino-border font-bold text-xs rounded-xl text-slate-300">PAIR (x2)</button>
-                            <button onclick="playRoulette('odd')" class="py-2.5 bg-casino-dark border border-casino-border font-bold text-xs rounded-xl text-slate-300">IMPAIR (x2)</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="w-full md:w-64 h-64 bg-casino-dark border-4 border-casino-border rounded-full flex items-center justify-center relative overflow-hidden shadow-2xl">
-                    <div id="roulette-wheel-display" class="text-5xl font-black text-white transition-all duration-1000">0</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 5: GAME - SLOTS -->
-        <section id="tab-slots" class="tab-content hidden space-y-6">
-            <div class="bg-casino-card border border-casino-border rounded-2xl p-6 text-center max-w-xl mx-auto space-y-6">
-                <h2 class="text-xl font-black text-white flex items-center justify-center gap-2"><i data-lucide="sparkles" class="text-gold-400"></i> MACHINE À SOUS</h2>
-                <div class="flex justify-center gap-4 bg-casino-dark p-6 rounded-2xl border border-casino-border">
-                    <div id="slot-1" class="w-20 h-24 bg-casino-card border border-casino-border rounded-xl flex items-center justify-center text-4xl font-black">7️⃣</div>
-                    <div id="slot-2" class="w-20 h-24 bg-casino-card border border-casino-border rounded-xl flex items-center justify-center text-4xl font-black">7️⃣</div>
-                    <div id="slot-3" class="w-20 h-24 bg-casino-card border border-casino-border rounded-xl flex items-center justify-center text-4xl font-black">7️⃣</div>
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
-                    <input type="number" id="slots-bet-input" min="0.1" value="2" step="0.5" class="w-full max-w-xs bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none mx-auto text-center">
-                </div>
-                <button onclick="spinSlots()" id="btn-spin-slots" class="w-full max-w-xs py-3.5 bg-gold-500 hover:bg-gold-400 text-black font-black text-sm rounded-xl transition shadow-lg shadow-gold-500/20">
-                    TOURNER LES ROULEAUX 🎰
-                </button>
-            </div>
-        </section>
-
-        <!-- TAB 6: GAME - BLACKJACK -->
+        <!-- TAB 4: GAME - BLACKJACK MULTIPLAYER -->
         <section id="tab-blackjack" class="tab-content hidden space-y-6">
             <div class="bg-casino-card border border-casino-border rounded-2xl p-6 space-y-6">
-                <h2 class="text-xl font-black text-white flex items-center gap-2"><i data-lucide="spade" class="text-indigo-400"></i> BLACKJACK 21</h2>
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-black text-white flex items-center gap-2"><i data-lucide="spade" class="text-indigo-400"></i> BLACKJACK MULTIJOUEUR</h2>
+                    <span class="text-xs text-purple-400 bg-purple-950/40 border border-purple-800/40 px-3 py-1 rounded-full font-bold">Table en Ligne Partagée</span>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-casino-dark p-4 rounded-xl border border-casino-border space-y-2">
                         <div class="text-xs font-bold text-slate-400 flex justify-between">
@@ -436,15 +389,24 @@
                     </div>
                     <div class="bg-casino-dark p-4 rounded-xl border border-casino-border space-y-2">
                         <div class="text-xs font-bold text-slate-400 flex justify-between">
-                            <span>Votre Main</span>
+                            <span>Votre Main (<span id="bj-player-name">Vous</span>)</span>
                             <span id="bj-player-score">Score: 0</span>
                         </div>
                         <div id="bj-player-cards" class="flex gap-2 min-h-[60px] items-center"></div>
                     </div>
                 </div>
+
+                <!-- Joueurs connectés à la table de blackjack -->
+                <div class="bg-casino-dark/60 p-4 rounded-xl border border-casino-border space-y-2">
+                    <div class="text-xs font-bold text-slate-400 flex items-center gap-2">
+                        <i data-lucide="users" class="w-4 h-4 text-casino-accent"></i> Joueurs autour de la table de Blackjack
+                    </div>
+                    <div id="bj-table-players" class="flex flex-wrap gap-2 text-xs text-slate-300 italic">En attente de mise des participants...</div>
+                </div>
+
                 <div class="flex flex-wrap gap-3 items-center justify-between pt-4 border-t border-casino-border">
                     <div class="flex gap-2 items-center">
-                        <span class="text-xs text-slate-400">Mise:</span>
+                        <span class="text-xs text-slate-400">Mise ($):</span>
                         <input type="number" id="bj-bet-input" min="0.1" value="5" class="w-24 bg-casino-dark border border-casino-border rounded-xl px-3 py-1.5 text-gold-400 font-bold text-xs">
                     </div>
                     <div class="flex gap-2">
@@ -456,7 +418,7 @@
             </div>
         </section>
 
-        <!-- TAB 7: GAME - COIN FLIP -->
+        <!-- TAB 5: GAME - COIN FLIP -->
         <section id="tab-coinflip" class="tab-content hidden space-y-6">
             <div class="bg-casino-card border border-casino-border rounded-2xl p-6 text-center max-w-md mx-auto space-y-6">
                 <h2 class="text-xl font-black text-white flex items-center justify-center gap-2"><i data-lucide="circle-dot" class="text-amber-400"></i> COIN FLIP (PILE OU FACE)</h2>
@@ -474,7 +436,7 @@
             </div>
         </section>
 
-        <!-- TAB 8: STATS & ACHIEVEMENTS -->
+        <!-- TAB 6: STATS & ACHIEVEMENTS -->
         <section id="tab-stats" class="tab-content hidden space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="bg-casino-card border border-casino-border p-5 rounded-2xl">
@@ -504,7 +466,7 @@
             </div>
         </section>
 
-        <!-- TAB 9: MULTIPLAYER CHAT & TRANSFERS -->
+        <!-- TAB 7: MULTIPLAYER CHAT & TRANSFERS -->
         <section id="tab-multiplayer" class="tab-content hidden space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-casino-card border border-casino-border p-6 rounded-2xl flex flex-col h-[450px]">
@@ -602,6 +564,12 @@
                     if (list) {
                         list.innerHTML = users.map(u => `<div class="flex justify-between items-center bg-casino-dark px-3 py-1.5 rounded-lg border border-casino-border"><span class="font-bold text-white">${u.username}</span><span class="text-emerald-400 font-bold">$${u.balance?.toFixed(2) || '0.00'}</span></div>`).join('');
                     }
+
+                    // Mise à jour de la table de Blackjack multijoueur
+                    const bjTable = document.getElementById('bj-table-players');
+                    if (bjTable && users.length > 0) {
+                        bjTable.innerHTML = users.map(u => `<span class="px-2.5 py-1 bg-casino-dark border border-casino-border rounded-lg text-white font-bold">${u.username} ($${u.balance?.toFixed(0) || 0})</span>`).join(' ');
+                    }
                 });
 
                 socket.on('receive_money', (data) => {
@@ -656,11 +624,11 @@
         }
 
         /* ==========================================================================
-           1. LOCAL ACCOUNT & STORAGE SYSTEM (OPTION A)
+           1. LOCAL ACCOUNT & STORAGE SYSTEM (DIFFICULTY INCREASED)
            ========================================================================== */
         const DEFAULT_STATE = {
             balance: 5.00,
-            clickValue: 0.10,
+            clickValue: 0.02,
             autoIncome: 0.00,
             totalClicks: 0,
             totalWon: 0.00,
@@ -814,15 +782,15 @@
         }
 
         /* ==========================================================================
-           2. UPGRADES & CLICKER CONFIGURATION
+           2. UPGRADES & CLICKER CONFIGURATION (PLUS DIFFICILE)
            ========================================================================== */
         const UPGRADES_DEF = [
-            { id: 'c1', name: 'Gants de travail', desc: '+0,05 $ / clic', baseCost: 3.00, clickAdd: 0.05, autoAdd: 0, icon: 'hand' },
-            { id: 'c2', name: 'Outils améliorés', desc: '+0.25 $ / clic', baseCost: 20.00, clickAdd: 0.25, autoAdd: 0, icon: 'wrench' },
-            { id: 'c3', name: 'Formation Pro', desc: '+1.20 $ / clic', baseCost: 120.00, clickAdd: 1.20, autoAdd: 0, icon: 'award' },
-            { id: 'a1', name: 'Petit Stagiaire', desc: '+0.10 $ / sec', baseCost: 10.00, clickAdd: 0, autoAdd: 0.10, icon: 'user' },
-            { id: 'a2', name: 'Script Automatisé', desc: '+0.80 $ / sec', baseCost: 85.00, clickAdd: 0, autoAdd: 0.80, icon: 'code' },
-            { id: 'a3', name: 'Ferme de Minage', desc: '+4.50 $ / sec', baseCost: 500.00, clickAdd: 0, autoAdd: 4.50, icon: 'cpu' }
+            { id: 'c1', name: 'Gants de travail', desc: '+0,02 $ / clic', baseCost: 5.00, clickAdd: 0.02, autoAdd: 0, icon: 'hand' },
+            { id: 'c2', name: 'Outils améliorés', desc: '+0.10 $ / clic', baseCost: 35.00, clickAdd: 0.10, autoAdd: 0, icon: 'wrench' },
+            { id: 'c3', name: 'Formation Pro', desc: '+0.50 $ / clic', baseCost: 200.00, clickAdd: 0.50, autoAdd: 0, icon: 'award' },
+            { id: 'a1', name: 'Petit Stagiaire', desc: '+0.05 $ / sec', baseCost: 15.00, clickAdd: 0, autoAdd: 0.05, icon: 'user' },
+            { id: 'a2', name: 'Script Automatisé', desc: '+0.40 $ / sec', baseCost: 120.00, clickAdd: 0, autoAdd: 0.40, icon: 'code' },
+            { id: 'a3', name: 'Ferme de Minage', desc: '+2.00 $ / sec', baseCost: 750.00, clickAdd: 0, autoAdd: 2.00, icon: 'cpu' }
         ];
 
         const ACHIEVEMENTS_DEF = [
@@ -841,6 +809,7 @@
             checkAutoLogin();
             lucide.createIcons();
             initSocket();
+            startCrashLoop();
 
             setInterval(() => {
                 if (gameState.autoIncome > 0 && currentUsername) {
@@ -858,6 +827,7 @@
             checkAchievements();
             document.getElementById('user-display-name').innerText = currentUsername;
             document.getElementById('user-display-status').innerText = currentUsername.startsWith('Invité') ? 'Mode Invité' : 'Sauvegardé';
+            document.getElementById('bj-player-name').innerText = currentUsername;
 
             if (socket && socket.connected) {
                 socket.emit('user_join', { username: currentUsername, balance: gameState.balance });
@@ -884,7 +854,7 @@
         });
 
         function recalculateRates() {
-            let c = 0.10;
+            let c = 0.02;
             let a = 0.00;
             UPGRADES_DEF.forEach(u => {
                 const count = gameState.upgrades[u.id] || 0;
@@ -897,7 +867,7 @@
 
         function getUpgradeCost(upg) {
             const count = gameState.upgrades[upg.id] || 0;
-            return upg.baseCost * Math.pow(1.22, count);
+            return upg.baseCost * Math.pow(1.45, count);
         }
 
         function buyUpgrade(id) {
@@ -983,18 +953,49 @@
         }
 
         /* ==========================================================================
-           4. GAME 1: CRASH (AVIATEUR)
+           4. GAME 1: CRASH (AVIATEUR) AVEC ANIMATION DE PENTE / PARABOLE AMÉLIORÉE
            ========================================================================== */
-        let crashState = 'idle';
+        let crashState = 'cooldown';
         let crashMultiplier = 1.00;
         let crashPoint = 1.00;
         let crashBet = 0;
         let crashHasBetted = false;
         let crashAnimFrame = null;
         let crashStartTime = 0;
+        let cooldownTimeLeft = 5.0;
+
+        function startCrashLoop() {
+            runCooldown();
+        }
+
+        function runCooldown() {
+            crashState = 'cooldown';
+            cooldownTimeLeft = 5.0;
+            crashHasBetted = false;
+
+            const btn = document.getElementById('btn-crash-action');
+            btn.disabled = false;
+            btn.innerText = "VALIDER LE PARI 🚀";
+            btn.className = "w-full py-4 rounded-xl font-black text-base transition duration-150 bg-emerald-500 hover:bg-emerald-400 text-black shadow-lg shadow-emerald-500/20";
+
+            document.getElementById('crash-status-badge').innerText = "PHASE DE MISE...";
+            document.getElementById('crash-status-badge').className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-950 text-amber-400 border border-amber-800 animate-pulse";
+            document.getElementById('crash-subtext').innerText = "Cooldown de synchronisation globale";
+
+            const cdInterval = setInterval(() => {
+                cooldownTimeLeft = parseFloat((cooldownTimeLeft - 0.1).toFixed(1));
+                document.getElementById('crash-multiplier-text').innerText = `${cooldownTimeLeft.toFixed(1)}s`;
+                document.getElementById('crash-multiplier-text').className = "text-6xl md:text-7xl font-black text-amber-400 tracking-tight glow-text-gold";
+
+                if (cooldownTimeLeft <= 0) {
+                    clearInterval(cdInterval);
+                    startCrashGame();
+                }
+            }, 100);
+        }
 
         function handleCrashAction() {
-            if (crashState === 'idle') {
+            if (crashState === 'cooldown') {
                 const betInput = parseFloat(document.getElementById('crash-bet-input').value);
                 if (isNaN(betInput) || betInput <= 0 || betInput > gameState.balance) {
                     showToast("Mise invalide ou solde insuffisant !", "error");
@@ -1005,11 +1006,15 @@
                 crashHasBetted = true;
                 updateUI();
 
+                const btn = document.getElementById('btn-crash-action');
+                btn.disabled = true;
+                btn.innerText = "PARI VALIDÉ ✅";
+                btn.className = "w-full py-4 rounded-xl font-bold text-base bg-blue-600 text-white cursor-not-allowed";
+
                 if (socket) {
                     socket.emit('place_bet', { game: 'Aviateur', amount: crashBet, win: false, payout: 0 });
                 }
-
-                startCrashGame();
+                showToast("Pari enregistré pour le prochain vol !", "success");
             } else if (crashState === 'running' && crashHasBetted) {
                 cashoutCrash();
             }
@@ -1023,17 +1028,24 @@
             else crashPoint = parseFloat((1.01 + Math.pow(Math.random(), 3) * 15 + (Math.random() < 0.1 ? 20 : 0)).toFixed(2));
 
             crashStartTime = Date.now();
-            const btn = document.getElementById('btn-crash-action');
-            btn.innerText = `ENCAISSER (${formatMoney(crashBet * crashMultiplier)}) 💰`;
-            btn.className = "w-full py-4 rounded-xl font-black text-base transition duration-150 bg-gold-500 hover:bg-gold-400 text-black shadow-lg shadow-gold-500/20";
+            
+            if (crashHasBetted) {
+                const btn = document.getElementById('btn-crash-action');
+                btn.disabled = false;
+                btn.innerText = `ENCAISSER (${formatMoney(crashBet * crashMultiplier)}) 💰`;
+                btn.className = "w-full py-4 rounded-xl font-black text-base transition duration-150 bg-gold-500 hover:bg-gold-400 text-black shadow-lg shadow-gold-500/20";
+            }
 
             document.getElementById('crash-status-badge').innerText = "EN VOL...";
             document.getElementById('crash-status-badge').className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-950 text-emerald-400 border border-emerald-800 animate-pulse";
+            document.getElementById('crash-subtext').innerText = "Trajectoire parabolique ascendante";
 
             animateCrash();
         }
 
         function animateCrash() {
+            if (crashState !== 'running') return;
+
             const elapsed = (Date.now() - crashStartTime) / 1000;
             crashMultiplier = parseFloat((Math.pow(1.06, elapsed * 3)).toFixed(2));
 
@@ -1049,7 +1061,7 @@
 
             document.getElementById('crash-multiplier-text').innerText = `${crashMultiplier.toFixed(2)}x`;
             document.getElementById('crash-multiplier-text').className = "text-6xl md:text-7xl font-black text-emerald-400 tracking-tight glow-text-blue";
-            if (crashHasBetted) {
+            if (crashHasBetted && !document.getElementById('btn-crash-action').disabled) {
                 document.getElementById('btn-crash-action').innerText = `ENCAISSER (${formatMoney(crashBet * crashMultiplier)}) 💰`;
             }
 
@@ -1073,7 +1085,7 @@
             crashHasBetted = false;
             const btn = document.getElementById('btn-crash-action');
             btn.disabled = true;
-            btn.innerText = "ENCAISSÉ ! EN ATTENTE...";
+            btn.innerText = "ENCAISSÉ !";
             btn.className = "w-full py-4 rounded-xl font-bold text-sm bg-slate-800 text-slate-400 cursor-not-allowed";
         }
 
@@ -1098,19 +1110,7 @@
             renderCrashCanvas(0, true);
 
             setTimeout(() => {
-                crashState = 'idle';
-                crashHasBetted = false;
-                document.getElementById('crash-subtext').innerText = "Préparez vos paris";
-                document.getElementById('crash-multiplier-text').innerText = "1.00x";
-                document.getElementById('crash-multiplier-text').className = "text-6xl md:text-7xl font-black text-white tracking-tight";
-                
-                const btn = document.getElementById('btn-crash-action');
-                btn.disabled = false;
-                btn.innerText = "PLACER LE PARI 🚀";
-                btn.className = "w-full py-4 rounded-xl font-black text-base transition duration-150 bg-emerald-500 hover:bg-emerald-400 text-black shadow-lg shadow-emerald-500/20";
-
-                document.getElementById('crash-status-badge').innerText = "En attente";
-                document.getElementById('crash-status-badge').className = "px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700";
+                runCooldown();
             }, 3000);
         }
 
@@ -1145,46 +1145,51 @@
             const h = canvas.height;
             ctx.clearRect(0, 0, w, h);
 
-            ctx.strokeStyle = "rgba(31, 36, 56, 0.4)";
+            // Grille de fond de la parabole
+            ctx.strokeStyle = "rgba(31, 36, 56, 0.5)";
             ctx.lineWidth = 1;
             for(let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
             for(let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
 
-            if (crashState === 'idle') return;
+            if (crashState === 'cooldown') return;
 
             const startX = 40;
             const startY = h - 40;
             const progress = Math.min(1, time / 8);
+            
+            // Courbe parabolique (pente ascendante amplifiée)
             const currentX = startX + (w - 100) * progress;
-            const currentY = startY - (h - 100) * Math.pow(progress, 2);
+            const currentY = startY - (h - 100) * Math.pow(progress, 2.2);
 
             ctx.beginPath();
             ctx.moveTo(startX, startY);
-            ctx.quadraticCurveTo((startX + currentX)/2, startY, currentX, currentY);
+            ctx.quadraticCurveTo(startX + (currentX - startX) * 0.4, startY, currentX, currentY);
             ctx.lineTo(currentX, startY);
             ctx.closePath();
             
             const grad = ctx.createLinearGradient(0, 0, 0, h);
             if (isCrashed) {
-                grad.addColorStop(0, "rgba(244, 63, 94, 0.3)");
+                grad.addColorStop(0, "rgba(244, 63, 94, 0.4)");
                 grad.addColorStop(1, "rgba(244, 63, 94, 0)");
             } else {
-                grad.addColorStop(0, "rgba(59, 130, 246, 0.3)");
+                grad.addColorStop(0, "rgba(59, 130, 246, 0.4)");
                 grad.addColorStop(1, "rgba(59, 130, 246, 0)");
             }
             ctx.fillStyle = grad;
             ctx.fill();
 
+            // Ligne de la parabole principale
             ctx.beginPath();
             ctx.moveTo(startX, startY);
-            ctx.quadraticCurveTo((startX + currentX)/2, startY, currentX, currentY);
+            ctx.quadraticCurveTo(startX + (currentX - startX) * 0.4, startY, currentX, currentY);
             ctx.strokeStyle = isCrashed ? '#f43f5e' : '#3b82f6';
-            ctx.lineWidth = 4;
+            ctx.lineWidth = 5;
             ctx.stroke();
 
+            // Point lumineux représentant l'avion en tête de parabole
             ctx.fillStyle = isCrashed ? '#f43f5e' : '#fbbf24';
             ctx.beginPath();
-            ctx.arc(currentX, currentY, 8, 0, Math.PI * 2);
+            ctx.arc(currentX, currentY, 10, 0, Math.PI * 2);
             ctx.fill();
         }
 
@@ -1335,95 +1340,7 @@
         }
 
         /* ==========================================================================
-           6. GAME 3: ROULETTE
-           ========================================================================== */
-        const ROULETTE_RED = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
-        function playRoulette(type) {
-            const bet = parseFloat(document.getElementById('roulette-bet-input').value);
-            if (isNaN(bet) || bet <= 0 || bet > gameState.balance) {
-                showToast("Mise invalide !", "error");
-                return;
-            }
-
-            gameState.balance -= bet;
-            updateUI();
-
-            const num = Math.floor(Math.random() * 37);
-            const display = document.getElementById('roulette-wheel-display');
-            display.innerText = "...";
-
-            setTimeout(() => {
-                display.innerText = num;
-                const isRed = ROULETTE_RED.includes(num);
-                const isBlack = num !== 0 && !isRed;
-                const isEven = num !== 0 && num % 2 === 0;
-                const isOdd = num !== 0 && num % 2 !== 0;
-
-                let win = false;
-                if (type === 'red' && isRed) win = true;
-                if (type === 'black' && isBlack) win = true;
-                if (type === 'even' && isEven) win = true;
-                if (type === 'odd' && isOdd) win = true;
-
-                if (win) {
-                    const winAmt = bet * 2;
-                    addBalance(winAmt);
-                    gameState.totalWon += bet;
-                    recordHistory("Roulette", bet, winAmt, 2.0);
-                    showToast(`Gagné ${formatMoney(winAmt)} !`, "success");
-                    triggerConfetti();
-                } else {
-                    gameState.totalLost += bet;
-                    recordHistory("Roulette", bet, 0, 0);
-                    showToast(`Perdu. Le numéro était ${num}`, "error");
-                }
-                checkAchievements();
-            }, 800);
-        }
-
-        /* ==========================================================================
-           7. GAME 4: SLOTS
-           ========================================================================== */
-        const SLOT_SYMBOLS = ['🍒', '🍋', '🔔', '💎', '7️⃣'];
-        function spinSlots() {
-            const bet = parseFloat(document.getElementById('slots-bet-input').value);
-            if (isNaN(bet) || bet <= 0 || bet > gameState.balance) {
-                showToast("Mise invalide !", "error");
-                return;
-            }
-
-            gameState.balance -= bet;
-            updateUI();
-
-            const s1 = SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)];
-            const s2 = SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)];
-            const s3 = SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)];
-
-            document.getElementById('slot-1').innerText = s1;
-            document.getElementById('slot-2').innerText = s2;
-            document.getElementById('slot-3').innerText = s3;
-
-            let mult = 0;
-            if (s1 === s2 && s2 === s3) mult = s1 === '7️⃣' ? 10 : 5;
-            else if (s1 === s2 || s2 === s3 || s1 === s3) mult = 2;
-
-            if (mult > 0) {
-                const winAmt = bet * mult;
-                addBalance(winAmt);
-                gameState.totalWon += winAmt - bet;
-                recordHistory("Slots", bet, winAmt, mult);
-                showToast(`JACKPOT ! Gagné ${formatMoney(winAmt)} (${mult}x)`, "success");
-                triggerConfetti();
-            } else {
-                gameState.totalLost += bet;
-                recordHistory("Slots", bet, 0, 0);
-                showToast("Pas de chance cette fois.", "error");
-            }
-            checkAchievements();
-        }
-
-        /* ==========================================================================
-           8. GAME 5: BLACKJACK
+           6. GAME 3: BLACKJACK MULTIJOUEUR
            ========================================================================== */
         let bjDeck = [], bjPlayer = [], bjDealer = [], bjBet = 0, bjActive = false;
         function startBlackjack() {
@@ -1446,6 +1363,11 @@
             document.getElementById('btn-bj-start').disabled = true;
             document.getElementById('btn-bj-hit').disabled = false;
             document.getElementById('btn-bj-stand').disabled = false;
+
+            if (socket) {
+                socket.emit('place_bet', { game: 'Blackjack Multi', amount: bjBet, win: false, payout: 0 });
+            }
+            showToast("Partie de Blackjack lancée à la table multijoueur !", "info");
         }
 
         function drawCard() {
@@ -1466,7 +1388,7 @@
             if (getHandScore(bjPlayer) > 21) {
                 showToast("Bust ! Vous avez dépassé 21.", "error");
                 gameState.totalLost += bjBet;
-                recordHistory("Blackjack", bjBet, 0, 0);
+                recordHistory("Blackjack Multi", bjBet, 0, 0);
                 endBlackjack();
             }
         }
@@ -1485,16 +1407,16 @@
                 const winAmt = bjBet * 2;
                 addBalance(winAmt);
                 gameState.totalWon += bjBet;
-                recordHistory("Blackjack", bjBet, winAmt, 2.0);
-                showToast(`Victoire ! Gagné ${formatMoney(winAmt)}`, "success");
+                recordHistory("Blackjack Multi", bjBet, winAmt, 2.0);
+                showToast(`Victoire à la table ! Gagné ${formatMoney(winAmt)}`, "success");
                 triggerConfetti();
             } else if (pScore === dScore) {
                 addBalance(bjBet);
-                showToast("Égalité !", "info");
+                showToast("Égalité à la table !", "info");
             } else {
                 gameState.totalLost += bjBet;
-                recordHistory("Blackjack", bjBet, 0, 0);
-                showToast("Le croupier gagne.", "error");
+                recordHistory("Blackjack Multi", bjBet, 0, 0);
+                showToast("Le croupier l'emporte sur la table.", "error");
             }
             endBlackjack();
         }
@@ -1516,7 +1438,7 @@
         }
 
         /* ==========================================================================
-           9. GAME 6: COIN FLIP
+           7. GAME 4: COIN FLIP
            ========================================================================== */
         function playCoinFlip(choice) {
             const bet = parseFloat(document.getElementById('coin-bet-input').value);
@@ -1553,7 +1475,7 @@
         }
 
         /* ==========================================================================
-           10. GENERAL UTILITIES
+           8. GENERAL UTILITIES
            ========================================================================== */
         function adjustBet(inputId, mult) {
             const input = document.getElementById(inputId);
