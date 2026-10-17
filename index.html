@@ -75,7 +75,7 @@
                     <i data-lucide="shield-check"></i>
                 </div>
                 <h2 class="text-2xl font-black text-white">Connexion au Casino</h2>
-                <p class="text-xs text-slate-400 mt-1">Choisissez un pseudo et un mot de passe (sans email)</p>
+                <p class="text-xs text-slate-400 mt-1">Capital de départ offert : <span class="text-gold-400 font-bold">150,00 $</span></p>
             </div>
 
             <div class="flex bg-casino-dark p-1 rounded-xl border border-casino-border mb-6">
@@ -147,7 +147,7 @@
                         CYBER <span class="text-casino-accent glow-text-blue">CASINO</span>
                     </h1>
                     <span class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded-full">
-                        Multijoueur en Direct • Sans Risque
+                        Multijoueur en Direct • Départ 150$
                     </span>
                 </div>
             </div>
@@ -168,7 +168,7 @@
                         <i data-lucide="user" class="w-4 h-4"></i>
                     </div>
                     <div class="text-left">
-                        <div id="user-display-name" class="text-xs font-bold text-white">Invité</div>
+                        <div id="user-display-name" class="text-xs font-bold text-white flex items-center gap-1">Invité <span id="user-active-badge" class="text-[10px]"></span></div>
                         <div id="user-display-status" class="text-[9px] text-slate-500">Compte local</div>
                     </div>
                 </div>
@@ -198,6 +198,9 @@
             <button onclick="switchTab('tab-coinflip')" id="btn-tab-coinflip" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
                 <i data-lucide="circle-dot" class="w-4 h-4 text-amber-400"></i> Coin Flip
             </button>
+            <button onclick="switchTab('tab-shop')" id="btn-tab-shop" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
+                <i data-lucide="shopping-bag" class="w-4 h-4 text-gold-400"></i> Boutique Luxe
+            </button>
             <button onclick="switchTab('tab-stats')" id="btn-tab-stats" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
                 <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Stats & Succès
             </button>
@@ -219,7 +222,7 @@
                     </span>
                 </div>
                 <h2 class="text-xl font-black text-white mb-1">Gagner vos premiers cents</h2>
-                <p class="text-xs text-slate-400 mb-6">Travaillez dur pour vous constituer un capital de jeu !</p>
+                <p class="text-xs text-slate-400 mb-6">Travaillez dur (Clics très lents au début)</p>
 
                 <div id="clicker-area" class="relative my-4 cursor-pointer select-none">
                     <button id="main-click-btn" class="w-44 h-44 rounded-full bg-gradient-to-b from-indigo-600 via-blue-600 to-slate-900 border-4 border-indigo-400 shadow-2xl shadow-blue-500/30 active:scale-95 transition-transform duration-75 flex flex-col items-center justify-center group relative overflow-hidden">
@@ -232,7 +235,7 @@
                 <div class="w-full grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-casino-border text-left">
                     <div class="bg-casino-dark p-3 rounded-xl border border-casino-border">
                         <span class="text-[10px] text-slate-400 block uppercase font-bold">Par Clic</span>
-                        <span id="stat-per-click" class="text-base font-bold text-gold-400">+0,02 $</span>
+                        <span id="stat-per-click" class="text-base font-bold text-gold-400">+0,001 $</span>
                     </div>
                     <div class="bg-casino-dark p-3 rounded-xl border border-casino-border">
                         <span class="text-[10px] text-slate-400 block uppercase font-bold">Passif / sec</span>
@@ -245,9 +248,9 @@
                 <div class="flex items-center justify-between mb-4 pb-3 border-b border-casino-border">
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i data-lucide="shopping-cart" class="text-casino-accent"></i> Améliorations Économiques (Coûts Exponentiels)
+                            <i data-lucide="shopping-cart" class="text-casino-accent"></i> Améliorations Économiques (Coûts Exponentiels Sévères)
                         </h2>
-                        <p class="text-xs text-slate-400">Investissez judicieusement, chaque achat coûte beaucoup plus cher !</p>
+                        <p class="text-xs text-slate-400">Chaque achat augmente drastiquement de prix !</p>
                     </div>
                 </div>
 
@@ -262,18 +265,19 @@
                     <div class="flex items-center justify-between z-10">
                         <div class="flex items-center gap-2">
                             <i data-lucide="plane" class="text-casino-accent"></i>
-                            <h2 class="font-extrabold text-white text-lg">CRASH / AVIATEUR (Trajectoire Parabolique)</h2>
+                            <h2 class="font-extrabold text-white text-lg">CRASH / AVIATEUR</h2>
                         </div>
                         <div id="crash-status-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-950 text-amber-400 border border-amber-800 animate-pulse">
                             En attente de mises... (5s)
                         </div>
                     </div>
 
+                    <!-- Indicateur de multiplication au centre du canvas -->
                     <div class="relative flex-1 my-4 flex items-center justify-center">
                         <canvas id="crash-canvas" class="absolute inset-0 w-full h-full"></canvas>
                         <div class="relative z-10 text-center select-none">
                             <div id="crash-multiplier-text" class="text-6xl md:text-7xl font-black text-white tracking-tight">5.0s</div>
-                            <div id="crash-subtext" class="text-xs font-bold uppercase tracking-widest text-amber-400 mt-2">Cooldown de synchronisation globale</div>
+                            <div id="crash-subtext" class="text-xs font-bold uppercase tracking-widest text-amber-400 mt-2">Cooldown de synchronisation</div>
                         </div>
                     </div>
 
@@ -286,14 +290,14 @@
                 <div class="lg:col-span-1 space-y-4 flex flex-col justify-between">
                     <div class="bg-casino-card border border-casino-border p-5 rounded-2xl space-y-4">
                         <h3 class="font-bold text-sm text-white flex items-center gap-2">
-                            <i data-lucide="sliders" class="w-4 h-4 text-gold-400"></i> Panneau de Pari
+                            <i data-lucide="sliders" class="w-4 h-4 text-gold-400"></i> Panneau de Pari (Min. 10$)
                         </h3>
                         <div>
                             <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
                             <div class="flex gap-2">
-                                <input type="number" id="crash-bet-input" min="0.1" value="5" step="0.5" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none focus:border-casino-accent text-right">
-                                <button onclick="adjustBet('crash-bet-input', 0.5)" class="px-2.5 py-1 bg-casino-dark border border-casino-border rounded-xl text-xs font-bold hover:bg-slate-800">½</button>
-                                <button onclick="adjustBet('crash-bet-input', 2)" class="px-2.5 py-1 bg-casino-dark border border-casino-border rounded-xl text-xs font-bold hover:bg-slate-800">x2</button>
+                                <input type="number" id="crash-bet-input" min="10" value="10" step="5" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none focus:border-casino-accent text-right">
+                                <button onclick="adjustBet('crash-bet-input', 0.5, 10)" class="px-2.5 py-1 bg-casino-dark border border-casino-border rounded-xl text-xs font-bold hover:bg-slate-800">½</button>
+                                <button onclick="adjustBet('crash-bet-input', 2, 10)" class="px-2.5 py-1 bg-casino-dark border border-casino-border rounded-xl text-xs font-bold hover:bg-slate-800">x2</button>
                                 <button onclick="setBetMax('crash-bet-input')" class="px-2.5 py-1 bg-gold-500/20 text-gold-400 border border-gold-500/30 rounded-xl text-xs font-bold">MAX</button>
                             </div>
                         </div>
@@ -325,11 +329,11 @@
                     <div class="space-y-4">
                         <div class="flex items-center gap-2 mb-2">
                             <i data-lucide="bomb" class="text-rose-500"></i>
-                            <h2 class="font-extrabold text-white text-lg">MINES / DÉMINEUR</h2>
+                            <h2 class="font-extrabold text-white text-lg">MINES / DÉMINEUR (Min. 10$)</h2>
                         </div>
                         <div>
                             <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
-                            <input type="number" id="mines-bet-input" min="0.1" value="5" step="0.5" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none focus:border-rose-500 text-right">
+                            <input type="number" id="mines-bet-input" min="10" value="10" step="5" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none focus:border-rose-500 text-right">
                         </div>
                         <div>
                             <label class="text-xs text-slate-400 font-medium block mb-1">Nombre de Bombes (1 - 20)</label>
@@ -376,7 +380,7 @@
         <section id="tab-blackjack" class="tab-content hidden space-y-6">
             <div class="bg-casino-card border border-casino-border rounded-2xl p-6 space-y-6">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-xl font-black text-white flex items-center gap-2"><i data-lucide="spade" class="text-indigo-400"></i> BLACKJACK MULTIJOUEUR</h2>
+                    <h2 class="text-xl font-black text-white flex items-center gap-2"><i data-lucide="spade" class="text-indigo-400"></i> BLACKJACK MULTIJOUEUR (Min. 10$)</h2>
                     <span class="text-xs text-purple-400 bg-purple-950/40 border border-purple-800/40 px-3 py-1 rounded-full font-bold">Table en Ligne Partagée</span>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -396,7 +400,6 @@
                     </div>
                 </div>
 
-                <!-- Joueurs connectés à la table de blackjack -->
                 <div class="bg-casino-dark/60 p-4 rounded-xl border border-casino-border space-y-2">
                     <div class="text-xs font-bold text-slate-400 flex items-center gap-2">
                         <i data-lucide="users" class="w-4 h-4 text-casino-accent"></i> Joueurs autour de la table de Blackjack
@@ -407,7 +410,7 @@
                 <div class="flex flex-wrap gap-3 items-center justify-between pt-4 border-t border-casino-border">
                     <div class="flex gap-2 items-center">
                         <span class="text-xs text-slate-400">Mise ($):</span>
-                        <input type="number" id="bj-bet-input" min="0.1" value="5" class="w-24 bg-casino-dark border border-casino-border rounded-xl px-3 py-1.5 text-gold-400 font-bold text-xs">
+                        <input type="number" id="bj-bet-input" min="10" value="10" class="w-28 bg-casino-dark border border-casino-border rounded-xl px-3 py-1.5 text-gold-400 font-bold text-xs">
                     </div>
                     <div class="flex gap-2">
                         <button onclick="startBlackjack()" id="btn-bj-start" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 font-bold text-xs rounded-xl text-white">Nouvelle Partie</button>
@@ -421,13 +424,13 @@
         <!-- TAB 5: GAME - COIN FLIP -->
         <section id="tab-coinflip" class="tab-content hidden space-y-6">
             <div class="bg-casino-card border border-casino-border rounded-2xl p-6 text-center max-w-md mx-auto space-y-6">
-                <h2 class="text-xl font-black text-white flex items-center justify-center gap-2"><i data-lucide="circle-dot" class="text-amber-400"></i> COIN FLIP (PILE OU FACE)</h2>
+                <h2 class="text-xl font-black text-white flex items-center justify-center gap-2"><i data-lucide="circle-dot" class="text-amber-400"></i> COIN FLIP (Min. 10$)</h2>
                 <div id="coin-element" class="w-32 h-32 rounded-full bg-gradient-to-tr from-amber-500 to-gold-400 border-4 border-amber-300 mx-auto flex items-center justify-center text-3xl font-black text-black shadow-xl transition-transform duration-500">
                     🪙
                 </div>
                 <div>
                     <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
-                    <input type="number" id="coin-bet-input" min="0.1" value="5" step="0.5" class="w-full max-w-xs bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none mx-auto text-center">
+                    <input type="number" id="coin-bet-input" min="10" value="10" step="5" class="w-full max-w-xs bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none mx-auto text-center">
                 </div>
                 <div class="flex gap-3">
                     <button onclick="playCoinFlip('heads')" class="flex-1 py-3 bg-amber-500 hover:bg-amber-400 text-black font-black text-xs rounded-xl">PILE (x2)</button>
@@ -436,7 +439,24 @@
             </div>
         </section>
 
-        <!-- TAB 6: STATS & ACHIEVEMENTS -->
+        <!-- TAB 6: SHOP (BOUTIQUE LUXE - COSMÉTIQUE) -->
+        <section id="tab-shop" class="tab-content hidden space-y-6">
+            <div class="bg-casino-card border border-casino-border p-6 rounded-2xl space-y-4">
+                <div class="flex items-center gap-3 pb-3 border-b border-casino-border">
+                    <div class="w-10 h-10 rounded-xl bg-gold-500/10 border border-gold-500/30 text-gold-400 flex items-center justify-center text-lg">
+                        <i data-lucide="shopping-bag"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-black text-white">Boutique de Prestige (Cosmétique Pur)</h2>
+                        <p class="text-xs text-slate-400">Ces articles hors de prix ne donnent <strong class="text-rose-400">aucun avantage en jeu</strong>, mais affichent votre statut de milliardaire aux autres joueurs !</p>
+                    </div>
+                </div>
+
+                <div id="shop-items-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2"></div>
+            </div>
+        </section>
+
+        <!-- TAB 7: STATS & ACHIEVEMENTS -->
         <section id="tab-stats" class="tab-content hidden space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="bg-casino-card border border-casino-border p-5 rounded-2xl">
@@ -454,7 +474,7 @@
             </div>
 
             <div class="bg-casino-card border border-casino-border p-6 rounded-2xl space-y-4">
-                <h3 class="font-bold text-white flex items-center gap-2"><i data-lucide="award" class="text-gold-400"></i> Succès & Badges</h3>
+                <h3 class="font-bold text-white flex items-center gap-2"><i data-lucide="award" class="text-gold-400"></i> Succès & Badges (Complexes)</h3>
                 <div id="achievements-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs"></div>
             </div>
 
@@ -466,7 +486,7 @@
             </div>
         </section>
 
-        <!-- TAB 7: MULTIPLAYER CHAT & TRANSFERS -->
+        <!-- TAB 8: MULTIPLAYER CHAT & TRANSFERS -->
         <section id="tab-multiplayer" class="tab-content hidden space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-casino-card border border-casino-border p-6 rounded-2xl flex flex-col h-[450px]">
@@ -539,7 +559,7 @@
                 socket.on('connect', () => {
                     console.log("Connecté au serveur Socket.io en ligne !");
                     if (currentUsername) {
-                        socket.emit('user_join', { username: currentUsername, balance: gameState.balance });
+                        socket.emit('user_join', { username: currentUsername, balance: gameState.balance, badge: gameState.equippedBadge });
                     }
                 });
 
@@ -551,7 +571,8 @@
                         msg.className = "text-amber-400 italic text-[11px] bg-amber-500/10 p-1.5 rounded-lg border border-amber-500/20";
                         msg.innerText = `[Système] ${data.text}`;
                     } else {
-                        msg.innerHTML = `<span class="font-bold text-purple-400">${data.username}:</span> <span class="text-slate-200">${data.text}</span>`;
+                        const badgeHtml = data.badge ? `<span class="px-1.5 py-0.5 bg-gold-500/20 text-gold-400 rounded text-[10px] font-bold mr-1">${data.badge}</span>` : '';
+                        msg.innerHTML = `${badgeHtml}<span class="font-bold text-purple-400">${data.username}:</span> <span class="text-slate-200">${data.text}</span>`;
                     }
                     box.appendChild(msg);
                     box.scrollTop = box.scrollHeight;
@@ -562,13 +583,15 @@
                     if(countEl) countEl.innerText = users.length;
                     const list = document.getElementById('online-users-list');
                     if (list) {
-                        list.innerHTML = users.map(u => `<div class="flex justify-between items-center bg-casino-dark px-3 py-1.5 rounded-lg border border-casino-border"><span class="font-bold text-white">${u.username}</span><span class="text-emerald-400 font-bold">$${u.balance?.toFixed(2) || '0.00'}</span></div>`).join('');
+                        list.innerHTML = users.map(u => {
+                            const b = u.badge ? `<span class="px-1.5 py-0.5 bg-gold-500/20 text-gold-400 rounded text-[9px] font-bold mr-1">${u.badge}</span>` : '';
+                            return `<div class="flex justify-between items-center bg-casino-dark px-3 py-1.5 rounded-lg border border-casino-border"><div>${b}<span class="font-bold text-white">${u.username}</span></div><span class="text-emerald-400 font-bold">$${u.balance?.toFixed(2) || '0.00'}</span></div>`;
+                        }).join('');
                     }
 
-                    // Mise à jour de la table de Blackjack multijoueur
                     const bjTable = document.getElementById('bj-table-players');
                     if (bjTable && users.length > 0) {
-                        bjTable.innerHTML = users.map(u => `<span class="px-2.5 py-1 bg-casino-dark border border-casino-border rounded-lg text-white font-bold">${u.username} ($${u.balance?.toFixed(0) || 0})</span>`).join(' ');
+                        bjTable.innerHTML = users.map(u => `<span class="px-2.5 py-1 bg-casino-dark border border-casino-border rounded-lg text-white font-bold">${u.badge ? '['+u.badge+'] ' : ''}${u.username} ($${u.balance?.toFixed(0) || 0})</span>`).join(' ');
                     }
                 });
 
@@ -597,7 +620,7 @@
             const input = document.getElementById('chat-input');
             const text = input.value.trim();
             if (text !== '' && socket) {
-                socket.emit('send_message', text);
+                socket.emit('send_message', { text, badge: gameState.equippedBadge });
                 input.value = '';
             }
         }
@@ -624,18 +647,20 @@
         }
 
         /* ==========================================================================
-           1. LOCAL ACCOUNT & STORAGE SYSTEM (DIFFICULTY INCREASED)
+           1. LOCAL ACCOUNT & STORAGE SYSTEM (DÉPART 150$)
            ========================================================================== */
         const DEFAULT_STATE = {
-            balance: 5.00,
-            clickValue: 0.02,
+            balance: 150.00, // Mis à 150$ pour les nouveaux joueurs
+            clickValue: 0.001,
             autoIncome: 0.00,
             totalClicks: 0,
             totalWon: 0.00,
             totalLost: 0.00,
             biggestMult: 1.00,
             upgrades: { c1: 0, c2: 0, c3: 0, a1: 0, a2: 0, a3: 0 },
-            achievements: {}
+            achievements: {},
+            inventory: {},
+            equippedBadge: ''
         };
 
         let currentUsername = null;
@@ -726,7 +751,7 @@
                 localStorage.setItem('cyber_casino_active_user', u);
                 closeAuthModal();
                 initAfterAuth();
-                showToast("Compte créé avec succès !", "success");
+                showToast("Compte créé avec succès ! 150$ offerts !", "success");
             } else {
                 showToast(res.msg, "error");
             }
@@ -743,7 +768,7 @@
             localStorage.setItem('cyber_casino_active_user', currentUsername);
             closeAuthModal();
             initAfterAuth();
-            showToast("Mode Invité activé", "info");
+            showToast("Mode Invité activé (150$ de départ)", "info");
         }
 
         function logout() {
@@ -782,22 +807,32 @@
         }
 
         /* ==========================================================================
-           2. UPGRADES & CLICKER CONFIGURATION (PLUS DIFFICILE)
+           2. UPGRADES, ACHIEVEMENTS & LUXURY SHOP CONFIGURATION
            ========================================================================== */
         const UPGRADES_DEF = [
-            { id: 'c1', name: 'Gants de travail', desc: '+0,02 $ / clic', baseCost: 5.00, clickAdd: 0.02, autoAdd: 0, icon: 'hand' },
-            { id: 'c2', name: 'Outils améliorés', desc: '+0.10 $ / clic', baseCost: 35.00, clickAdd: 0.10, autoAdd: 0, icon: 'wrench' },
-            { id: 'c3', name: 'Formation Pro', desc: '+0.50 $ / clic', baseCost: 200.00, clickAdd: 0.50, autoAdd: 0, icon: 'award' },
-            { id: 'a1', name: 'Petit Stagiaire', desc: '+0.05 $ / sec', baseCost: 15.00, clickAdd: 0, autoAdd: 0.05, icon: 'user' },
-            { id: 'a2', name: 'Script Automatisé', desc: '+0.40 $ / sec', baseCost: 120.00, clickAdd: 0, autoAdd: 0.40, icon: 'code' },
-            { id: 'a3', name: 'Ferme de Minage', desc: '+2.00 $ / sec', baseCost: 750.00, clickAdd: 0, autoAdd: 2.00, icon: 'cpu' }
+            { id: 'c1', name: 'Gants de travail', desc: '+0,005 $ / clic', baseCost: 1.00, clickAdd: 0.005, autoAdd: 0, icon: 'hand' },
+            { id: 'c2', name: 'Outils améliorés', desc: '+0,02 $ / clic', baseCost: 6.00, clickAdd: 0.02, autoAdd: 0, icon: 'wrench' },
+            { id: 'c3', name: 'Formation Pro', desc: '+0,10 $ / clic', baseCost: 30.00, clickAdd: 0.10, autoAdd: 0, icon: 'award' },
+            { id: 'a1', name: 'Petit Stagiaire', desc: '+0,02 $ / sec', baseCost: 4.00, clickAdd: 0, autoAdd: 0.02, icon: 'user' },
+            { id: 'a2', name: 'Script Automatisé', desc: '+0,15 $ / sec', baseCost: 25.00, clickAdd: 0, autoAdd: 0.15, icon: 'code' },
+            { id: 'a3', name: 'Ferme de Minage', desc: '+1,00 $ / sec', baseCost: 150.00, clickAdd: 0, autoAdd: 1.00, icon: 'cpu' }
         ];
 
+        // Succès complexes et exigeants
         const ACHIEVEMENTS_DEF = [
-            { id: 'clicks_10', title: 'Débutant', desc: 'Cliquer 10 fois', check: () => gameState.totalClicks >= 10 },
-            { id: 'clicks_100', title: 'Acharne', desc: 'Cliquer 100 fois', check: () => gameState.totalClicks >= 100 },
-            { id: 'win_100', title: 'Riche Virtuel', desc: 'Gagner au moins 100 $ au total', check: () => gameState.totalWon >= 100 },
-            { id: 'mult_5', title: 'Envolée', desc: 'Obtenir un multiplicateur >= 5.0x', check: () => gameState.biggestMult >= 5.0 }
+            { id: 'clicks_500', title: 'Acharné du Travail', desc: 'Effectuer 500 clics manuels', check: () => gameState.totalClicks >= 500 },
+            { id: 'profit_1000', title: 'Parieur Averti', desc: 'Gagner plus de 1 000 $ de profits cumulés', check: () => gameState.totalWon >= 1000 },
+            { id: 'profit_10000', title: 'Légende du Casino', desc: 'Gagner plus de 10 000 $ de profits cumulés', check: () => gameState.totalWon >= 10000 },
+            { id: 'mult_15', title: 'Pilote Suprême', desc: 'Atteindre un multiplicateur >= 15.0x sur l\'Aviateur', check: () => gameState.biggestMult >= 15.0 },
+            { id: 'mult_50', title: 'Cosmique', desc: 'Atteindre un multiplicateur >= 50.0x sur l\'Aviateur', check: () => gameState.biggestMult >= 50.0 }
+        ];
+
+        // Boutique de Prestige (Purement cosmétique, très cher, sans aucun avantage)
+        const LUXURY_SHOP_DEF = [
+            { id: 'badge_vip', name: 'Titre [VIP]', desc: 'Affiche le badge VIP à côté de votre pseudo dans le tchat.', price: 500.00, tag: 'VIP' },
+            { id: 'badge_whale', name: 'Titre [BALEINE]', desc: 'Affiche [BALEINE] pour prouver votre fortune excessive.', price: 2500.00, tag: 'BALEINE' },
+            { id: 'badge_legend', name: 'Titre [LÉGENDE]', desc: 'Le badge suprême visible par tous les joueurs.', price: 10000.00, tag: 'LÉGENDE' },
+            { id: 'crown_gold', name: 'Couronne en Or Virtuelle', desc: 'Purement décoratif dans votre inventaire et profil.', price: 25000.00, tag: '👑 ROI' }
         ];
 
         /* ==========================================================================
@@ -824,13 +859,15 @@
             recalculateRates();
             updateUI();
             initUpgradesUI();
+            initShopUI();
             checkAchievements();
             document.getElementById('user-display-name').innerText = currentUsername;
             document.getElementById('user-display-status').innerText = currentUsername.startsWith('Invité') ? 'Mode Invité' : 'Sauvegardé';
             document.getElementById('bj-player-name').innerText = currentUsername;
+            updateEquippedBadgeDisplay();
 
             if (socket && socket.connected) {
-                socket.emit('user_join', { username: currentUsername, balance: gameState.balance });
+                socket.emit('user_join', { username: currentUsername, balance: gameState.balance, badge: gameState.equippedBadge });
             }
         }
 
@@ -854,7 +891,7 @@
         });
 
         function recalculateRates() {
-            let c = 0.02;
+            let c = 0.001;
             let a = 0.00;
             UPGRADES_DEF.forEach(u => {
                 const count = gameState.upgrades[u.id] || 0;
@@ -867,7 +904,7 @@
 
         function getUpgradeCost(upg) {
             const count = gameState.upgrades[upg.id] || 0;
-            return upg.baseCost * Math.pow(1.45, count);
+            return upg.baseCost * Math.pow(1.85, count);
         }
 
         function buyUpgrade(id) {
@@ -922,6 +959,101 @@
             lucide.createIcons();
         }
 
+        // Boutique de Luxe (Cosmétique)
+        function initShopUI() {
+            const grid = document.getElementById('shop-items-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            LUXURY_SHOP_DEF.forEach(item => {
+                const owned = gameState.inventory[item.id];
+                const isEquipped = gameState.equippedBadge === item.tag;
+                const canAfford = gameState.balance >= item.price;
+
+                const card = document.createElement('div');
+                card.className = `bg-casino-dark p-4 rounded-xl border flex flex-col justify-between gap-4 ${owned ? 'border-emerald-600/50' : 'border-casino-border'}`;
+
+                let btnHtml = '';
+                if (owned) {
+                    if (isEquipped) {
+                        btnHtml = `<button onclick="unequipItem('${item.id}')" class="w-full py-2 bg-slate-800 text-slate-300 font-bold text-xs rounded-lg">Retirer le Titre</button>`;
+                    } else {
+                        btnHtml = `<button onclick="equipItem('${item.id}', '${item.tag}')" class="w-full py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-lg transition">Équiper</button>`;
+                    }
+                } else {
+                    btnHtml = `<button onclick="buyShopItem('${item.id}', ${item.price})" ${!canAfford ? 'disabled' : ''} class="w-full py-2 ${canAfford ? 'bg-gold-500 hover:bg-gold-400 text-black shadow-lg shadow-gold-500/20' : 'bg-slate-800 text-slate-500 cursor-not-allowed'} font-bold text-xs rounded-lg transition">Acheter (${formatMoney(item.price)})</button>`;
+                }
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-black text-white text-sm">${item.name}</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gold-500/10 text-gold-400 border border-gold-500/20">[${item.tag}]</span>
+                        </div>
+                        <p class="text-xs text-slate-400">${item.desc}</p>
+                    </div>
+                    <div>${btnHtml}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function buyShopItem(id, price) {
+            if (gameState.balance < price) {
+                showToast("Solde insuffisant pour cet article de luxe !", "error");
+                return;
+            }
+            gameState.balance -= price;
+            gameState.inventory[id] = true;
+            const item = LUXURY_SHOP_DEF.find(i => i.id === id);
+            if (item) {
+                gameState.equippedBadge = item.tag;
+            }
+            updateUI();
+            initShopUI();
+            updateEquippedBadgeDisplay();
+            saveGame();
+            showToast("✨ Achat de luxe effectué ! Visible par tous les joueurs.", "success");
+            triggerConfetti();
+
+            if (socket && socket.connected) {
+                socket.emit('user_join', { username: currentUsername, balance: gameState.balance, badge: gameState.equippedBadge });
+            }
+        }
+
+        function equipItem(id, tag) {
+            gameState.equippedBadge = tag;
+            initShopUI();
+            updateEquippedBadgeDisplay();
+            saveGame();
+            showToast(`Titre [${tag}] équipé !`, "success");
+
+            if (socket && socket.connected) {
+                socket.emit('user_join', { username: currentUsername, balance: gameState.balance, badge: gameState.equippedBadge });
+            }
+        }
+
+        function unequipItem(id) {
+            gameState.equippedBadge = '';
+            initShopUI();
+            updateEquippedBadgeDisplay();
+            saveGame();
+            showToast("Titre retiré.", "info");
+
+            if (socket && socket.connected) {
+                socket.emit('user_join', { username: currentUsername, balance: gameState.balance, badge: gameState.equippedBadge });
+            }
+        }
+
+        function updateEquippedBadgeDisplay() {
+            const badgeEl = document.getElementById('user-active-badge');
+            if (!badgeEl) return;
+            if (gameState.equippedBadge) {
+                badgeEl.innerHTML = `<span class="px-1.5 py-0.2 bg-gold-500/20 text-gold-400 rounded text-[9px] font-bold">[${gameState.equippedBadge}]</span>`;
+            } else {
+                badgeEl.innerHTML = '';
+            }
+        }
+
         function checkAchievements() {
             ACHIEVEMENTS_DEF.forEach(ach => {
                 if (!gameState.achievements[ach.id] && ach.check()) {
@@ -953,7 +1085,7 @@
         }
 
         /* ==========================================================================
-           4. GAME 1: CRASH (AVIATEUR) AVEC ANIMATION DE PENTE / PARABOLE AMÉLIORÉE
+           4. GAME 1: CRASH (AVIATEUR) - MULTIPLICATEUR AU CENTRE DU CANVAS
            ========================================================================== */
         let crashState = 'cooldown';
         let crashMultiplier = 1.00;
@@ -980,12 +1112,13 @@
 
             document.getElementById('crash-status-badge').innerText = "PHASE DE MISE...";
             document.getElementById('crash-status-badge').className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-950 text-amber-400 border border-amber-800 animate-pulse";
-            document.getElementById('crash-subtext').innerText = "Cooldown de synchronisation globale";
+            document.getElementById('crash-multiplier-text').innerText = `${cooldownTimeLeft.toFixed(1)}s`;
+            document.getElementById('crash-multiplier-text').className = "text-6xl md:text-7xl font-black text-amber-400 tracking-tight glow-text-gold";
+            document.getElementById('crash-subtext').innerText = "Cooldown de synchronisation";
 
             const cdInterval = setInterval(() => {
                 cooldownTimeLeft = parseFloat((cooldownTimeLeft - 0.1).toFixed(1));
                 document.getElementById('crash-multiplier-text').innerText = `${cooldownTimeLeft.toFixed(1)}s`;
-                document.getElementById('crash-multiplier-text').className = "text-6xl md:text-7xl font-black text-amber-400 tracking-tight glow-text-gold";
 
                 if (cooldownTimeLeft <= 0) {
                     clearInterval(cdInterval);
@@ -997,8 +1130,12 @@
         function handleCrashAction() {
             if (crashState === 'cooldown') {
                 const betInput = parseFloat(document.getElementById('crash-bet-input').value);
-                if (isNaN(betInput) || betInput <= 0 || betInput > gameState.balance) {
-                    showToast("Mise invalide ou solde insuffisant !", "error");
+                if (isNaN(betInput) || betInput < 10) {
+                    showToast("La mise minimum est de 10.00 $ !", "error");
+                    return;
+                }
+                if (betInput > gameState.balance) {
+                    showToast("Solde insuffisant !", "error");
                     return;
                 }
                 gameState.balance -= betInput;
@@ -1025,7 +1162,7 @@
             crashMultiplier = 1.00;
             const rand = Math.random();
             if (rand < 0.05) crashPoint = 1.00;
-            else crashPoint = parseFloat((1.01 + Math.pow(Math.random(), 3) * 15 + (Math.random() < 0.1 ? 20 : 0)).toFixed(2));
+            else crashPoint = parseFloat((1.01 + Math.pow(Math.random(), 3) * 15 + (Math.random() < 0.1 ? 40 : 0)).toFixed(2));
 
             crashStartTime = Date.now();
             
@@ -1038,7 +1175,7 @@
 
             document.getElementById('crash-status-badge').innerText = "EN VOL...";
             document.getElementById('crash-status-badge').className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-950 text-emerald-400 border border-emerald-800 animate-pulse";
-            document.getElementById('crash-subtext').innerText = "Trajectoire parabolique ascendante";
+            document.getElementById('crash-subtext').innerText = "Progression de vol";
 
             animateCrash();
         }
@@ -1047,7 +1184,14 @@
             if (crashState !== 'running') return;
 
             const elapsed = (Date.now() - crashStartTime) / 1000;
-            crashMultiplier = parseFloat((Math.pow(1.06, elapsed * 3)).toFixed(2));
+            
+            // 5 à 6 secondes entre 1.00x et 2.00x
+            if (elapsed < 5.5) {
+                crashMultiplier = parseFloat((1.0 + elapsed * (1.0 / 5.5)).toFixed(2)); 
+            } else {
+                const extraTime = elapsed - 5.5;
+                crashMultiplier = parseFloat((2.0 * Math.pow(1.06, extraTime * 3)).toFixed(2));
+            }
 
             const autocash = parseFloat(document.getElementById('crash-autocash-input').value) || 0;
             if (crashHasBetted && autocash > 1.0 && crashMultiplier >= autocash) {
@@ -1095,8 +1239,7 @@
 
             document.getElementById('crash-multiplier-text').innerText = `${crashPoint.toFixed(2)}x`;
             document.getElementById('crash-multiplier-text').className = "text-6xl md:text-7xl font-black text-rose-500 tracking-tight glow-text-rose";
-            document.getElementById('crash-subtext').innerText = "L'AVION S'EST CRASHÉ !";
-
+            document.getElementById('crash-subtext').innerText = "CRASHÉ !";
             document.getElementById('crash-status-badge').innerText = "CRASHED";
             document.getElementById('crash-status-badge').className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-950 text-rose-400 border border-rose-800";
 
@@ -1145,8 +1288,7 @@
             const h = canvas.height;
             ctx.clearRect(0, 0, w, h);
 
-            // Grille de fond de la parabole
-            ctx.strokeStyle = "rgba(31, 36, 56, 0.5)";
+            ctx.strokeStyle = "rgba(31, 36, 56, 0.4)";
             ctx.lineWidth = 1;
             for(let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
             for(let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
@@ -1157,13 +1299,12 @@
             const startY = h - 40;
             const progress = Math.min(1, time / 8);
             
-            // Courbe parabolique (pente ascendante amplifiée)
             const currentX = startX + (w - 100) * progress;
-            const currentY = startY - (h - 100) * Math.pow(progress, 2.2);
+            const currentY = startY - (h - 100) * Math.pow(progress, 2.0);
 
             ctx.beginPath();
             ctx.moveTo(startX, startY);
-            ctx.quadraticCurveTo(startX + (currentX - startX) * 0.4, startY, currentX, currentY);
+            ctx.quadraticCurveTo(startX + (currentX - startX) * 0.5, startY, currentX, currentY);
             ctx.lineTo(currentX, startY);
             ctx.closePath();
             
@@ -1178,23 +1319,27 @@
             ctx.fillStyle = grad;
             ctx.fill();
 
-            // Ligne de la parabole principale
             ctx.beginPath();
             ctx.moveTo(startX, startY);
-            ctx.quadraticCurveTo(startX + (currentX - startX) * 0.4, startY, currentX, currentY);
+            ctx.quadraticCurveTo(startX + (currentX - startX) * 0.5, startY, currentX, currentY);
             ctx.strokeStyle = isCrashed ? '#f43f5e' : '#3b82f6';
             ctx.lineWidth = 5;
             ctx.stroke();
 
-            // Point lumineux représentant l'avion en tête de parabole
             ctx.fillStyle = isCrashed ? '#f43f5e' : '#fbbf24';
             ctx.beginPath();
-            ctx.arc(currentX, currentY, 10, 0, Math.PI * 2);
+            ctx.arc(currentX, currentY, 12, 0, Math.PI * 2);
             ctx.fill();
+
+            ctx.strokeStyle = isCrashed ? '#fda4af' : '#fef08a';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(currentX, currentY, 18, 0, Math.PI * 2);
+            ctx.stroke();
         }
 
         /* ==========================================================================
-           5. GAME 2: MINES (DÉMINEUR)
+           5. GAME 2: MINES (DÉMINEUR) - MIN. 10$
            ========================================================================== */
         let minesGrid = [];
         let minesActive = false;
@@ -1238,8 +1383,12 @@
 
         function startMinesGame() {
             const betInput = parseFloat(document.getElementById('mines-bet-input').value);
-            if (isNaN(betInput) || betInput <= 0 || betInput > gameState.balance) {
-                showToast("Mise invalide ou solde insuffisant !", "error");
+            if (isNaN(betInput) || betInput < 10) {
+                showToast("La mise minimum est de 10.00 $ !", "error");
+                return;
+            }
+            if (betInput > gameState.balance) {
+                showToast("Solde insuffisant !", "error");
                 return;
             }
 
@@ -1340,13 +1489,17 @@
         }
 
         /* ==========================================================================
-           6. GAME 3: BLACKJACK MULTIJOUEUR
+           6. GAME 3: BLACKJACK MULTIJOUEUR - MIN. 10$
            ========================================================================== */
         let bjDeck = [], bjPlayer = [], bjDealer = [], bjBet = 0, bjActive = false;
         function startBlackjack() {
             const bet = parseFloat(document.getElementById('bj-bet-input').value);
-            if (isNaN(bet) || bet <= 0 || bet > gameState.balance) {
-                showToast("Mise invalide !", "error");
+            if (isNaN(bet) || bet < 10) {
+                showToast("La mise minimum est de 10.00 $ !", "error");
+                return;
+            }
+            if (bet > gameState.balance) {
+                showToast("Solde insuffisant !", "error");
                 return;
             }
 
@@ -1438,12 +1591,16 @@
         }
 
         /* ==========================================================================
-           7. GAME 4: COIN FLIP
+           7. GAME 4: COIN FLIP - MIN. 10$
            ========================================================================== */
         function playCoinFlip(choice) {
             const bet = parseFloat(document.getElementById('coin-bet-input').value);
-            if (isNaN(bet) || bet <= 0 || bet > gameState.balance) {
-                showToast("Mise invalide !", "error");
+            if (isNaN(bet) || bet < 10) {
+                showToast("La mise minimum est de 10.00 $ !", "error");
+                return;
+            }
+            if (bet > gameState.balance) {
+                showToast("Solde insuffisant !", "error");
                 return;
             }
 
@@ -1477,14 +1634,14 @@
         /* ==========================================================================
            8. GENERAL UTILITIES
            ========================================================================== */
-        function adjustBet(inputId, mult) {
+        function adjustBet(inputId, mult, minVal = 10) {
             const input = document.getElementById(inputId);
-            if (input) input.value = Math.max(0.1, (parseFloat(input.value) || 1) * mult).toFixed(2);
+            if (input) input.value = Math.max(minVal, (parseFloat(input.value) || minVal) * mult).toFixed(2);
         }
 
-        function setBetMax(inputId) {
+        function setBetMax(inputId, minVal = 10) {
             const input = document.getElementById(inputId);
-            if (input) input.value = Math.max(0.1, gameState.balance).toFixed(2);
+            if (input) input.value = Math.max(minVal, gameState.balance).toFixed(2);
         }
 
         function addBalance(amt) {
@@ -1506,6 +1663,7 @@
             document.getElementById('stat-biggest-mult').innerText = `${gameState.biggestMult.toFixed(2)}x`;
 
             initUpgradesUI();
+            initShopUI();
         }
 
         function recordHistory(game, bet, win, mult) {
