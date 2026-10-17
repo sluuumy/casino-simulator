@@ -1,119 +1,464 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Casino Virtuel Multijoueur - Animé</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-  <style>
-    body { background-color: #0b0f19; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
-    .tab-btn.active { border-b-2 border-indigo-500 text-indigo-400 font-bold; background: rgba(99, 102, 241, 0.1); }
-    .custom-scroll::-webkit-scrollbar { width: 5px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    
-    /* Animations dynamiques sur-mesure */
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
-      50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.8); }
-    }
-    .clicker-btn {
-      animation: pulse-glow 3s infinite ease-in-out;
-    }
-    .clicker-btn:active {
-      transform: scale(0.92) rotate(-3deg);
-    }
-    
-    /* Texte flottant au clic (+0.10$) */
-    .floating-text {
-      position: absolute;
-      font-weight: 800;
-      color: #10b981;
-      pointer-events: none;
-      animation: floatUp 0.8s ease-out forwards;
-      z-index: 50;
-    }
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-60px) scale(1.3); }
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Casino - Multijoueur & Jeux Virtuels</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Socket.io -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gold: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' },
+                        casino: {
+                            dark: '#07080d',
+                            card: '#0f111a',
+                            border: '#1f2438',
+                            accent: '#3b82f6',
+                            purple: '#8b5cf6',
+                            rose: '#f43f5e',
+                            green: '#10b981'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #07080d; }
+        ::-webkit-scrollbar-thumb { background: #1f2438; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
 
-    /* Animation de carte Mines */
-    .mine-card {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .mine-card:hover {
-      transform: translateY(-2px) scale(1.05);
-    }
-    .mine-card.revealed {
-      animation: flipInX 0.4s ease-out;
-    }
-  </style>
+        .glow-text-gold { text-shadow: 0 0 12px rgba(245, 158, 11, 0.4); }
+        .glow-text-rose { text-shadow: 0 0 12px rgba(244, 63, 94, 0.5); }
+        .glow-text-blue { text-shadow: 0 0 12px rgba(59, 130, 246, 0.5); }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-45px) scale(1.1); }
+        }
+        .floating-text {
+            position: absolute;
+            pointer-events: none;
+            animation: floatUp 0.75s ease-out forwards;
+            font-weight: 800;
+            color: #fbbf24;
+            z-index: 50;
+        }
+
+        .tile-flip { transition: transform 0.25s ease, background-color 0.25s ease; }
+        .tile-flip:active { transform: scale(0.92); }
+    </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between">
+<body class="bg-casino-dark text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-casino-accent selection:text-white">
 
-  <!-- HEADER -->
-  <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 p-4 sticky top-0 z-40 flex flex-wrap justify-between items-center gap-4">
-    <div class="flex items-center space-x-3">
-      <i class="fa-solid font-bold text-2xl text-yellow-400 fa-dice animate-bounce"></i>
-      <h1 class="text-2xl font-black bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent">
-        Casino Multi
-      </h1>
+    <!-- MODAL AUTHENTIFICATION -->
+    <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity">
+        <div class="bg-casino-card border border-casino-border w-full max-w-md rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-casino-accent via-indigo-600 to-casino-purple flex items-center justify-center text-white font-black text-2xl mx-auto mb-3 shadow-lg shadow-blue-500/20">
+                    <i data-lucide="shield-check"></i>
+                </div>
+                <h2 class="text-2xl font-black text-white">Connexion au Casino</h2>
+                <p class="text-xs text-slate-400 mt-1">Choisissez un pseudo et un mot de passe (sans email)</p>
+            </div>
+
+            <div class="flex bg-casino-dark p-1 rounded-xl border border-casino-border mb-6">
+                <button onclick="switchAuthTab('login')" id="auth-tab-login" class="flex-1 py-2 text-xs font-bold rounded-lg transition bg-casino-accent text-white shadow">
+                    Connexion
+                </button>
+                <button onclick="switchAuthTab('register')" id="auth-tab-register" class="flex-1 py-2 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white">
+                    Créer un compte
+                </button>
+            </div>
+
+            <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Pseudo</label>
+                    <div class="relative">
+                        <i data-lucide="user" class="w-4 h-4 absolute left-3 top-3 text-slate-500"></i>
+                        <input type="text" id="login-username" required placeholder="Votre pseudo" class="w-full bg-casino-dark border border-casino-border rounded-xl pl-9 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-casino-accent">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Mot de passe</label>
+                    <div class="relative">
+                        <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-3 text-slate-500"></i>
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-casino-dark border border-casino-border rounded-xl pl-9 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-casino-accent">
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-3 bg-casino-accent hover:bg-blue-500 text-white font-bold text-sm rounded-xl transition shadow-lg shadow-blue-500/20">
+                    Se connecter 🚀
+                </button>
+            </form>
+
+            <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Choisissez un pseudo</label>
+                    <div class="relative">
+                        <i data-lucide="user-plus" class="w-4 h-4 absolute left-3 top-3 text-slate-500"></i>
+                        <input type="text" id="reg-username" required minlength="3" placeholder="Pseudo (min. 3 car.)" class="w-full bg-casino-dark border border-casino-border rounded-xl pl-9 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-casino-accent">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Mot de passe</label>
+                    <div class="relative">
+                        <i data-lucide="key" class="w-4 h-4 absolute left-3 top-3 text-slate-500"></i>
+                        <input type="password" id="reg-password" required minlength="4" placeholder="Mot de passe (min. 4 car.)" class="w-full bg-casino-dark border border-casino-border rounded-xl pl-9 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-casino-accent">
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm rounded-xl transition shadow-lg shadow-emerald-500/20">
+                    Créer mon compte ✨
+                </button>
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-casino-border text-center">
+                <button onclick="playAsGuest()" class="text-xs text-slate-400 hover:text-white underline underline-offset-4">
+                    Jouer en mode Invité (sauvegarde temporaire)
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- Infos Joueur & Solde -->
-    <div class="flex items-center space-x-6">
-      <div class="text-right">
-        <div class="text-xs text-slate-400">Joueur : <span id="usernameDisplay" class="font-bold text-indigo-300">Invité</span></div>
-        <div class="text-2xl font-black text-emerald-400 flex items-center justify-end gap-1">
-          <span>$</span><span id="balanceDisplay">10.00</span>
+    <!-- HEADER -->
+    <header class="border-b border-casino-border bg-casino-card/90 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-casino-accent via-indigo-600 to-casino-purple flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-500/20">
+                    <i data-lucide="gamepad-2"></i>
+                </div>
+                <div>
+                    <h1 class="font-black text-lg tracking-wider text-white flex items-center gap-1.5">
+                        CYBER <span class="text-casino-accent glow-text-blue">CASINO</span>
+                    </h1>
+                    <span class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded-full">
+                        Multijoueur en Direct • Sans Risque
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 bg-casino-dark/90 border border-casino-border px-5 py-2 rounded-2xl">
+                <div class="w-8 h-8 rounded-full bg-gold-500/10 flex items-center justify-center text-gold-400">
+                    <i data-lucide="coins"></i>
+                </div>
+                <div>
+                    <div class="text-[10px] uppercase font-bold text-slate-400">Solde Virtuel</div>
+                    <div id="balance" class="text-xl font-black text-gold-400 tracking-tight">0,00 $</div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 bg-casino-dark border border-casino-border px-3 py-1.5 rounded-xl">
+                    <div class="w-7 h-7 rounded-lg bg-casino-accent/20 text-casino-accent flex items-center justify-center font-bold text-xs">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                    </div>
+                    <div class="text-left">
+                        <div id="user-display-name" class="text-xs font-bold text-white">Invité</div>
+                        <div id="user-display-status" class="text-[9px] text-slate-500">Compte local</div>
+                    </div>
+                </div>
+
+                <button onclick="logout()" title="Déconnexion / Changer de compte" class="p-2 rounded-xl border border-casino-border bg-casino-dark hover:bg-rose-950/40 hover:border-rose-800 hover:text-rose-400 transition text-slate-400">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
         </div>
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- CONTENU PRINCIPAL + SIDEBAR -->
-  <div class="flex-1 flex flex-col lg:flex-row gap-6 p-4 max-w-7xl mx-auto w-full">
-    
-    <!-- NAVIGATION & JEUX -->
-    <main class="flex-1 bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 flex flex-col shadow-2xl backdrop-blur-sm">
-      
-      <!-- Tabs Nav -->
-      <nav class="flex border-b border-slate-800 mb-6 overflow-x-auto space-x-2 pb-1">
-        <button onclick="switchTab('clicker')" id="tab-clicker" class="tab-btn active px-4 py-2 rounded-t-lg text-sm transition-all duration-200 flex items-center gap-2">
-          <i class="fa-solid fa-bolt text-yellow-400"></i> Clicker
-        </button>
-        <button onclick="switchTab('crash')" id="tab-crash" class="tab-btn px-4 py-2 rounded-t-lg text-sm transition-all duration-200 flex items-center gap-2">
-          <i class="fa-solid fa-rocket text-indigo-400"></i> Crash (Aviateur)
-        </button>
-        <button onclick="switchTab('mines')" id="tab-mines" class="tab-btn px-4 py-2 rounded-t-lg text-sm transition-all duration-200 flex items-center gap-2">
-          <i class="fa-solid fa-bomb text-red-400"></i> Démineur
-        </button>
-      </nav>
-
-      <!-- TAB CLICKER -->
-      <section id="sec-clicker" class="flex-1 flex flex-col items-center justify-center py-10 relative">
-        <div id="clickerArea" class="relative">
-          <button id="clickerBtn" onclick="handleClick(event)" class="clicker-btn w-44 h-44 rounded-full bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 hover:scale-105 transition-transform duration-150 flex flex-col items-center justify-center shadow-2xl text-white">
-            <i class="fa-solid fa-hand-pointer text-5xl mb-2 animate-pulse"></i>
-            <span class="font-bold text-xs uppercase tracking-wider">Cliquer !</span>
-          </button>
+    <!-- NAVIGATION -->
+    <nav class="bg-casino-dark/70 border-b border-casino-border px-4 py-2 sticky top-[61px] z-30 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
+            <button onclick="switchTab('tab-clicker')" id="btn-tab-clicker" class="tab-btn active px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap bg-casino-accent text-white shadow-lg shadow-blue-500/20">
+                <i data-lucide="mouse-pointer-click" class="w-4 h-4"></i> Travail / Clics
+            </button>
+            <button onclick="switchTab('tab-crash')" id="btn-tab-crash" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
+                <i data-lucide="trending-up" class="w-4 h-4 text-emerald-400"></i> Aviateur (Crash)
+            </button>
+            <button onclick="switchTab('tab-mines')" id="btn-tab-mines" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
+                <i data-lucide="bomb" class="w-4 h-4 text-rose-400"></i> Démineur (Mines)
+            </button>
+            <button onclick="switchTab('tab-roulette')" id="btn-tab-roulette" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
+                <i data-lucide="disc" class="w-4 h-4 text-red-400"></i> Roulette
+            </button>
+            <button onclick="switchTab('tab-slots')" id="btn-tab-slots" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
+                <i data-lucide="sparkles" class="w-4 h-4 text-gold-400"></i> Machine à sous
+            </button>
+            <button onclick="switchTab('tab-blackjack')" id="btn-tab-blackjack" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
+                <i data-lucide="spade" class="w-4 h-4 text-indigo-400"></i> Blackjack
+            </button>
+            <button onclick="switchTab('tab-coinflip')" id="btn-tab-coinflip" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
+                <i data-lucide="circle-dot" class="w-4 h-4 text-amber-400"></i> Coin Flip
+            </button>
+            <button onclick="switchTab('tab-stats')" id="btn-tab-stats" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
+                <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Stats & Succès
+            </button>
+            <button onclick="switchTab('tab-multiplayer')" id="btn-tab-multiplayer" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
+                <i data-lucide="network" class="w-4 h-4 text-purple-400"></i> Tchat & Transferts
+            </button>
         </div>
-        <p class="mt-6 text-sm text-slate-400 font-semibold bg-slate-800/60 px-4 py-2 rounded-full border border-slate-700/50">
-          ⚡ Gain : <span class="text-emerald-400 font-bold">+<span id="clickPowerDisplay">0.10</span>$</span> par clic
-        </p>
-      </section>
+    </nav>
 
-      <!-- TAB CRASH -->
-      <section id="sec-crash" class="hidden flex-1 flex flex-col items-center justify-center py-6">
-        <div class="w-full max-w-lg bg-slate-950/80 p-8 rounded-2xl border border-slate-800/80 text-center shadow-inner relative overflow-hidden">
-          <div id="crashRocket" class="text-4xl mb-4 transition-all duration-300">🚀</div>
-          <div id="crashMulti" class="text-6xl font-black text-amber-400 mb-6 tracking-tight">1.00x</div>
-          
-          <div id="crashStatus" class="h-6 text-sm font-semibold text-slate-400 mb-4">Prêt à décoller ?</div>
-          
-          <div class="flex gap-3 justify-center items-center">
-            <input id="crashBet" type="number" value="1.00" min="0.1" step="0.5" class="bg-slate-900 border border-slate-700 px-4 py-2.5 rounded-xl w-36 text-center text-white font-bold focus:outline-none focus:border-indigo-500">
-            <button onclick="playCrash()" id="crashBtn" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 px-8 py-2.5 rounded-xl font-bold transition shadow-lg shadow
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+
+        <!-- TAB 1: CLICKER -->
+        <section id="tab-clicker" class="tab-content grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-1 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                <div class="mb-4">
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-gold-400 bg-gold-500/10 border border-gold-500/20 px-3 py-1 rounded-full">
+                        Économie Exigeante
+                    </span>
+                </div>
+                <h2 class="text-xl font-black text-white mb-1">Gagner vos premiers cents</h2>
+                <p class="text-xs text-slate-400 mb-6">Travaillez dur pour vous constituer un capital de jeu !</p>
+
+                <div id="clicker-area" class="relative my-4 cursor-pointer select-none">
+                    <button id="main-click-btn" class="w-44 h-44 rounded-full bg-gradient-to-b from-indigo-600 via-blue-600 to-slate-900 border-4 border-indigo-400 shadow-2xl shadow-blue-500/30 active:scale-95 transition-transform duration-75 flex flex-col items-center justify-center group relative overflow-hidden">
+                        <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <i data-lucide="briefcase" class="w-14 h-14 text-white mb-1 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-white font-black text-xs uppercase tracking-wider">Travailler</span>
+                    </button>
+                </div>
+
+                <div class="w-full grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-casino-border text-left">
+                    <div class="bg-casino-dark p-3 rounded-xl border border-casino-border">
+                        <span class="text-[10px] text-slate-400 block uppercase font-bold">Par Clic</span>
+                        <span id="stat-per-click" class="text-base font-bold text-gold-400">+0,10 $</span>
+                    </div>
+                    <div class="bg-casino-dark p-3 rounded-xl border border-casino-border">
+                        <span class="text-[10px] text-slate-400 block uppercase font-bold">Passif / sec</span>
+                        <span id="stat-per-sec" class="text-base font-bold text-emerald-400">0,00 $/s</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-casino-border">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i data-lucide="shopping-cart" class="text-casino-accent"></i> Améliorations Économiques
+                        </h2>
+                        <p class="text-xs text-slate-400">Coûts exponentiels : Investissez judicieusement.</p>
+                    </div>
+                </div>
+
+                <div id="upgrades-list" class="space-y-3 overflow-y-auto max-h-[480px] pr-1"></div>
+            </div>
+        </section>
+
+        <!-- TAB 2: GAME - CRASH -->
+        <section id="tab-crash" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden min-h-[420px]">
+                    <div class="flex items-center justify-between z-10">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="plane" class="text-casino-accent"></i>
+                            <h2 class="font-extrabold text-white text-lg">CRASH / AVIATEUR</h2>
+                        </div>
+                        <div id="crash-status-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                            En attente
+                        </div>
+                    </div>
+
+                    <div class="relative flex-1 my-4 flex items-center justify-center">
+                        <canvas id="crash-canvas" class="absolute inset-0 w-full h-full"></canvas>
+                        <div class="relative z-10 text-center select-none">
+                            <div id="crash-multiplier-text" class="text-6xl md:text-7xl font-black text-white tracking-tight">1.00x</div>
+                            <div id="crash-subtext" class="text-xs font-bold uppercase tracking-widest text-slate-400 mt-2">Préparez vos paris</div>
+                        </div>
+                    </div>
+
+                    <div class="z-10 flex items-center gap-2 overflow-x-auto no-scrollbar pt-2 border-t border-casino-border text-xs">
+                        <span class="text-[10px] uppercase font-bold text-slate-500">Historique:</span>
+                        <div id="crash-history-strip" class="flex gap-1.5"></div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1 space-y-4 flex flex-col justify-between">
+                    <div class="bg-casino-card border border-casino-border p-5 rounded-2xl space-y-4">
+                        <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                            <i data-lucide="sliders" class="w-4 h-4 text-gold-400"></i> Panneau de Pari
+                        </h3>
+                        <div>
+                            <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="crash-bet-input" min="0.1" value="5" step="0.5" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none focus:border-casino-accent text-right">
+                                <button onclick="adjustBet('crash-bet-input', 0.5)" class="px-2.5 py-1 bg-casino-dark border border-casino-border rounded-xl text-xs font-bold hover:bg-slate-800">½</button>
+                                <button onclick="adjustBet('crash-bet-input', 2)" class="px-2.5 py-1 bg-casino-dark border border-casino-border rounded-xl text-xs font-bold hover:bg-slate-800">x2</button>
+                                <button onclick="setBetMax('crash-bet-input')" class="px-2.5 py-1 bg-gold-500/20 text-gold-400 border border-gold-500/30 rounded-xl text-xs font-bold">MAX</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 font-medium block mb-1">Auto Cashout (0 = Désactivé)</label>
+                            <input type="number" id="crash-autocash-input" min="1.05" value="2.00" step="0.1" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-emerald-400 font-bold focus:outline-none focus:border-emerald-500 text-right">
+                        </div>
+                        <button onclick="handleCrashAction()" id="btn-crash-action" class="w-full py-4 rounded-xl font-black text-base transition duration-150 bg-emerald-500 hover:bg-emerald-400 text-black shadow-lg shadow-emerald-500/20">
+                            PLACER LE PARI 🚀
+                        </button>
+                    </div>
+
+                    <div class="bg-casino-card border border-casino-border p-4 rounded-2xl flex-1 flex flex-col">
+                        <div class="flex items-center justify-between text-xs mb-3 pb-2 border-b border-casino-border">
+                            <span class="font-bold text-slate-300 flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Salle en direct
+                            </span>
+                            <span id="fake-player-count" class="text-slate-500">14 joueurs</span>
+                        </div>
+                        <div id="crash-players-list" class="space-y-2 overflow-y-auto max-h-[160px] text-xs flex-1"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: GAME - MINES -->
+        <section id="tab-mines" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i data-lucide="bomb" class="text-rose-500"></i>
+                            <h2 class="font-extrabold text-white text-lg">MINES / DÉMINEUR</h2>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
+                            <input type="number" id="mines-bet-input" min="0.1" value="5" step="0.5" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none focus:border-rose-500 text-right">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 font-medium block mb-1">Nombre de Bombes (1 - 20)</label>
+                            <select id="mines-count-select" onchange="updateMinesMultiplierPreview()" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-rose-400 font-bold focus:outline-none">
+                                <option value="1">1 Bombe (Faible Risque)</option>
+                                <option value="3" selected>3 Bombes (Équilibré)</option>
+                                <option value="5">5 Bombes (Moyen)</option>
+                                <option value="10">10 Bombes (Élevé)</option>
+                                <option value="15">15 Bombes (Extreme)</option>
+                                <option value="20">20 Bombes (DANGER)</option>
+                            </select>
+                        </div>
+                        <div class="bg-casino-dark p-4 rounded-xl border border-casino-border space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-400">Multiplicateur Actuel:</span>
+                                <span id="mines-curr-mult" class="font-bold text-emerald-400 text-base">1.00x</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs border-t border-casino-border/50 pt-2">
+                                <span class="text-slate-400">Prochaine Case:</span>
+                                <span id="mines-next-mult" class="font-bold text-gold-400">1.12x</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs border-t border-casino-border/50 pt-2">
+                                <span class="text-slate-400">Gain Potentiel:</span>
+                                <span id="mines-potential-win" class="font-bold text-white">0,00 $</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2 mt-6">
+                        <button onclick="startMinesGame()" id="btn-mines-start" class="w-full py-3.5 bg-rose-600 hover:bg-rose-500 text-white font-black text-sm rounded-xl transition shadow-lg shadow-rose-600/20">
+                            COMMENCER LA PARTIE 💣
+                        </button>
+                        <button onclick="cashoutMines()" id="btn-mines-cashout" disabled class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm rounded-xl transition disabled:opacity-30 disabled:cursor-not-allowed">
+                            ENCAISSER LES GAINS 💰
+                        </button>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 bg-casino-card border border-casino-border rounded-2xl p-6 flex items-center justify-center">
+                    <div id="mines-grid" class="grid grid-cols-5 gap-2.5 w-full max-w-md aspect-square"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: GAME - ROULETTE -->
+        <section id="tab-roulette" class="tab-content hidden space-y-6">
+            <div class="bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex-1 space-y-4">
+                    <h2 class="text-xl font-black text-white flex items-center gap-2"><i data-lucide="disc" class="text-red-500"></i> ROULETTE EUROPÉENNE</h2>
+                    <div>
+                        <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
+                        <input type="number" id="roulette-bet-input" min="0.1" value="5" step="0.5" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 font-medium block mb-2">Choisissez votre pari</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="playRoulette('red')" class="py-2.5 bg-red-600 hover:bg-red-500 font-bold text-xs rounded-xl text-white">ROUGE (x2)</button>
+                            <button onclick="playRoulette('black')" class="py-2.5 bg-slate-900 border border-slate-700 hover:bg-slate-800 font-bold text-xs rounded-xl text-white">NOIR (x2)</button>
+                            <button onclick="playRoulette('even')" class="py-2.5 bg-casino-dark border border-casino-border font-bold text-xs rounded-xl text-slate-300">PAIR (x2)</button>
+                            <button onclick="playRoulette('odd')" class="py-2.5 bg-casino-dark border border-casino-border font-bold text-xs rounded-xl text-slate-300">IMPAIR (x2)</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full md:w-64 h-64 bg-casino-dark border-4 border-casino-border rounded-full flex items-center justify-center relative overflow-hidden shadow-2xl">
+                    <div id="roulette-wheel-display" class="text-5xl font-black text-white transition-all duration-1000">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: GAME - SLOTS -->
+        <section id="tab-slots" class="tab-content hidden space-y-6">
+            <div class="bg-casino-card border border-casino-border rounded-2xl p-6 text-center max-w-xl mx-auto space-y-6">
+                <h2 class="text-xl font-black text-white flex items-center justify-center gap-2"><i data-lucide="sparkles" class="text-gold-400"></i> MACHINE À SOUS</h2>
+                <div class="flex justify-center gap-4 bg-casino-dark p-6 rounded-2xl border border-casino-border">
+                    <div id="slot-1" class="w-20 h-24 bg-casino-card border border-casino-border rounded-xl flex items-center justify-center text-4xl font-black">7️⃣</div>
+                    <div id="slot-2" class="w-20 h-24 bg-casino-card border border-casino-border rounded-xl flex items-center justify-center text-4xl font-black">7️⃣</div>
+                    <div id="slot-3" class="w-20 h-24 bg-casino-card border border-casino-border rounded-xl flex items-center justify-center text-4xl font-black">7️⃣</div>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
+                    <input type="number" id="slots-bet-input" min="0.1" value="2" step="0.5" class="w-full max-w-xs bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none mx-auto text-center">
+                </div>
+                <button onclick="spinSlots()" id="btn-spin-slots" class="w-full max-w-xs py-3.5 bg-gold-500 hover:bg-gold-400 text-black font-black text-sm rounded-xl transition shadow-lg shadow-gold-500/20">
+                    TOURNER LES ROULEAUX 🎰
+                </button>
+            </div>
+        </section>
+
+        <!-- TAB 6: GAME - BLACKJACK -->
+        <section id="tab-blackjack" class="tab-content hidden space-y-6">
+            <div class="bg-casino-card border border-casino-border rounded-2xl p-6 space-y-6">
+                <h2 class="text-xl font-black text-white flex items-center gap-2"><i data-lucide="spade" class="text-indigo-400"></i> BLACKJACK 21</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-casino-dark p-4 rounded-xl border border-casino-border space-y-2">
+                        <div class="text-xs font-bold text-slate-400 flex justify-between">
+                            <span>Main du Croupier</span>
+                            <span id="bj-dealer-score">Score: 0</span>
+                        </div>
+                        <div id="bj-dealer-cards" class="flex gap-2 min-h-[60px] items-center"></div>
+                    </div>
+                    <div class="bg-casino-dark p-4 rounded-xl border border-casino-border space-y-2">
+                        <div class="text-xs font-bold text-slate-400 flex justify-between">
+                            <span>Votre Main</span>
+                            <span id="bj-player-score">Score: 0</span>
+                        </div>
+                        <div id="bj-player-cards" class="flex gap-2 min-h-[60px] items-center"></div>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-3 items-center justify-between pt-4 border-t border-casino-border">
+                    <div class="flex gap-2 items-center">
+                        <span class="text-xs text-slate-400">Mise:</span>
+                        <input type="number" id="bj-bet-input" min="0.1" value="5" class="w-24 bg-casino-dark border border-casino-border rounded-xl px-3 py-1.5 text-gold-400 font-bold text-xs">
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="startBlackjack()" id="btn-bj-start" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 font-bold text-xs rounded-xl text-white">Nouvelle Partie</button>
+                        <button onclick="hitBlackjack()" id="btn-bj-hit" disabled class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 font-bold text-xs rounded-xl text-white disabled:opacity-30">Tirer</button>
+                        <button onclick="standBlackjack()" id="btn-bj-stand" disabled class="px-4 py-2 bg-amber-600 hover:bg-amber-500 font-bold text-xs rounded-xl text-white disabled:opacity-30">Rester</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 7: GAME - COIN FLIP -->
+        <section id="tab-coinflip" class="tab-content hidden space-y-6">
+            <div class="bg-casino-card border border-casino-border rounded-2xl p-6 text-center max-w-md mx-auto space-y-6">
+                <h2 class="text-xl font-black text-white flex items-center justify-center gap-2"><i data-lucide="circle-dot" class="text-amber-400"></i> COIN FLIP (PILE OU FACE)</h2>
+                <div id="coin-element" class="w-32 h-32 rounded-full bg-gradient-to-tr from-amber-500 to-gold-400 border-4 border-amber-300 mx-auto
