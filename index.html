@@ -1320,7 +1320,7 @@
         }
 
         /* ==========================================================================
-           5. GAME 2: MINES (GÉNÉRATION DE PATTERNS ALÉATOIRE ET INVISIBLE)
+           5. GAME 2: MINES (GÉNÉRATION ALÉATOIRE ET INVISIBLE)
            ========================================================================== */
         let minesGrid = [];
         let minesActive = false;
@@ -1377,7 +1377,6 @@
             minesBet = betInput;
             minesCount = parseInt(document.getElementById('mines-count-select').value);
             
-            // Choisit automatiquement un pattern d'emplacement aléatoire sans le montrer au joueur
             const patterns = ['random', 'diagonal', 'corners', 'cross'];
             const chosenPattern = patterns[Math.floor(Math.random() * patterns.length)];
 
@@ -1414,7 +1413,6 @@
                 }
             }
 
-            // Complète le reste des bombes aléatoirement si nécessaire
             while (planted < minesCount) {
                 const idx = Math.floor(Math.random() * 25);
                 if (!minesGrid[idx].isBomb) {
@@ -1723,14 +1721,6 @@
         function addBalance(amt) {
             gameState.balance += amt;
             updateUI();
-            
-            if (socket && socket.connected && currentUsername) {
-                socket.emit('user_join', { 
-                    username: currentUsername, 
-                    balance: gameState.balance, 
-                    badge: gameState.equippedBadge 
-                });
-            }
         }
 
         function formatMoney(num) {
@@ -1744,6 +1734,15 @@
             document.getElementById('stat-biggest-mult').innerText = `${gameState.biggestMult.toFixed(2)}x`;
             initShopUI();
             updateScoreboardUI();
+
+            // Notifie immédiatement le serveur du nouveau solde pour synchroniser le classement de tous les joueurs
+            if (socket && socket.connected && currentUsername) {
+                socket.emit('update_balance', { 
+                    username: currentUsername, 
+                    balance: gameState.balance, 
+                    badge: gameState.equippedBadge 
+                });
+            }
         }
 
         function recordHistory(game, bet, win, mult) {
