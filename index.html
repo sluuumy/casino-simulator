@@ -182,14 +182,14 @@
         </div>
     </header>
 
-    <!-- TABLEAU DES SCORES (FIXÉ EN HAUT À DROITE, ACTUALISATION TOUTES LES 5 SEC) -->
-    <div class="fixed top-20 right-4 z-30 bg-casino-card/95 border border-casino-border p-3 rounded-2xl shadow-2xl w-64 backdrop-blur-md hidden sm:block">
+    <!-- TABLEAU DES SCORES (PLACÉ AU MILIEU-GAUCHE, ACTUALISATION 50ms) -->
+    <div class="fixed left-4 top-1/2 -translate-y-1/2 z-30 bg-casino-card/95 border border-casino-border p-3 rounded-2xl shadow-2xl w-56 backdrop-blur-md hidden xl:block pointer-events-auto">
         <div class="flex items-center justify-between text-xs font-bold text-slate-300 pb-2 border-b border-casino-border mb-2">
-            <span class="flex items-center gap-1.5"><i data-lucide="trophy" class="w-4 h-4 text-gold-400"></i> Top Joueurs</span>
-            <span class="text-[9px] text-emerald-400 animate-pulse">● Live (5s)</span>
+            <span class="flex items-center gap-1.5"><i data-lucide="trophy" class="w-4 h-4 text-gold-400"></i> Top Scores</span>
+            <span class="text-[8px] text-emerald-400 animate-pulse">● 50ms</span>
         </div>
-        <div id="top-scores-list" class="space-y-1.5 text-xs max-h-40 overflow-y-auto">
-            <div class="text-slate-500 italic text-center py-2">Chargement du classement...</div>
+        <div id="top-scores-list" class="space-y-1.5 text-xs max-h-48 overflow-y-auto">
+            <div class="text-slate-500 italic text-center py-2">Chargement...</div>
         </div>
     </div>
 
@@ -204,6 +204,9 @@
             </button>
             <button onclick="switchTab('tab-mines')" id="btn-tab-mines" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
                 <i data-lucide="bomb" class="w-4 h-4 text-rose-400"></i> Démineur (Mines)
+            </button>
+            <button onclick="switchTab('tab-spin')" id="btn-tab-spin" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
+                <i data-lucide="disc" class="w-4 h-4 text-amber-400"></i> Cyber Spin
             </button>
             <button onclick="switchTab('tab-blackjack')" id="btn-tab-blackjack" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-casino-card">
                 <i data-lucide="spade" class="w-4 h-4 text-indigo-400"></i> Blackjack Multi
@@ -224,7 +227,7 @@
     </nav>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+    <main class="flex-1 max-w-5xl w-full mx-auto p-4 md:p-6">
 
         <!-- TAB 1: CLICKER -->
         <section id="tab-clicker" class="tab-content flex flex-col items-center justify-center text-center py-12">
@@ -251,14 +254,14 @@
             </div>
         </section>
 
-        <!-- TAB 2: GAME - CRASH (SYNCHRONISÉ POUR TOUS) -->
+        <!-- TAB 2: GAME - CRASH -->
         <section id="tab-crash" class="tab-content hidden space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden min-h-[420px]">
                     <div class="flex items-center justify-between z-10">
                         <div class="flex items-center gap-2">
                             <i data-lucide="plane" class="text-casino-accent"></i>
-                            <h2 class="font-extrabold text-white text-lg">CRASH / AVIATEUR (Global)</h2>
+                            <h2 class="font-extrabold text-white text-lg">CRASH / AVIATEUR</h2>
                         </div>
                         <div id="crash-status-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-950 text-amber-400 border border-amber-800 animate-pulse">
                             En attente de mises... (5s)
@@ -305,7 +308,7 @@
                     <div class="bg-casino-card border border-casino-border p-4 rounded-2xl flex-1 flex flex-col">
                         <div class="flex items-center justify-between text-xs mb-3 pb-2 border-b border-casino-border">
                             <span class="font-bold text-slate-300 flex items-center gap-1">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Paris en direct (En ligne)
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Paris en direct
                             </span>
                         </div>
                         <div id="crash-players-list" class="space-y-2 overflow-y-auto max-h-[160px] text-xs flex-1 text-slate-500 italic">Aucun pari en direct pour l'instant.</div>
@@ -314,14 +317,14 @@
             </div>
         </section>
 
-        <!-- TAB 3: GAME - MINES -->
+        <!-- TAB 3: GAME - MINES (AVEC MULTIPLES PATTERNS) -->
         <section id="tab-mines" class="tab-content hidden">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-1 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col justify-between">
+                <div class="lg:col-span-1 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col justify-between space-y-4">
                     <div class="space-y-4">
                         <div class="flex items-center gap-2 mb-2">
                             <i data-lucide="bomb" class="text-rose-500"></i>
-                            <h2 class="font-extrabold text-white text-lg">MINES / DÉMINEUR (Sans minimum)</h2>
+                            <h2 class="font-extrabold text-white text-lg">MINES / DÉMINEUR</h2>
                         </div>
                         <div>
                             <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
@@ -336,6 +339,15 @@
                                 <option value="10">10 Bombes (Élevé)</option>
                                 <option value="15">15 Bombes (Extreme)</option>
                                 <option value="20">20 Bombes (DANGER)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 font-medium block mb-1">Pattern (Disposition des bombes)</label>
+                            <select id="mines-pattern-select" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-amber-400 font-bold focus:outline-none text-xs">
+                                <option value="random">Aléatoire Pur</option>
+                                <option value="diagonal">Diagonale Pięgée</option>
+                                <option value="corners">Pièges aux Coins</option>
+                                <option value="cross">Croix Centrale</option>
                             </select>
                         </div>
                         <div class="bg-casino-dark p-4 rounded-xl border border-casino-border space-y-2">
@@ -353,7 +365,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="space-y-2 mt-6">
+                    <div class="space-y-2 pt-2">
                         <button onclick="startMinesGame()" id="btn-mines-start" class="w-full py-3.5 bg-rose-600 hover:bg-rose-500 text-white font-black text-sm rounded-xl transition shadow-lg shadow-rose-600/20">
                             COMMENCER LA PARTIE 💣
                         </button>
@@ -368,11 +380,42 @@
             </div>
         </section>
 
-        <!-- TAB 4: GAME - BLACKJACK CLASSIQUE (REMIS COMME AVANT) -->
+        <!-- TAB NEW: CYBER SPIN (ROULETTE DE LA FORTUNE SIMPLE SANS CARTES) -->
+        <section id="tab-spin" class="tab-content hidden space-y-6">
+            <div class="bg-casino-card border border-casino-border rounded-2xl p-6 max-w-lg mx-auto text-center space-y-6">
+                <div class="flex items-center justify-center gap-2">
+                    <i data-lucide="disc" class="text-amber-400"></i>
+                    <h2 class="text-xl font-black text-white">CYBER SPIN (Roue de la Fortune)</h2>
+                </div>
+                <p class="text-xs text-slate-400">Choisissez une couleur, misez le montant de votre choix et faites tourner la roue !</p>
+
+                <div id="spin-wheel-display" class="w-40 h-40 rounded-full border-8 border-amber-400/80 mx-auto flex items-center justify-center text-4xl shadow-2xl bg-casino-dark transition-all duration-1000 transform">
+                    🎡
+                </div>
+                <div id="spin-result-text" class="text-sm font-black text-gold-400 h-6">Prêt à lancer</div>
+
+                <div class="space-y-3 text-left bg-casino-dark p-4 rounded-xl border border-casino-border">
+                    <div>
+                        <label class="text-xs text-slate-400 font-medium block mb-1">Mise ($)</label>
+                        <input type="number" id="spin-bet-input" min="0.01" value="5.00" step="1" class="w-full bg-casino-card border border-casino-border rounded-xl px-3 py-2 text-gold-400 font-bold focus:outline-none text-right">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 font-medium block mb-1">Choisissez votre couleur</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="playCyberSpin('green')" class="py-2.5 bg-emerald-600 hover:bg-emerald-500 font-black text-xs text-white rounded-xl shadow">VERT (x14)</button>
+                            <button onclick="playCyberSpin('red')" class="py-2.5 bg-rose-600 hover:bg-rose-500 font-black text-xs text-white rounded-xl shadow">ROUGE (x2)</button>
+                            <button onclick="playCyberSpin('black')" class="py-2.5 bg-slate-800 hover:bg-slate-700 font-black text-xs text-white rounded-xl shadow">NOIR (x2)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: GAME - BLACKJACK MULTI -->
         <section id="tab-blackjack" class="tab-content hidden space-y-6">
             <div class="bg-casino-card border border-casino-border rounded-2xl p-6 space-y-6">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-xl font-black text-white flex items-center gap-2"><i data-lucide="spade" class="text-indigo-400"></i> BLACKJACK MULTIJOUEUR (Classique)</h2>
+                    <h2 class="text-xl font-black text-white flex items-center gap-2"><i data-lucide="spade" class="text-indigo-400"></i> BLACKJACK MULTIJOUEUR</h2>
                     <span class="text-xs text-purple-400 bg-purple-950/40 border border-purple-800/40 px-3 py-1 rounded-full font-bold">Table en Ligne Partagée</span>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -394,9 +437,9 @@
 
                 <div class="bg-casino-dark/60 p-4 rounded-xl border border-casino-border space-y-2">
                     <div class="text-xs font-bold text-slate-400 flex items-center gap-2">
-                        <i data-lucide="users" class="w-4 h-4 text-casino-accent"></i> Joueurs autour de la table de Blackjack
+                        <i data-lucide="users" class="w-4 h-4 text-casino-accent"></i> Joueurs autour de la table
                     </div>
-                    <div id="bj-table-players" class="flex flex-wrap gap-2 text-xs text-slate-300 italic">En attente de mise des participants...</div>
+                    <div id="bj-table-players" class="flex flex-wrap gap-2 text-xs text-slate-300 italic">En attente de mise...</div>
                 </div>
 
                 <div class="flex flex-wrap gap-3 items-center justify-between pt-4 border-t border-casino-border">
@@ -431,7 +474,7 @@
             </div>
         </section>
 
-        <!-- TAB 6: SHOP (BOUTIQUE LUXE ULTRA CHÈRE) -->
+        <!-- TAB 6: SHOP (AVEC NOUVEAUX PRIX 10k ET 50k) -->
         <section id="tab-shop" class="tab-content hidden space-y-6">
             <div class="bg-casino-card border border-casino-border p-6 rounded-2xl space-y-4">
                 <div class="flex items-center gap-3 pb-3 border-b border-casino-border">
@@ -439,8 +482,8 @@
                         <i data-lucide="shopping-bag"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-black text-white">Boutique de Prestige (Titres de $100k à $100 Millions)</h2>
-                        <p class="text-xs text-slate-400">Articles purement cosmétiques et extrêmement exclusifs. Ne donnent <strong class="text-rose-400">aucun avantage en jeu</strong>.</p>
+                        <h2 class="text-lg font-black text-white">Boutique de Prestige & Récompenses</h2>
+                        <p class="text-xs text-slate-400">Titres cosmétiques exclusifs. Ne donnent aucun avantage en jeu.</p>
                     </div>
                 </div>
 
@@ -539,7 +582,7 @@
 
     <script>
         /* ==========================================================================
-           0. SOCKET.IO / MULTIPLAYER CONFIGURATION & TABLEAU DES SCORES (5s)
+           0. SOCKET.IO / MULTIPLAYER CONFIGURATION & TABLEAU DES SCORES (50ms)
            ========================================================================== */
         const RENDER_URL = "https://casino-server-7b6q.onrender.com"; 
         let socket = null;
@@ -577,8 +620,6 @@
 
                 socket.on('update_online_list', (users) => {
                     onlineUsersCache = users;
-                    updateScoreboardUI();
-
                     const countEl = document.getElementById('online-count');
                     if(countEl) countEl.innerText = users.length;
                     const list = document.getElementById('online-users-list');
@@ -593,11 +634,6 @@
                     if (bjTable && users.length > 0) {
                         bjTable.innerHTML = users.map(u => `<span class="px-2.5 py-1 bg-casino-dark border border-casino-border rounded-lg text-white font-bold">${u.badge ? '['+u.badge+'] ' : ''}${u.username} ($${u.balance?.toFixed(0) || 0})</span>`).join(' ');
                     }
-                });
-
-                // Synchronisation globale du Crash (Aviateur) pour tous
-                socket.on('crash_sync', (data) => {
-                    syncCrashFromServer(data);
                 });
 
                 socket.on('receive_money', (data) => {
@@ -621,35 +657,33 @@
             }
         }
 
-        // Actualisation du tableau des scores en haut à droite toutes les 5s
+        // Actualisation ultra-rapide du tableau des scores (toutes les 50ms)
         function updateScoreboardUI() {
             const list = document.getElementById('top-scores-list');
             if (!list) return;
             
-            // Inclure le joueur actuel dans la liste
             let allPlayers = [...onlineUsersCache];
             if (currentUsername && !allPlayers.some(p => p.username === currentUsername)) {
                 allPlayers.push({ username: currentUsername, balance: gameState.balance, badge: gameState.equippedBadge });
             }
 
-            // Trier par solde décroissant
             allPlayers.sort((a, b) => (b.balance || 0) - (a.balance || 0));
 
             if (allPlayers.length === 0) {
-                list.innerHTML = `<div class="text-slate-500 italic text-center py-2">Aucun joueur en ligne</div>`;
+                list.innerHTML = `<div class="text-slate-500 italic text-center py-2">Aucun joueur</div>`;
                 return;
             }
 
             list.innerHTML = allPlayers.slice(0, 5).map((p, idx) => {
-                const b = p.badge ? `<span class="px-1.5 py-0.5 bg-gold-500/20 text-gold-400 rounded text-[9px] font-bold mr-1">[${p.badge}]</span>` : '';
+                const b = p.badge ? `<span class="px-1 py-0.2 bg-gold-500/20 text-gold-400 rounded text-[8px] font-bold mr-1">[${p.badge}]</span>` : '';
                 const medals = ['🥇', '🥈', '🥉', '4.', '5.'];
-                return `<div class="flex justify-between items-center bg-casino-dark/80 px-2.5 py-1.5 rounded-lg border border-casino-border"><div class="truncate"><span class="mr-1">${medals[idx]}</span>${b}<span class="font-bold text-white">${p.username}</span></div><span class="text-gold-400 font-bold text-right ml-2">$${p.balance?.toFixed(0) || 0}</span></div>`;
+                return `<div class="flex justify-between items-center bg-casino-dark/80 px-2 py-1 rounded-lg border border-casino-border"><div class="truncate"><span class="mr-1">${medals[idx]}</span>${b}<span class="font-bold text-white text-[11px]">${p.username}</span></div><span class="text-gold-400 font-bold text-[11px] ml-1">$${p.balance?.toFixed(0) || 0}</span></div>`;
             }).join('');
         }
 
         setInterval(() => {
             updateScoreboardUI();
-        }, 5000);
+        }, 50);
 
         function sendChatMessage() {
             const input = document.getElementById('chat-input');
@@ -839,7 +873,7 @@
         }
 
         /* ==========================================================================
-           2. OBJECTIFS & BOUTIQUE DE LUXE
+           2. OBJECTIFS & BOUTIQUE DE LUXE (AVEC PRIX 10k ET 50k)
            ========================================================================== */
         const ACHIEVEMENTS_DEF = [
             { id: 'clicks_500', title: 'Acharné du Travail', desc: 'Effectuer 500 clics manuels', check: () => gameState.totalClicks >= 500 },
@@ -853,7 +887,9 @@
         ];
 
         const LUXURY_SHOP_DEF = [
-            { id: 'badge_vip', name: 'Titre [VIP]', desc: 'Badge VIP discret.', price: 100000.00, tag: 'VIP' },
+            { id: 'badge_pro', name: 'Titre [PRO]', desc: 'Badge pour les joueurs réguliers.', price: 10000.00, tag: 'PRO' },
+            { id: 'badge_elite', name: 'Titre [ÉLITE]', desc: 'Badge de prestige intermédiaire.', price: 50000.00, tag: 'ÉLITE' },
+            { id: 'badge_vip', name: 'Titre [VIP]', desc: 'Badge VIP de haut rang.', price: 100000.00, tag: 'VIP' },
             { id: 'badge_millionaire', name: 'Titre [MILLIONNAIRE]', desc: 'Affiche [MILLIONNAIRE] dans le tchat.', price: 1000000.00, tag: 'MILLIONNAIRE' },
             { id: 'badge_whale', name: 'Titre [BALEINE]', desc: 'Pour les joueurs aux poches infinies.', price: 5000000.00, tag: 'BALEINE' },
             { id: 'badge_tycoon', name: 'Titre [TYCOON]', desc: 'Seuls les vrais maîtres du capital l\'obtiennent.', price: 25000000.00, tag: 'TYCOON' },
@@ -961,7 +997,7 @@
             initShopUI();
             updateEquippedBadgeDisplay();
             saveGame();
-            showToast("✨ Titre de prestige acquis ! Visible par tous les joueurs.", "success");
+            showToast("✨ Titre acquis avec succès !", "success");
             triggerConfetti();
 
             if (socket && socket.connected) {
@@ -1034,7 +1070,7 @@
         }
 
         /* ==========================================================================
-           4. GAME 1: CRASH (AVIATEUR - SYNCHRONISÉ POUR TOUTES LES SESSIONS)
+           4. GAME 1: CRASH (AVIATEUR)
            ========================================================================== */
         let crashState = 'cooldown';
         let crashMultiplier = 1.00;
@@ -1205,10 +1241,6 @@
             }, 3000);
         }
 
-        function syncCrashFromServer(data) {
-            // Synchronisation optionnelle si reçue du serveur
-        }
-
         function pushCrashHistoryStrip(val) {
             const strip = document.getElementById('crash-history-strip');
             const el = document.createElement('span');
@@ -1291,7 +1323,7 @@
         }
 
         /* ==========================================================================
-           5. GAME 2: MINES (SANS MISE MINIMUM)
+           5. GAME 2: MINES (AVEC MULTIPLES PATTERNS DE DISPOSITION)
            ========================================================================== */
         let minesGrid = [];
         let minesActive = false;
@@ -1347,12 +1379,41 @@
             gameState.balance -= betInput;
             minesBet = betInput;
             minesCount = parseInt(document.getElementById('mines-count-select').value);
+            const pattern = document.getElementById('mines-pattern-select').value;
             minesDiamondsFound = 0;
             minesActive = true;
             updateUI();
 
             minesGrid = Array(25).fill(null).map(() => ({ isBomb: false, revealed: false }));
             let planted = 0;
+
+            if (pattern === 'diagonal') {
+                const diagIndices = [0, 6, 12, 18, 24, 4, 8, 16, 20];
+                for (let idx of diagIndices) {
+                    if (planted < minesCount && idx < 25) {
+                        minesGrid[idx].isBomb = true;
+                        planted++;
+                    }
+                }
+            } else if (pattern === 'corners') {
+                const cornerIndices = [0, 4, 20, 24, 1, 3, 21, 23, 5, 9, 15, 19];
+                for (let idx of cornerIndices) {
+                    if (planted < minesCount && idx < 25) {
+                        minesGrid[idx].isBomb = true;
+                        planted++;
+                    }
+                }
+            } else if (pattern === 'cross') {
+                const crossIndices = [2, 7, 10, 11, 12, 13, 14, 17, 22];
+                for (let idx of crossIndices) {
+                    if (planted < minesCount && idx < 25) {
+                        minesGrid[idx].isBomb = true;
+                        planted++;
+                    }
+                }
+            }
+
+            // Compléter si besoin aléatoirement
             while (planted < minesCount) {
                 const idx = Math.floor(Math.random() * 25);
                 if (!minesGrid[idx].isBomb) {
@@ -1441,7 +1502,69 @@
         }
 
         /* ==========================================================================
-           6. GAME 3: BLACKJACK CLASSIQUE (REMIS COMME AVANT)
+           NEW GAME: CYBER SPIN (ROULETTE DE LA FORTUNE SANS CARTES)
+           ========================================================================== */
+        function playCyberSpin(choiceColor) {
+            const bet = parseFloat(document.getElementById('spin-bet-input').value);
+            if (isNaN(bet) || bet <= 0) {
+                showToast("Veuillez saisir une mise valide !", "error");
+                return;
+            }
+            if (bet > gameState.balance) {
+                showToast("Solde insuffisant !", "error");
+                return;
+            }
+
+            gameState.balance -= bet;
+            updateUI();
+
+            const wheel = document.getElementById('spin-wheel-display');
+            const resultText = document.getElementById('spin-result-text');
+            wheel.style.transform = "rotate(1080deg) scale(1.1)";
+            resultText.innerText = "La roue tourne...";
+
+            setTimeout(() => {
+                wheel.style.transform = "rotate(0deg) scale(1)";
+                const rand = Math.random();
+                let winningColor = 'red';
+                let multiplier = 2;
+
+                if (rand < 0.05) {
+                    winningColor = 'green';
+                    multiplier = 14;
+                } else if (rand < 0.5) {
+                    winningColor = 'red';
+                    multiplier = 2;
+                } else {
+                    winningColor = 'black';
+                    multiplier = 2;
+                }
+
+                if (winningColor === 'green') wheel.style.borderColor = '#10b981';
+                else if (winningColor === 'red') wheel.style.borderColor = '#f43f5e';
+                else wheel.style.borderColor = '#94a3b8';
+
+                if (choiceColor === winningColor) {
+                    const winAmt = bet * multiplier;
+                    addBalance(winAmt);
+                    gameState.totalWon += winAmt - bet;
+                    if (multiplier > gameState.biggestMult) gameState.biggestMult = multiplier;
+                    resultText.innerText = `Gagné ! C'était ${winningColor.toUpperCase()} (${multiplier}x)`;
+                    showToast(`Gagné ${formatMoney(winAmt)} !`, "success");
+                    recordHistory("Cyber Spin", bet, winAmt, multiplier);
+                    triggerConfetti();
+                } else {
+                    gameState.totalLost += bet;
+                    resultText.innerText = `Perdu ! C'était ${winningColor.toUpperCase()}`;
+                    showToast(`La roue est tombée sur ${winningColor.toUpperCase()}`, "error");
+                    recordHistory("Cyber Spin", bet, 0, 0);
+                }
+                checkAchievements();
+            }, 1000);
+        }
+
+        /* ==========================================================================
+           6. GAME 3: BLACKJACK MULTI
            ========================================================================== */
         let bjDeck = [], bjPlayer = [], bjDealer = [], bjBet = 0, bjActive = false;
         function startBlackjack() {
