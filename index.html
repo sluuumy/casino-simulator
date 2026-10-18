@@ -182,7 +182,7 @@
         </div>
     </header>
 
-    <!-- TABLEAU DES SCORES (PLACÉ AU MILIEU-GAUCHE, ACTUALISATION 50ms) -->
+    <!-- TABLEAU DES SCORES -->
     <div class="fixed left-4 top-1/2 -translate-y-1/2 z-30 bg-casino-card/95 border border-casino-border p-3 rounded-2xl shadow-2xl w-56 backdrop-blur-md hidden xl:block pointer-events-auto">
         <div class="flex items-center justify-between text-xs font-bold text-slate-300 pb-2 border-b border-casino-border mb-2">
             <span class="flex items-center gap-1.5"><i data-lucide="trophy" class="w-4 h-4 text-gold-400"></i> Top Scores</span>
@@ -317,7 +317,7 @@
             </div>
         </section>
 
-        <!-- TAB 3: GAME - MINES (AVEC MULTIPLES PATTERNS) -->
+        <!-- TAB 3: GAME - MINES -->
         <section id="tab-mines" class="tab-content hidden">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-1 bg-casino-card border border-casino-border rounded-2xl p-6 flex flex-col justify-between space-y-4">
@@ -339,15 +339,6 @@
                                 <option value="10">10 Bombes (Élevé)</option>
                                 <option value="15">15 Bombes (Extreme)</option>
                                 <option value="20">20 Bombes (DANGER)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-xs text-slate-400 font-medium block mb-1">Pattern (Disposition des bombes)</label>
-                            <select id="mines-pattern-select" class="w-full bg-casino-dark border border-casino-border rounded-xl px-3 py-2 text-amber-400 font-bold focus:outline-none text-xs">
-                                <option value="random">Aléatoire Pur</option>
-                                <option value="diagonal">Diagonale Pięgée</option>
-                                <option value="corners">Pièges aux Coins</option>
-                                <option value="cross">Croix Centrale</option>
                             </select>
                         </div>
                         <div class="bg-casino-dark p-4 rounded-xl border border-casino-border space-y-2">
@@ -380,7 +371,7 @@
             </div>
         </section>
 
-        <!-- TAB NEW: CYBER SPIN (ROULETTE DE LA FORTUNE SIMPLE SANS CARTES) -->
+        <!-- TAB NEW: CYBER SPIN -->
         <section id="tab-spin" class="tab-content hidden space-y-6">
             <div class="bg-casino-card border border-casino-border rounded-2xl p-6 max-w-lg mx-auto text-center space-y-6">
                 <div class="flex items-center justify-center gap-2">
@@ -474,7 +465,7 @@
             </div>
         </section>
 
-        <!-- TAB 6: SHOP (AVEC NOUVEAUX PRIX 10k ET 50k) -->
+        <!-- TAB 6: SHOP -->
         <section id="tab-shop" class="tab-content hidden space-y-6">
             <div class="bg-casino-card border border-casino-border p-6 rounded-2xl space-y-4">
                 <div class="flex items-center gap-3 pb-3 border-b border-casino-border">
@@ -663,8 +654,15 @@
             if (!list) return;
             
             let allPlayers = [...onlineUsersCache];
-            if (currentUsername && !allPlayers.some(p => p.username === currentUsername)) {
-                allPlayers.push({ username: currentUsername, balance: gameState.balance, badge: gameState.equippedBadge });
+            
+            if (currentUsername) {
+                const myIndex = allPlayers.findIndex(p => p.username === currentUsername);
+                if (myIndex !== -1) {
+                    allPlayers[myIndex].balance = gameState.balance;
+                    allPlayers[myIndex].badge = gameState.equippedBadge;
+                } else {
+                    allPlayers.push({ username: currentUsername, balance: gameState.balance, badge: gameState.equippedBadge });
+                }
             }
 
             allPlayers.sort((a, b) => (b.balance || 0) - (a.balance || 0));
@@ -873,7 +871,7 @@
         }
 
         /* ==========================================================================
-           2. OBJECTIFS & BOUTIQUE DE LUXE (AVEC PRIX 10k ET 50k)
+           2. OBJECTIFS & BOUTIQUE DE LUXE
            ========================================================================== */
         const ACHIEVEMENTS_DEF = [
             { id: 'clicks_500', title: 'Acharné du Travail', desc: 'Effectuer 500 clics manuels', check: () => gameState.totalClicks >= 500 },
@@ -925,7 +923,6 @@
             }
         }
 
-        // Zone de secours : clic pour se refaire (0,10$ par clic)
         document.getElementById('main-click-btn').addEventListener('click', (e) => {
             if (!currentUsername) return;
             addBalance(0.10);
@@ -1323,7 +1320,7 @@
         }
 
         /* ==========================================================================
-           5. GAME 2: MINES (AVEC MULTIPLES PATTERNS DE DISPOSITION)
+           5. GAME 2: MINES (GÉNÉRATION DE PATTERNS ALÉATOIRE ET INVISIBLE)
            ========================================================================== */
         let minesGrid = [];
         let minesActive = false;
@@ -1379,7 +1376,11 @@
             gameState.balance -= betInput;
             minesBet = betInput;
             minesCount = parseInt(document.getElementById('mines-count-select').value);
-            const pattern = document.getElementById('mines-pattern-select').value;
+            
+            // Choisit automatiquement un pattern d'emplacement aléatoire sans le montrer au joueur
+            const patterns = ['random', 'diagonal', 'corners', 'cross'];
+            const chosenPattern = patterns[Math.floor(Math.random() * patterns.length)];
+
             minesDiamondsFound = 0;
             minesActive = true;
             updateUI();
@@ -1387,7 +1388,7 @@
             minesGrid = Array(25).fill(null).map(() => ({ isBomb: false, revealed: false }));
             let planted = 0;
 
-            if (pattern === 'diagonal') {
+            if (chosenPattern === 'diagonal') {
                 const diagIndices = [0, 6, 12, 18, 24, 4, 8, 16, 20];
                 for (let idx of diagIndices) {
                     if (planted < minesCount && idx < 25) {
@@ -1395,7 +1396,7 @@
                         planted++;
                     }
                 }
-            } else if (pattern === 'corners') {
+            } else if (chosenPattern === 'corners') {
                 const cornerIndices = [0, 4, 20, 24, 1, 3, 21, 23, 5, 9, 15, 19];
                 for (let idx of cornerIndices) {
                     if (planted < minesCount && idx < 25) {
@@ -1403,7 +1404,7 @@
                         planted++;
                     }
                 }
-            } else if (pattern === 'cross') {
+            } else if (chosenPattern === 'cross') {
                 const crossIndices = [2, 7, 10, 11, 12, 13, 14, 17, 22];
                 for (let idx of crossIndices) {
                     if (planted < minesCount && idx < 25) {
@@ -1413,7 +1414,7 @@
                 }
             }
 
-            // Compléter si besoin aléatoirement
+            // Complète le reste des bombes aléatoirement si nécessaire
             while (planted < minesCount) {
                 const idx = Math.floor(Math.random() * 25);
                 if (!minesGrid[idx].isBomb) {
@@ -1502,7 +1503,7 @@
         }
 
         /* ==========================================================================
-           NEW GAME: CYBER SPIN (ROULETTE DE LA FORTUNE SANS CARTES)
+           NEW GAME: CYBER SPIN
            ========================================================================== */
         function playCyberSpin(choiceColor) {
             const bet = parseFloat(document.getElementById('spin-bet-input').value);
@@ -1722,7 +1723,14 @@
         function addBalance(amt) {
             gameState.balance += amt;
             updateUI();
-            updateScoreboardUI();
+            
+            if (socket && socket.connected && currentUsername) {
+                socket.emit('user_join', { 
+                    username: currentUsername, 
+                    balance: gameState.balance, 
+                    badge: gameState.equippedBadge 
+                });
+            }
         }
 
         function formatMoney(num) {
