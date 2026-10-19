@@ -133,6 +133,11 @@ main{min-width:0}
 .live .who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
 .live .g{color:var(--faint);font-size:13px}
 .live .amt{color:var(--brass);font-weight:700}
+.live li.cashed .g{color:var(--jade);font-weight:700}
+.fair{margin-top:12px;font-size:13px;color:var(--faint);display:flex;flex-direction:column;gap:4px}
+.fair code{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.fair summary{cursor:pointer;color:var(--muted)}
+.fair details p{margin-top:4px}
 
 /* ---------- Mines ---------- */
 .mines-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:20px;align-items:start}
@@ -405,7 +410,7 @@ main{min-width:0}
     <section class="view" id="view-crash" aria-labelledby="h-crash">
       <header class="view-head">
         <h2 id="h-crash">Aviateur</h2>
-        <p>Misez avant le décollage, puis encaissez avant le crash. Plus vous attendez, plus le multiplicateur grimpe.</p>
+        <p>Tous les joueurs suivent la même manche. Misez avant le décollage, puis encaissez avant le crash : plus vous attendez, plus le multiplicateur grimpe.</p>
       </header>
       <div class="crash-grid">
         <div>
@@ -420,6 +425,7 @@ main{min-width:0}
             <span class="muted-sm">Derniers crashs</span>
             <div class="crash-history" id="crash-history"></div>
           </div>
+          <div class="fair" id="crash-fair"></div>
         </div>
         <div class="stack">
           <div class="panel stack">
@@ -427,14 +433,14 @@ main{min-width:0}
             <div class="field">
               <label for="crash-auto">Encaissement automatique à</label>
               <div class="suffix"><input id="crash-auto" class="input" type="number" inputmode="decimal" min="0" step="0.1" value="2.00"><span>×</span></div>
-              <small class="hint">Laissez 0 pour encaisser vous-même.</small>
+              <small class="hint">Laissez 0 pour encaisser vous-même. Fixé au moment de la mise.</small>
             </div>
-            <button class="btn btn-go btn-lg" id="crash-action" type="button">Miser</button>
+            <button class="btn btn-ghost btn-lg" id="crash-action" type="button" disabled>Connexion…</button>
             <p class="hint" id="crash-note"></p>
           </div>
           <div class="panel">
-            <h3 class="panel-title">Paris des joueurs</h3>
-            <ul class="live" id="crash-live"><li class="empty">Aucun pari pour l’instant.</li></ul>
+            <h3 class="panel-title">Mises de la manche</h3>
+            <ul class="live" id="crash-live"><li class="empty">Aucune mise sur cette manche.</li></ul>
           </div>
         </div>
       </div>
@@ -603,6 +609,10 @@ main{min-width:0}
           <div class="panel">
             <h3 class="panel-title">Joueurs connectés <span id="online-count" class="muted"></span></h3>
             <ul class="online" id="online-list"></ul>
+          </div>
+          <div class="panel">
+            <h3 class="panel-title">Activité des jeux</h3>
+            <ul class="live" id="activity"><li class="empty">Les mises des autres joueurs apparaîtront ici.</li></ul>
           </div>
           <div class="panel social-board">
             <h3 class="panel-title">Classement</h3>
@@ -785,8 +795,8 @@ function resolvePending() {
   S.pending = {};
   const notes = [];
   if (p.crash) {
-    if (!p.crash.started) { Wallet.credit(p.crash.bet); notes.push(`Mise Aviateur remboursée (${money(p.crash.bet)}) : la manche n’avait pas commencé.`); }
-    else { settle('Aviateur', p.crash.bet, 0, 0); notes.push('Manche Aviateur interrompue en vol : mise perdue.'); }
+    if (p.crash.roundId) S.pending.crash = p.crash; // le serveur dira ce qu'elle est devenue (Crash.resume)
+    else { Wallet.credit(p.crash.bet); notes.push(`Mise Aviateur remboursée (${money(p.crash.bet)}).`); }
   }
   if (p.mines) {
     if (p.mines.found > 0) {
@@ -864,6 +874,7 @@ function startSession(name, state, guest) {
   resolvePending();
   renderAll();
   Net.join();
+  Crash.resume();
 }
 function startGuest() {
   let name = store.get(KEYS.guestName);
@@ -874,11 +885,10 @@ function startGuest() {
 }
 function logout() {
   if (!user) return showAuth();
-  if (Mines.active || BJ.active || Crash.active || Spin.spinning || Coin.busy) {
+  if (Mines.active || BJ.active || Crash.active || S.pending.crash || Spin.spinning || Coin.busy) {
     toast('Terminez la partie en cours avant de changer de compte.', 'error');
     return;
   }
-  if (Crash.queued) Crash.cancel(true);
   saveNow();
   user = null; isGuest = false; S = DEFAULT_STATE();
   store.del(KEYS.active);
@@ -1014,128 +1024,211 @@ function initShop() {
 }
 
 /* =====================================================================
-   AVIATEUR (CRASH)
-   Point de crash : P(crash ≥ x) = 0,97 / x, soit 3 % d'avantage maison
-   identique quelle que soit la stratégie d'encaissement.
+   AVIATEUR (CRASH) PARTAGÉ
+   La manche est gérée par le serveur : tout le monde voit le même compteur
+   et le même crash. Le navigateur ne fait qu'afficher et envoyer les ordres.
+   Équité vérifiable : l'empreinte SHA-256 de la graine est publiée avant la
+   manche, la graine est révélée après le crash et vérifiée ici.
    ===================================================================== */
+async function sha256Hex(s) {
+  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return hex(new Uint8Array(d));
+}
+async function verifyRound(r) {
+  if (!window.crypto || !crypto.subtle || !r.seed) return null;
+  if (await sha256Hex(r.seed) !== r.hash) return false;
+  const h = await sha256Hex('point:' + r.seed);
+  const x = parseInt(h.slice(0, 13), 16) / 2 ** 52;
+  const p = Math.min(10000, Math.max(1, Math.floor((100 * HOUSE) / (1 - x)) / 100));
+  return Math.abs(p - r.point) < 0.001;
+}
+
 const Crash = {
-  K: 0.09, BET_MS: 6000, PAUSE_MS: 3000,
-  phase: 'betting', phaseEnd: 0, start: 0, point: 1, mult: 1,
-  bet: 0, queued: false, active: false, cashed: false, history: [],
-  canvas: null, ctx: null, w: 0, h: 0,
+  K: 0.09,
+  phase: 'offline', id: null, hash: '', betEndsAt: 0, startedAt: 0, point: 1, mult: 1,
+  bet: 0, betRound: null, auto: 0, active: false, cashed: false, busy: false, resuming: false,
+  history: [], canvas: null, ctx: null, w: 0, h: 0,
 
   init() {
     this.canvas = $('#crash-canvas');
     this.ctx = this.canvas.getContext('2d');
     new ResizeObserver(() => this.resize()).observe(this.canvas.parentElement);
     $('#crash-action').addEventListener('click', () => this.action());
-    this.phaseEnd = performance.now() + this.BET_MS;
     const loop = () => { this.tick(); requestAnimationFrame(loop); };
     requestAnimationFrame(loop);
     this.updateButton();
   },
-  genPoint() {
-    const r = RNG.float();
-    const p = Math.floor((100 * HOUSE) / (1 - r)) / 100;
-    return Math.min(Math.max(1, p), 10000);
-  },
+  now() { return Date.now() + Net.offset; },
   autoTarget() {
     const v = parseFloat($('#crash-auto').value);
     return Number.isFinite(v) && v >= 1.01 ? floor2(v) : 0;
   },
-  tick() {
-    const now = performance.now();
-    if (this.phase === 'betting') {
-      if (now >= this.phaseEnd) this.launch(now);
-    } else if (this.phase === 'running') {
-      const m = floor2(Math.exp(this.K * (now - this.start) / 1000));
-      const auto = this.autoTarget();
-      if (this.active && !this.cashed && auto && auto <= this.point && m >= auto) this.cashout(auto);
-      if (m >= this.point) { this.mult = this.point; this.bust(now); }
-      else { this.mult = m; if (this.active && !this.cashed) this.updateButton(); }
-    } else if (this.phase === 'crashed' && now >= this.phaseEnd) {
-      this.phase = 'betting'; this.phaseEnd = now + this.BET_MS; this.mult = 1;
-      this.updateButton();
-    }
-    if (currentView === 'crash' && !document.hidden) { this.drawReadout(now); this.draw(now); }
-  },
-  launch(now) {
-    this.point = this.genPoint();
-    this.start = now; this.mult = 1; this.phase = 'running'; this.cashed = false;
-    if (this.queued) {
-      this.queued = false; this.active = true;
-      setPending('crash', { bet: this.bet, started: true });
-    }
+
+  /* ----- Événements du serveur ----- */
+  applyRound(r) {
+    if (!r || !r.id) return;
+    this.id = r.id; this.hash = r.hash; this.phase = r.phase;
+    this.betEndsAt = r.betEndsAt; this.startedAt = r.startedAt;
+    if (r.phase === 'crashed') { this.point = r.point; this.mult = r.point; }
+    else if (r.phase === 'betting') this.mult = 1;
+    this.renderFair();
     this.updateButton();
   },
-  bust(now) {
-    this.phase = 'crashed'; this.phaseEnd = now + this.PAUSE_MS;
-    if (this.active && !this.cashed) {
-      settle('Aviateur', this.bet, 0, this.point);
+  onState(s) {
+    this.applyRound(s);
+    this.history = Array.isArray(s.history) ? s.history.slice(0, 14) : [];
+    this.renderHistory();
+  },
+  onEnd(r) {
+    this.applyRound(r);
+    if (this.active && !this.cashed && this.betRound === r.id) {
+      this.active = false;
+      settle('Aviateur', this.bet, 0, r.point);
       setPending('crash', null);
-      toast(`Crash à ${fmtX(this.point)} : mise de ${money(this.bet)} perdue.`, 'error');
+      toast(`Crash à ${fmtX(r.point)} : mise de ${money(this.bet)} perdue.`, 'error');
     }
     this.active = false;
-    this.history.unshift(this.point);
+    this.history.unshift({ id: r.id, point: r.point, seed: r.seed, hash: r.hash });
     this.history.length = Math.min(this.history.length, 14);
-    $('#crash-history').innerHTML = this.history.map(p =>
-      `<span class="hchip${p >= 10 ? ' moon' : p >= 2 ? ' hi' : ''}">${fmtX(p)}</span>`).join('');
+    this.renderHistory();
     this.updateButton();
   },
-  cashout(at) {
-    if (!this.active || this.cashed || this.phase !== 'running') return;
+  onCashed(d) {
+    if (!this.active || this.cashed || !d || d.roundId !== this.betRound) return;
     this.cashed = true; this.active = false;
-    const pay = r2(this.bet * at);
-    if (at > S.bestCrash) S.bestCrash = at;
-    settle('Aviateur', this.bet, pay, at);
+    const mult = Number(d.mult), pay = r2(d.payout);
+    if (mult > S.bestCrash) S.bestCrash = mult;
+    settle('Aviateur', this.bet, pay, mult);
     setPending('crash', null);
-    toast(`Encaissé à ${fmtX(at)} : ${money(pay)}.`, 'success');
+    toast(`Encaissé à ${fmtX(mult)} : ${money(pay)}.`, 'success');
     this.updateButton();
   },
-  cancel(silent) {
-    if (!this.queued) return;
-    this.queued = false;
-    Wallet.credit(this.bet);
-    setPending('crash', null);
-    if (!silent) toast('Mise annulée et remboursée.', 'info');
+  onBets(list) {
+    const ul = $('#crash-live');
+    list = Array.isArray(list) ? list : [];
+    ul.innerHTML = list.length
+      ? list.slice(0, 30).map(b => `<li class="${b.cashedAt ? 'cashed' : ''}"><span class="who">${esc(String(b.username).slice(0, 24))}</span><span class="g">${b.cashedAt ? fmtX(b.cashedAt) : ''}</span><span class="amt">${money(Number(b.amount) || 0)}</span></li>`).join('')
+      : '<li class="empty">Aucune mise sur cette manche.</li>';
+  },
+  onDisconnect() {
+    this.phase = 'offline';
+    this.active = false; // la mise reste enregistrée (S.pending) et sera resynchronisée
     this.updateButton();
   },
-  action() {
-    if (this.phase === 'running' && this.active && !this.cashed) return this.cashout(this.mult);
-    if (this.queued) return this.cancel();
-    if (this.active) return;
+
+  /* Reprise d'une mise après rechargement ou coupure réseau */
+  async resume() {
+    const p = S.pending.crash;
+    if (!p || !user || this.resuming || !Net.ready()) return;
+    this.resuming = true;
+    const r = await Net.request('crash_result', { roundId: p.roundId });
+    this.resuming = false;
+    if (r.ok === false) return; // serveur muet : on réessaiera à la prochaine connexion
+    if (r.status === 'cashed') {
+      if (r.mult > S.bestCrash) S.bestCrash = r.mult;
+      settle('Aviateur', p.bet, r2(r.payout), r.mult);
+      setPending('crash', null);
+      toast(`Votre mise Aviateur a été encaissée à ${fmtX(r.mult)} : ${money(r.payout)}.`, 'success');
+    } else if (r.status === 'lost') {
+      settle('Aviateur', p.bet, 0, r.point || 0);
+      setPending('crash', null);
+      toast(`Votre mise Aviateur a été perdue (crash à ${fmtX(r.point || 1)}).`, 'error');
+    } else if (r.status === 'active') {
+      this.bet = p.bet; this.betRound = p.roundId; this.auto = r.auto || 0;
+      this.active = true; this.cashed = false;
+      if (this.auto) $('#crash-auto').value = this.auto.toFixed(2);
+    } else {
+      Wallet.credit(p.bet);
+      setPending('crash', null);
+      toast('Manche introuvable sur le serveur (redémarrage) : mise remboursée.', 'info');
+    }
+    this.updateButton();
+  },
+
+  /* ----- Actions du joueur ----- */
+  async action() {
+    if (this.busy) return;
+    if (!Net.ready()) return toast('Aviateur indisponible : connexion au serveur en cours.', 'error');
+    if (!user) return showAuth();
+    if (this.phase === 'running' && this.active && !this.cashed) {
+      this.busy = true; this.updateButton();
+      const res = await Net.request('crash_cashout', {});
+      this.busy = false;
+      if (!res.ok) toast(res.msg || 'Encaissement refusé.', 'error');
+      return this.updateButton(); // le gain arrive par l'événement crash_cashed
+    }
+    if (this.phase === 'betting' && this.active) {
+      this.busy = true; this.updateButton();
+      const res = await Net.request('crash_cancel', {});
+      this.busy = false;
+      if (res.ok && this.active) {
+        this.active = false;
+        Wallet.credit(this.bet);
+        setPending('crash', null);
+        toast('Mise annulée et remboursée.', 'info');
+      } else if (!res.ok) toast(res.msg || 'Annulation refusée.', 'error');
+      return this.updateButton();
+    }
+    if (this.phase !== 'betting' || this.active) return;
+    if (S.pending.crash) return toast('Récupération de votre mise précédente en cours…', 'info');
     const b = readBet('crash');
-    if (b == null || !Wallet.debit(b)) return;
-    this.bet = b; this.queued = true;
-    setPending('crash', { bet: b, started: false });
-    Net.emit('place_bet', { game: 'Aviateur', amount: b, win: false, payout: 0 });
+    if (b == null) return;
+    this.busy = true; this.updateButton();
+    Net.pushBalanceNow();
+    const res = await Net.request('crash_bet', { amount: b, auto: this.autoTarget() });
+    this.busy = false;
+    if (!res.ok) { toast(res.msg || 'Mise refusée.', 'error'); return this.updateButton(); }
+    if (!Wallet.debit(b)) { Net.request('crash_cancel', {}); return this.updateButton(); }
+    this.bet = b; this.betRound = res.roundId; this.auto = res.auto || 0;
+    this.active = true; this.cashed = false;
+    setPending('crash', { bet: b, roundId: res.roundId });
     this.updateButton();
+  },
+
+  /* ----- Affichage ----- */
+  tick() {
+    const now = this.now();
+    if (this.phase === 'running') {
+      this.mult = floor2(Math.exp((this.K * Math.max(0, now - this.startedAt)) / 1000));
+      if (this.active && !this.cashed) this.updateButton();
+    }
+    if (currentView === 'crash' && !document.hidden) { this.drawReadout(now); this.draw(now); }
   },
   updateButton() {
     const btn = $('#crash-action'), note = $('#crash-note');
     const flying = this.phase === 'running' && this.active && !this.cashed;
-    lockBet('crash', this.queued || this.active);
-    if (flying) {
-      btn.className = 'btn btn-brass btn-lg';
-      btn.textContent = `Encaisser ${money(r2(this.bet * this.mult))}`;
-      const auto = this.autoTarget();
-      note.textContent = auto ? `Encaissement automatique prévu à ${fmtX(auto)}.` : '';
-    } else if (this.queued) {
-      btn.className = 'btn btn-ghost btn-lg';
-      btn.textContent = `Annuler ma mise (${money(this.bet)})`;
-      note.textContent = this.phase === 'running' ? 'Votre mise partira à la prochaine manche.' : 'Votre mise partira au décollage.';
+    lockBet('crash', this.active || this.busy);
+    $('#crash-auto').disabled = this.active;
+    let cls = 'btn btn-go btn-lg', text = 'Miser', hint = '', enabled = false;
+    if (this.phase === 'offline') {
+      cls = 'btn btn-ghost btn-lg'; text = 'Serveur injoignable';
+      hint = 'L’Aviateur est partagé entre tous les joueurs : il reprend dès la reconnexion.';
+    } else if (flying) {
+      cls = 'btn btn-brass btn-lg'; text = `Encaisser ${money(r2(this.bet * this.mult))}`; enabled = true;
+      hint = this.auto ? `Encaissement automatique prévu à ${fmtX(this.auto)}.` : '';
+    } else if (this.active && this.phase === 'betting') {
+      cls = 'btn btn-ghost btn-lg'; text = `Annuler ma mise (${money(this.bet)})`; enabled = true;
+      hint = 'Votre mise partira au décollage.';
+    } else if (this.phase === 'betting') {
+      enabled = true;
     } else {
-      btn.className = 'btn btn-go btn-lg';
-      btn.textContent = this.phase === 'running' ? 'Miser pour la prochaine manche' : 'Miser';
-      note.textContent = '';
+      text = this.cashed && this.phase === 'running' ? 'Encaissé' : 'Mises fermées';
+      hint = 'Vous pourrez miser dès la prochaine manche.';
     }
+    btn.className = cls;
+    btn.textContent = this.busy ? 'Envoi…' : text;
+    btn.disabled = !enabled || this.busy;
+    note.textContent = hint;
   },
   drawReadout(now) {
     const stage = $('#crash-stage'), el = $('#crash-mult'), lab = $('#crash-label');
-    stage.dataset.state = this.phase;
+    stage.dataset.state = this.phase === 'offline' ? 'betting' : this.phase;
     stage.classList.toggle('mine', this.active && !this.cashed);
-    if (this.phase === 'betting') {
-      el.textContent = NUM.format(Math.max(0, (this.phaseEnd - now) / 1000)).slice(0, -1) + ' s';
+    if (this.phase === 'offline') {
+      el.textContent = '—'; lab.textContent = 'Connexion au serveur…';
+    } else if (this.phase === 'betting') {
+      const left = Math.max(0, (this.betEndsAt - now) / 1000);
+      el.textContent = left > 0 ? NUM.format(left).slice(0, -1) + ' s' : '…';
       lab.textContent = 'avant le décollage';
     } else if (this.phase === 'running') {
       el.textContent = fmtX(this.mult);
@@ -1145,6 +1238,23 @@ const Crash = {
       lab.textContent = 'Crash';
     }
   },
+  renderHistory() {
+    $('#crash-history').innerHTML = this.history.map(h =>
+      `<span class="hchip${h.point >= 10 ? ' moon' : h.point >= 2 ? ' hi' : ''}" title="Manche ${esc(h.id)}">${fmtX(h.point)}</span>`).join('');
+    this.renderFair();
+  },
+  async renderFair() {
+    const box = $('#crash-fair');
+    const last = this.history[0];
+    const cur = this.hash && this.phase !== 'crashed' ? `<p>Empreinte de la manche en cours : <code>${esc(this.hash.slice(0, 16))}…</code></p>` : '';
+    if (!last) { box.innerHTML = cur; return; }
+    const ok = await verifyRound(last);
+    if (last !== this.history[0]) return; // une nouvelle manche est arrivée entre-temps
+    const verdict = ok === true ? '<span class="pos">vérifiée</span>' : ok === false ? '<span class="neg">non conforme</span>' : 'non vérifiable ici';
+    box.innerHTML = `${cur}<details><summary>Manche précédente (${fmtX(last.point)}) : ${verdict}</summary>
+      <p>Empreinte annoncée : <code>${esc(last.hash)}</code></p><p>Graine révélée : <code>${esc(last.seed)}</code></p>
+      <p>Le SHA-256 de la graine redonne l’empreinte annoncée avant la manche, et le SHA-256 de « point: » suivi de la graine donne le point de crash. Votre navigateur l’a recalculé.</p></details>`;
+  },
   resize() {
     const box = this.canvas.parentElement.getBoundingClientRect();
     if (!box.width) return;
@@ -1153,7 +1263,7 @@ const Crash = {
     this.canvas.width = Math.round(this.w * dpr);
     this.canvas.height = Math.round(this.h * dpr);
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    this.draw(performance.now());
+    this.draw(this.now());
   },
   niceStep(range) {
     const raw = range / 4, p = 10 ** Math.floor(Math.log10(raw)), n = raw / p;
@@ -1164,8 +1274,9 @@ const Crash = {
     if (!w) return;
     ctx.clearRect(0, 0, w, h);
     const padL = 52, padR = 22, padT = 24, padB = 30, pw = w - padL - padR, ph = h - padT - padB;
-    const t = this.phase === 'running' ? (now - this.start) / 1000 : this.phase === 'crashed' ? Math.log(this.point) / this.K : 0;
-    const mEnd = this.phase === 'betting' ? 1 : Math.exp(this.K * t);
+    const t = this.phase === 'running' ? Math.max(0, now - this.startedAt) / 1000
+      : this.phase === 'crashed' ? Math.log(this.point) / this.K : 0;
+    const mEnd = this.phase === 'running' || this.phase === 'crashed' ? Math.exp(this.K * t) : 1;
     const xMax = Math.max(10, t * 1.15), yMax = Math.max(2, mEnd * 1.2);
     const X = s => padL + (s / xMax) * pw;
     const Y = m => padT + ph - ((m - 1) / (yMax - 1)) * ph;
@@ -1182,29 +1293,25 @@ const Crash = {
       ctx.fillStyle = 'rgba(157,178,168,.75)';
       ctx.fillText(NUM.format(v).replace(/,00$/, '') + '×', 10, y + 4);
     }
-    if (this.phase === 'betting') return;
+    if (this.phase !== 'running' && this.phase !== 'crashed') return;
 
     const crashed = this.phase === 'crashed';
     const color = crashed ? '#DE4A43' : '#3EC58F';
     const N = 90;
-    ctx.beginPath();
-    for (let i = 0; i <= N; i++) {
-      const s = (t * i) / N, x = X(s), y = Y(Math.exp(this.K * s));
-      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
-    }
-    ctx.save();
+    const path = () => {
+      ctx.beginPath();
+      for (let i = 0; i <= N; i++) {
+        const s = (t * i) / N, x = X(s), y = Y(Math.exp(this.K * s));
+        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+    };
+    path();
     ctx.lineTo(X(t), Y(1)); ctx.lineTo(X(0), Y(1)); ctx.closePath();
     const g = ctx.createLinearGradient(0, padT, 0, h - padB);
     g.addColorStop(0, crashed ? 'rgba(222,74,67,.32)' : 'rgba(62,197,143,.30)');
     g.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = g; ctx.fill();
-    ctx.restore();
-
-    ctx.beginPath();
-    for (let i = 0; i <= N; i++) {
-      const s = (t * i) / N, x = X(s), y = Y(Math.exp(this.K * s));
-      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
-    }
+    path();
     ctx.strokeStyle = color; ctx.lineWidth = 3.5; ctx.lineJoin = 'round'; ctx.stroke();
 
     const ex = X(t), ey = Y(mEnd);
@@ -1565,17 +1672,23 @@ const Clicker = {
 };
 
 /* =====================================================================
-   RÉSEAU (Socket.io) : mêmes événements que la version précédente
+   RÉSEAU (Socket.io)
    ===================================================================== */
 const Net = {
-  socket: null, online: [], state: 'connecting', manual: false, balTimer: 0, balQueued: false,
+  socket: null, online: [], state: 'connecting', manual: false, balTimer: 0, balQueued: false, offset: 0,
   init() {
-    if (typeof io !== 'function') { this.setStatus('off'); return; }
+    if (typeof io !== 'function') { this.setStatus('off'); Crash.onDisconnect(); return; }
     this.socket = io(SERVER_URL, { reconnectionDelayMax: 10000, timeout: 20000 });
     const s = this.socket;
     const slowTimer = setTimeout(() => { if (!s.connected) this.setStatus('slow'); }, 4000);
-    s.on('connect', () => { clearTimeout(slowTimer); this.setStatus('on'); this.join(); });
-    s.on('disconnect', () => { if (!this.manual) this.setStatus('connecting'); });
+    s.on('connect', async () => {
+      clearTimeout(slowTimer);
+      this.setStatus('on');
+      this.join();
+      Crash.resume();
+      await this.syncClock();
+    });
+    s.on('disconnect', () => { if (!this.manual) this.setStatus('connecting'); Crash.onDisconnect(); });
     s.on('connect_error', () => this.setStatus('slow'));
     s.on('chat_message', d => addChat(d));
     s.on('update_online_list', users => {
@@ -1596,8 +1709,35 @@ const Net = {
       celebrate();
     });
     s.on('live_bet', d => addLiveBet(d));
+    s.on('crash_state', d => Crash.onState(d));
+    s.on('crash_betting', d => Crash.applyRound(d));
+    s.on('crash_start', d => Crash.applyRound(d));
+    s.on('crash_end', d => Crash.onEnd(d));
+    s.on('crash_bets', d => Crash.onBets(d));
+    s.on('crash_cashed', d => Crash.onCashed(d));
   },
-  emit(ev, data) { if (this.socket && this.socket.connected) this.socket.emit(ev, data); },
+  ready() { return !!(this.socket && this.socket.connected); },
+  emit(ev, data) { if (this.ready()) this.socket.emit(ev, data); },
+  /* Envoi avec réponse du serveur (accusé de réception) */
+  request(ev, data, ms = 6000) {
+    return new Promise(resolve => {
+      if (!this.ready()) return resolve({ ok: false, msg: 'Serveur injoignable.' });
+      this.socket.timeout(ms).emit(ev, data, (err, res) =>
+        resolve(err ? { ok: false, msg: 'Le serveur ne répond pas, réessayez.' } : (res || { ok: false })));
+    });
+  },
+  /* Aligne l'horloge locale sur celle du serveur (meilleur aller-retour sur 3 essais) */
+  async syncClock() {
+    let best = null;
+    for (let i = 0; i < 3; i++) {
+      const t0 = Date.now();
+      const server = await this.request('time_sync', {}, 3000);
+      const t1 = Date.now();
+      if (typeof server !== 'number') continue;
+      if (!best || t1 - t0 < best.rtt) best = { rtt: t1 - t0, offset: server - (t0 + t1) / 2 };
+    }
+    if (best) this.offset = best.offset;
+  },
   join() { if (user) this.emit('user_join', { username: user, balance: S.balance, badge: S.equippedBadge }); },
   leave() {
     if (!this.socket) return;
@@ -1610,14 +1750,18 @@ const Net = {
     if (user) this.emit('update_balance', { username: user, balance: S.balance, badge: S.equippedBadge });
     this.balTimer = setTimeout(() => { this.balTimer = 0; if (this.balQueued) { this.balQueued = false; this.pushBalance(); } }, 400);
   },
+  pushBalanceNow() {
+    clearTimeout(this.balTimer); this.balTimer = 0; this.balQueued = false;
+    if (user) this.emit('update_balance', { username: user, balance: S.balance, badge: S.equippedBadge });
+  },
   setStatus(st) {
     this.state = st;
     const n = this.online.length;
     const text = {
       on: n ? `En ligne, ${n} joueur${n > 1 ? 's' : ''} connecté${n > 1 ? 's' : ''}` : 'En ligne',
       connecting: 'Connexion au serveur…',
-      slow: 'Le serveur démarre, cela peut prendre une minute. Les jeux restent disponibles.',
-      off: 'Hors ligne : tchat et transferts indisponibles, les jeux fonctionnent.'
+      slow: 'Le serveur démarre, cela peut prendre une minute. Les jeux solo restent disponibles.',
+      off: 'Hors ligne : Aviateur, tchat et transferts indisponibles.'
     }[st];
     ['#net-side', '#net-social'].forEach(id => { const el = $(id); el.dataset.state = st; $('.net-text', el).textContent = text; });
   }
@@ -1642,7 +1786,7 @@ function addChat(d) {
   if (nearBottom) box.scrollTop = box.scrollHeight;
 }
 function addLiveBet(d) {
-  const list = $('#crash-live');
+  const list = $('#activity');
   const empty = list.querySelector('.empty'); if (empty) empty.remove();
   const li = document.createElement('li');
   li.innerHTML = `<span class="who">${esc(String((d && d.username) || 'Joueur').slice(0, 24))}</span><span class="g">${esc(String((d && d.game) || '').slice(0, 20))}</span><span class="amt">${money(Number(d && d.amount) || 0)}</span>`;
@@ -1684,21 +1828,25 @@ function initSocial() {
     Net.socket.emit('send_message', { text: text.slice(0, 200), badge: S.equippedBadge });
     inp.value = '';
   });
-  $('#transfer-form').addEventListener('submit', e => {
+  $('#transfer-form').addEventListener('submit', async e => {
     e.preventDefault();
     if (!user) return showAuth();
     const name = $('#tr-target').value.trim();
     const amt = r2(parseFloat(String($('#tr-amount').value).replace(',', '.')));
-    if (!(Net.socket && Net.socket.connected)) return toast('Transfert impossible : vous êtes hors ligne.', 'error');
+    if (!Net.ready()) return toast('Transfert impossible : vous êtes hors ligne.', 'error');
     if (!name) return toast('Indiquez le pseudo du destinataire.', 'error');
-    const target = Net.online.find(u => u.username.toLowerCase() === name.toLowerCase());
-    if (!target) return toast(`${name} n’est pas connecté : les transferts ne fonctionnent qu’entre joueurs en ligne.`, 'error');
-    if (target.username === user) return toast('Vous ne pouvez pas vous envoyer de l’argent à vous-même.', 'error');
+    if (name.toLowerCase() === user.toLowerCase()) return toast('Vous ne pouvez pas vous envoyer de l’argent à vous-même.', 'error');
     if (!Number.isFinite(amt) || amt < 1) return toast('Montant minimum : 1,00 $.', 'error');
-    if (!Wallet.debit(amt)) return toast(`Solde insuffisant : il vous reste ${money(S.balance)}.`, 'error');
-    Net.socket.emit('send_money', { targetUser: target.username, amount: amt });
+    if (!Wallet.canPay(amt)) return toast(`Solde insuffisant : il vous reste ${money(S.balance)}.`, 'error');
+    const btn = $('#transfer-form button[type=submit]');
+    btn.disabled = true;
+    Net.pushBalanceNow();
+    const res = await Net.request('send_money', { targetUser: name, amount: amt });
+    btn.disabled = false;
+    if (!res.ok) return toast(res.msg || 'Transfert refusé.', 'error');
+    Wallet.debit(amt);
     saveNow();
-    toast(`${money(amt)} envoyés à ${target.username}.`, 'success');
+    toast(`${money(amt)} envoyés à ${res.to || name}.`, 'success');
     $('#tr-target').value = '';
   });
 }
