@@ -647,7 +647,7 @@ main{min-width:0}
       </header>
       <div class="panel">
         <h3 class="panel-title">Boosts du clicker</h3>
-        <p class="muted-sm" style="margin:-6px 0 14px">Multiplient vos clics et vos revenus automatiques pendant 5 minutes. Ils ne s’appliquent pas aux jeux. Racheter le même boost le prolonge.</p>
+        <p class="muted-sm" style="margin:-6px 0 14px">Pendant 5 minutes, multiplient vos clics, vos revenus automatiques et le bénéfice de vos parties gagnées. Racheter le même boost le prolonge.</p>
         <div id="shop-boosts"></div>
       </div>
       <div class="panel">
@@ -872,6 +872,13 @@ function lockBet(key, on) {
 /* Enregistre le résultat d'une partie : payout = somme rendue au joueur (0 si perdu). */
 function settle(game, bet, payout, mult) {
   payout = r2(payout);
+  // Boost actif : le bénéfice d'une partie gagnée est multiplié (la mise est rendue normalement)
+  const bm = boostMult();
+  let bonus = 0;
+  if (bm > 1 && payout > bet) {
+    bonus = r2((payout - bet) * (bm - 1));
+    payout = r2(payout + bonus);
+  }
   if (payout > 0) Wallet.credit(payout);
   const net = r2(payout - bet);
   S.gamesPlayed++;
@@ -891,7 +898,8 @@ function settle(game, bet, payout, mult) {
   checkAchievements();
   markDirty();
   scheduleSave();
-  if (net > 0 && mult >= 5) celebrate();
+  if (bonus > 0) toast(`Boost ×${bm} : +${money(bonus)} de bonus sur ${game}.`, 'success');
+  if (net > 0 && (mult >= 5 || bm >= 10)) celebrate();
 }
 
 /* Reprise après rechargement de page : rien n'est perdu ni dupliqué. */
@@ -1107,7 +1115,7 @@ function renderShop() {
   const rate = autoRate();
   patchList($('#shop-boosts'), BOOSTS.map(b => {
     const on = boostActive() && S.boost.mult === b.mult;
-    const est = rate > 0 ? `Avec vos machines actuelles : environ +${money(r2(rate * 300 * (b.mult - 1)))} en plus, sans compter les clics.` : 'Multiplie aussi vos clics : achetez des machines pour en profiter pleinement.';
+    const est = `Bénéfice des parties gagnées ×${b.mult}.` + (rate > 0 ? ` Avec vos machines actuelles : environ +${money(r2(rate * 300 * (b.mult - 1)))} de revenus en plus.` : '');
     return { key: 'b' + b.mult, html: `<div class="shop-row"><span><span class="boost-tag">×${b.mult}</span></span>
       <div><p class="shop-name">Boost ×${b.mult} pendant 5 minutes${on ? `<span class="owned-mark">Actif, encore ${Boost.left()}</span>` : ''}</p><p class="muted-sm">${est}</p></div>
       ${priceButton(b.price, `data-boost="${b.mult}"`, on ? 'Prolonger' : 'Activer')}</div>` };
@@ -1965,8 +1973,8 @@ const Clicker = {
     $('#rate-auto').textContent = perSec(autoRate() * mult);
     $('#clicks-count').textContent = S.totalClicks.toLocaleString('fr-FR');
     setHTML($('#clicker-boost'), mult > 1
-      ? `<span class="boost-on">Boost ×${mult} actif</span> encore ${Boost.left()} sur vos clics et vos revenus automatiques.`
-      : `<a href="#boutique" class="text-link">Acheter un boost</a> pour multiplier vos gains du clicker pendant 5 minutes.`);
+      ? `<span class="boost-on">Boost ×${mult} actif</span> encore ${Boost.left()} sur vos clics, vos revenus automatiques et vos gains aux jeux.`
+      : `<a href="#boutique" class="text-link">Acheter un boost</a> pour multiplier vos gains du clicker et des jeux pendant 5 minutes.`);
     for (const kind of ['click', 'auto']) {
       const { rows, hidden } = this.listFor(kind);
       patchList($('#up-' + kind), rows);
@@ -2008,7 +2016,7 @@ const Boost = {
     if (user && boostActive()) {
       chip.hidden = false;
       chip.textContent = `×${S.boost.mult} ${this.left()}`;
-      chip.title = `Boost ×${S.boost.mult} actif sur le clicker`;
+      chip.title = `Boost ×${S.boost.mult} actif sur le clicker et les jeux`;
     } else {
       chip.hidden = true;
       if (user && S.boost && !this.endedNotice) {
