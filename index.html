@@ -19,14 +19,14 @@
   --ink:#EFE7D4; --muted:#9DB2A8; --faint:#6F877D;
   --brass:#E3B04B; --brass-hi:#F0C66E; --brass-ink:#2B1F06;
   --red:#DE4A43; --red-hi:#EA5F58; --jade:#3EC58F; --jade-hi:#5AD6A3; --jade-ink:#05261A; --onyx:#0A1210;
-  --r-panel:16px; --r-ctl:9px; --tb:62px;
+  --r-panel:16px; --r-ctl:9px; --tb:62px; --glow:#1B3A31;
   --font:"Archivo","Helvetica Neue",Arial,system-ui,sans-serif;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--tb) + 12px)}
 body{margin:0;min-height:100vh;overflow-x:hidden;color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5;font-variant-numeric:tabular-nums;
-  background:radial-gradient(1100px 520px at 75% -120px,#1B3A31 0%,transparent 70%),var(--bg);background-attachment:fixed;
+  background:radial-gradient(1100px 520px at 75% -120px,var(--glow) 0%,transparent 70%),var(--bg);background-attachment:fixed;
   padding-bottom:env(safe-area-inset-bottom,0px)}
 h1,h2,h3,p{margin:0}
 button,input,select{font:inherit;color:inherit}
@@ -60,7 +60,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 .suffix .input{padding-right:30px;color:var(--jade);font-weight:800}
 
 /* ---------- En-tête ---------- */
-.topbar{position:sticky;top:0;z-index:40;background:rgba(13,28,24,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft);padding-top:env(safe-area-inset-top,0px)}
+.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft);padding-top:env(safe-area-inset-top,0px)}
 .topbar-in{max-width:1240px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:20px}
 .brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-stretch:125%;font-weight:850;font-size:18px;letter-spacing:.005em}
 .brand svg{width:32px;height:32px;flex:none}
@@ -221,7 +221,7 @@ main{min-width:0}
 .coin-face.back{transform:rotateY(180deg);background:radial-gradient(circle at 34% 28%,#F4F0E3,#C9C2AD 55%,#8C8571);color:#25241f}
 
 /* ---------- Caisse de secours ---------- */
-.clicker{display:grid;grid-template-columns:auto minmax(0,1fr);gap:40px;align-items:center;padding:32px}
+.clicker{display:grid;grid-template-columns:auto minmax(0,1fr);gap:40px;align-items:center;padding:28px}
 .chip-area{position:relative}
 .chip-btn{width:min(250px,64vw);aspect-ratio:1;border-radius:50%;border:0;padding:0;cursor:pointer;position:relative;display:block;
   background:repeating-conic-gradient(var(--red) 0 22.5deg,#F2E6C8 22.5deg 45deg);
@@ -234,6 +234,43 @@ main{min-width:0}
 .floater{position:absolute;pointer-events:none;font-weight:850;color:var(--brass);font-stretch:120%;animation:float .8s ease-out forwards;z-index:3;white-space:nowrap}
 @keyframes float{to{transform:translateY(-50px);opacity:0}}
 .big-num{font-stretch:125%;font-weight:900;font-size:56px;line-height:1}
+
+/* ---------- Clicker ---------- */
+.rates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--line-soft);border-radius:var(--r-ctl);overflow:hidden;margin:18px 0 0}
+.rates div{padding:12px 14px;background:var(--bg)}
+.rates div+div{border-left:1px solid var(--line-soft)}
+.rates dt{font-size:13px;color:var(--muted);font-weight:600}
+.rates dd{margin:2px 0 0;font-stretch:118%;font-weight:850;font-size:22px;color:var(--brass);line-height:1.2}
+.boost-line{margin-top:14px;color:var(--muted);font-size:14px}
+.boost-on{color:var(--jade);font-weight:800}
+.text-link{color:var(--brass);font-weight:700}
+.up-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+.up-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--line-soft)}
+.up-row:first-child{border-top:0;padding-top:0}
+.up-name{font-weight:700}
+.up-lvl{color:var(--jade);font-size:12px;font-weight:700;margin-left:8px}
+.up-row .btn{min-width:120px}
+.boost-chip{border:0;cursor:pointer;background:rgba(62,197,143,.15);color:var(--jade);font-weight:850;font-size:14px;border-radius:999px;padding:6px 12px;white-space:nowrap;font-stretch:112%;margin-left:auto}
+.boost-chip:not([hidden])+.wallet{margin-left:0}
+.boost-tag{display:inline-block;font-stretch:125%;font-weight:900;font-size:24px;color:var(--jade);line-height:1}
+.swatches{display:flex;gap:4px}
+.swatches i{width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.nav-count{margin-left:auto;background:var(--brass);color:var(--brass-ink);font-size:11px;font-weight:800;border-radius:999px;padding:1px 7px;line-height:1.5}
+
+/* ---------- Objectifs ---------- */
+.panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.panel-head .panel-title{margin:0}
+.goal{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;align-items:center;padding:14px 0;border-top:1px solid var(--line-soft)}
+.goal:first-child{border-top:0;padding-top:0}
+.goal-txt b{display:block}
+.goal-txt span{display:block}
+.goal-bar{grid-column:1/-1}
+.goal-bar .bar{margin-top:0}
+.goal-prog{font-size:12px;color:var(--faint);margin-top:4px}
+.goal.ready .bar i{background:var(--jade)}
+.goal.claimed{opacity:.5}
+.reward{color:var(--brass);font-weight:800;font-size:14px;white-space:nowrap}
+.done-mark{color:var(--jade);font-weight:700;font-size:14px;white-space:nowrap}
 
 /* ---------- Boutique ---------- */
 .shop-row{display:grid;grid-template-columns:130px minmax(0,1fr) auto;gap:18px;align-items:center;padding:16px 0;border-top:1px solid var(--line-soft)}
@@ -304,7 +341,7 @@ main{min-width:0}
 }
 @media (max-width:900px){
   .shell{grid-template-columns:minmax(0,1fr);padding-top:0;gap:20px}
-  .side{position:sticky;top:var(--tb);z-index:30;margin:0 -20px;padding:8px 20px;background:rgba(13,28,24,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft)}
+  .side{position:sticky;top:var(--tb);z-index:30;margin:0 -20px;padding:8px 20px;background:color-mix(in srgb,var(--bg) 95%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft)}
   .nav{flex-direction:row;overflow-x:auto;gap:4px;scrollbar-width:none}
   .nav::-webkit-scrollbar{display:none}
   .nav-group{display:contents}
@@ -312,7 +349,7 @@ main{min-width:0}
   .nav-btn{width:auto;white-space:nowrap;padding:8px 12px}
   .nav-btn[aria-current="page"]::before{left:12px;right:12px;top:auto;bottom:2px;width:auto;height:3px}
   .social-board{display:block}
-  .mines-layout,.spin-controls,.coin-layout,.clicker{grid-template-columns:minmax(0,1fr)}
+  .mines-layout,.spin-controls,.coin-layout,.clicker,.up-grid{grid-template-columns:minmax(0,1fr)}
   .coin-wrap,.chip-area{justify-self:center}
   .clicker{text-align:center;gap:24px}
 }
@@ -379,6 +416,7 @@ main{min-width:0}
       <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#DE4A43"/><circle cx="16" cy="16" r="13" fill="none" stroke="#F2E6C8" stroke-width="4" stroke-dasharray="5.1 5.1"/><circle cx="16" cy="16" r="8" fill="#12261F" stroke="#F2E6C8" stroke-width="1.2"/></svg>
       <span>Cyber Casino</span>
     </a>
+    <button class="boost-chip" id="boost-chip" type="button" hidden onclick="go('clicker')"></button>
     <div class="wallet">
       <span class="wallet-label">Solde</span>
       <span class="wallet-amount" id="wallet" aria-live="polite">—</span>
@@ -547,23 +585,57 @@ main{min-width:0}
       </div>
     </section>
 
-    <!-- ===== Caisse de secours ===== -->
-    <section class="view" id="view-secours" aria-labelledby="h-sec">
+    <!-- ===== Clicker ===== -->
+    <section class="view" id="view-clicker" aria-labelledby="h-clk">
       <header class="view-head">
-        <h2 id="h-sec">Caisse de secours</h2>
-        <p>À court de jetons ? Chaque clic ajoute 0,10 $ à votre solde.</p>
+        <h2 id="h-clk">Clicker</h2>
+        <p>Chaque clic rapporte un peu d’argent. Investissez dans des améliorations pour gagner plus à chaque clic et toucher des revenus automatiques, même pendant que vous jouez ailleurs.</p>
       </header>
       <div class="panel clicker">
         <div class="chip-area" id="chip-area">
-          <button class="chip-btn" id="chip-btn" type="button" aria-label="Récupérer 0,10 $">
-            <span class="chip-face"><strong>+0,10 $</strong><small>par clic</small></span>
+          <button class="chip-btn" id="chip-btn" type="button" aria-label="Cliquer pour gagner de l’argent">
+            <span class="chip-face"><strong id="chip-value">+0,10 $</strong><small>par clic</small></span>
           </button>
         </div>
         <div>
           <p class="big-num" id="clicks-count">0</p>
           <p class="muted">clics au total</p>
-          <p class="hint" id="click-warn" style="margin-top:12px"></p>
+          <dl class="rates">
+            <div><dt>Par clic</dt><dd id="rate-click">0,10 $</dd></div>
+            <div><dt>Revenus automatiques</dt><dd id="rate-auto">0,00 $/s</dd></div>
+          </dl>
+          <p class="boost-line" id="clicker-boost"></p>
+          <p class="hint" id="click-warn"></p>
         </div>
+      </div>
+      <div class="up-grid">
+        <div class="panel">
+          <h3 class="panel-title">Pour chaque clic</h3>
+          <div id="up-click"></div>
+          <p class="hint" id="up-click-more" style="margin-top:10px"></p>
+        </div>
+        <div class="panel">
+          <h3 class="panel-title">Revenus automatiques</h3>
+          <p class="muted-sm" style="margin:-6px 0 12px">Versés chaque seconde. Site fermé, vos machines tournent à moitié régime pendant 2 heures au maximum.</p>
+          <div id="up-auto"></div>
+          <p class="hint" id="up-auto-more" style="margin-top:10px"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Objectifs ===== -->
+    <section class="view" id="view-objectifs" aria-labelledby="h-obj">
+      <header class="view-head">
+        <h2 id="h-obj">Objectifs</h2>
+        <p>Atteignez des objectifs pour gagner de l’argent. Ceux du jour changent chaque nuit à minuit et rapportent en plus 10 minutes de vos revenus automatiques.</p>
+      </header>
+      <div class="panel">
+        <div class="panel-head"><h3 class="panel-title">Objectifs du jour</h3><span class="muted-sm" id="daily-reset"></span></div>
+        <div id="daily-list"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3 class="panel-title">Objectifs permanents</h3><span class="muted-sm" id="goal-count"></span></div>
+        <div id="goal-list"></div>
       </div>
     </section>
 
@@ -571,9 +643,21 @@ main{min-width:0}
     <section class="view" id="view-boutique" aria-labelledby="h-shop">
       <header class="view-head">
         <h2 id="h-shop">Boutique</h2>
-        <p>Des titres affichés à côté de votre pseudo dans le tchat et le classement. Ils sont purement cosmétiques.</p>
+        <p>Des boosts pour le clicker, des thèmes pour changer l’ambiance du casino et des titres affichés à côté de votre pseudo.</p>
       </header>
-      <div class="panel"><div id="shop-list"></div></div>
+      <div class="panel">
+        <h3 class="panel-title">Boosts du clicker</h3>
+        <p class="muted-sm" style="margin:-6px 0 14px">Multiplient vos clics et vos revenus automatiques pendant 5 minutes. Ils ne s’appliquent pas aux jeux. Racheter le même boost le prolonge.</p>
+        <div id="shop-boosts"></div>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title">Thèmes</h3>
+        <div id="shop-themes"></div>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title">Titres</h3>
+        <div id="shop-list"></div>
+      </div>
     </section>
 
     <!-- ===== Statistiques ===== -->
@@ -690,7 +774,10 @@ const RNG = {
 const DEFAULT_STATE = () => ({
   balance: START_BALANCE, totalClicks: 0, totalWon: 0, totalLost: 0,
   biggestMult: 1, bestCrash: 0, gamesPlayed: 0, gamesWon: 0,
-  achievements: {}, inventory: {}, equippedBadge: '', history: [], pending: {}
+  achievements: {}, inventory: {}, equippedBadge: '', history: [], pending: {},
+  clicker: { up: {}, bought: 0, boosts: 0, clickEarned: 0, autoEarned: 0 },
+  c: { minesRun: 0, blackjacks: 0, greens: 0, coinStreak: 0, coinBest: 0, wagered: 0 },
+  boost: null, goals: {}, daily: { day: '', ids: [], prog: {}, claimed: {} }, theme: 'tapis', lastSeen: 0
 });
 let user = null;
 let isGuest = false;
@@ -710,6 +797,20 @@ function normalize(raw) {
   }
   s.history = Array.isArray(s.history) ? s.history.slice(0, 50) : [];
   s.equippedBadge = typeof s.equippedBadge === 'string' ? s.equippedBadge : '';
+  const obj = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
+  const num = v => (Number.isFinite(Number(v)) ? Math.max(0, Number(v)) : 0);
+  const ck = obj(s.clicker);
+  s.clicker = { up: {}, bought: num(ck.bought), boosts: num(ck.boosts), clickEarned: num(ck.clickEarned), autoEarned: num(ck.autoEarned) };
+  Object.entries(obj(ck.up)).forEach(([k, v]) => { if (UPGRADES.some(u => u.id === k)) s.clicker.up[k] = Math.floor(num(v)); });
+  const c = obj(s.c);
+  s.c = {};
+  for (const k of Object.keys(d.c)) s.c[k] = num(c[k]);
+  s.boost = s.boost && BOOSTS.some(b => b.mult === s.boost.mult) && Number.isFinite(s.boost.until) ? { mult: s.boost.mult, until: s.boost.until } : null;
+  s.goals = obj(s.goals);
+  const dl = obj(s.daily);
+  s.daily = { day: typeof dl.day === 'string' ? dl.day : '', ids: Array.isArray(dl.ids) ? dl.ids.filter(i => DAILY_POOL.some(x => x.id === i)) : [], prog: obj(dl.prog), claimed: obj(dl.claimed) };
+  s.theme = THEMES.some(t => t.id === s.theme) ? s.theme : 'tapis';
+  s.lastSeen = num(s.lastSeen);
   return s;
 }
 
@@ -737,18 +838,18 @@ const Wallet = {
     onBalance(-a);
     return true;
   },
-  credit(a) {
+  credit(a, quiet) {
     a = r2(a);
     if (!(a > 0)) return;
     S.balance = r2(S.balance + a);
-    onBalance(a);
+    onBalance(a, quiet);
   }
 };
 
-function onBalance(delta) {
-  flashWallet(delta);
+function onBalance(delta, quiet) {
+  if (!quiet) flashWallet(delta);
   markDirty();
-  Net.pushBalance();
+  if (quiet) Net.pushBalanceSlow(); else Net.pushBalance();
   scheduleSave();
 }
 
@@ -783,6 +884,10 @@ function settle(game, bet, payout, mult) {
   }
   S.history.unshift({ g: game, bet, win: payout, mult: mult || 0, t: Date.now() });
   if (S.history.length > 50) S.history.length = 50;
+  S.c.wagered = r2(S.c.wagered + bet);
+  Goals.bump('games', 1);
+  Goals.bump('wager', bet);
+  if (net > 0) Goals.bump('wins', 1);
   checkAchievements();
   markDirty();
   scheduleSave();
@@ -872,7 +977,12 @@ function startSession(name, state, guest) {
   store.set(KEYS.active, name);
   $('#auth').hidden = true;
   resolvePending();
+  Goals.ensureDay();
+  Clicker.offline();
+  applyTheme(S.theme);
+  Boost.endedNotice = false;
   renderAll();
+  Goals.prime();
   Net.join();
   Crash.resume();
 }
@@ -892,6 +1002,9 @@ function logout() {
   saveNow();
   user = null; isGuest = false; S = DEFAULT_STATE();
   store.del(KEYS.active);
+  applyTheme('tapis');
+  Boost.tick();
+  Goals.badge(0);
   Net.leave();
   renderAll();
   showAuth();
@@ -950,8 +1063,8 @@ function autoLogin() {
    SUCCÈS ET BOUTIQUE
    ===================================================================== */
 const ACH = [
-  { id: 'clicks_500', title: 'Acharné du travail', desc: '500 clics dans la caisse de secours', goal: 500, val: () => S.totalClicks },
-  { id: 'clicks_2000', title: 'Doigts d’acier', desc: '2 000 clics dans la caisse de secours', goal: 2000, val: () => S.totalClicks },
+  { id: 'clicks_500', title: 'Acharné du travail', desc: '500 clics dans le clicker', goal: 500, val: () => S.totalClicks },
+  { id: 'clicks_2000', title: 'Doigts d’acier', desc: '2 000 clics dans le clicker', goal: 2000, val: () => S.totalClicks },
   { id: 'profit_1000', title: 'Parieur averti', desc: '1 000 $ de gains cumulés', goal: 1000, val: () => S.totalWon },
   { id: 'profit_50000', title: 'Gros bonnet', desc: '50 000 $ de gains cumulés', goal: 50000, val: () => S.totalWon },
   { id: 'profit_1000000', title: 'Millionnaire du casino', desc: '1 000 000 $ de gains cumulés', goal: 1000000, val: () => S.totalWon },
@@ -971,37 +1084,75 @@ function checkAchievements() {
 }
 
 const SHOP = [
+  { id: 'badge_lucky', name: 'Chanceux', desc: 'Pour ceux qui y croient.', price: 2500, tag: 'CHANCEUX' },
   { id: 'badge_pro', name: 'Joueur régulier', desc: 'Pour ceux qui reviennent tous les jours.', price: 10000, tag: 'PRO' },
+  { id: 'badge_clicker', name: 'Cliqueur fou', desc: 'Pour les doigts qui ne s’arrêtent jamais.', price: 25000, tag: 'CLIQUEUR' },
   { id: 'badge_elite', name: 'Élite', desc: 'Un titre de prestige intermédiaire.', price: 50000, tag: 'ÉLITE' },
   { id: 'badge_vip', name: 'VIP', desc: 'Le haut du panier.', price: 100000, tag: 'VIP' },
+  { id: 'badge_highroller', name: 'High roller', desc: 'Les grosses mises ne vous font pas peur.', price: 500000, tag: 'HIGH ROLLER' },
   { id: 'badge_millionaire', name: 'Millionnaire', desc: 'Le premier million, affiché dans le tchat.', price: 1000000, tag: 'MILLIONNAIRE' },
   { id: 'badge_whale', name: 'Baleine', desc: 'Pour les poches sans fond.', price: 5000000, tag: 'BALEINE' },
   { id: 'badge_tycoon', name: 'Magnat', desc: 'Réservé aux vrais maîtres du capital.', price: 25000000, tag: 'TYCOON' },
-  { id: 'badge_billionaire', name: 'Milliardaire', desc: 'Le sommet de la richesse virtuelle.', price: 100000000, tag: 'BILLIONNAIRE' }
+  { id: 'badge_billionaire', name: 'Milliardaire', desc: 'Le sommet de la richesse virtuelle.', price: 100000000, tag: 'BILLIONNAIRE' },
+  { id: 'badge_legend', name: 'Légende', desc: 'Presque personne ne l’aura jamais.', price: 1000000000, tag: 'LÉGENDE' }
 ];
+function priceButton(price, attr, label) {
+  const missing = r2(price - S.balance);
+  return missing > 0
+    ? `<div class="buy-col"><button class="btn btn-ghost" type="button" disabled>${money(price)}</button><small>Il manque ${money(missing)}</small></div>`
+    : `<button class="btn btn-brass" type="button" ${attr}>${label} ${money(price)}</button>`;
+}
 function renderShop() {
-  $('#shop-list').innerHTML = SHOP.map(it => {
-    const owned = !!S.inventory[it.id];
-    const equipped = S.equippedBadge === it.tag;
-    let action;
-    if (owned) {
-      action = equipped
-        ? `<button class="btn btn-ghost" type="button" data-unequip="${it.id}">Retirer</button>`
-        : `<button class="btn btn-brass" type="button" data-equip="${it.id}">Équiper</button>`;
-    } else {
-      const missing = r2(it.price - S.balance);
-      action = missing > 0
-        ? `<div class="buy-col"><button class="btn btn-ghost" type="button" disabled>${money(it.price)}</button><small>Il manque ${money(missing)}</small></div>`
-        : `<button class="btn btn-brass" type="button" data-buy="${it.id}">Acheter ${money(it.price)}</button>`;
-    }
-    return `<div class="shop-row"><span><span class="tag">${esc(it.tag)}</span></span>
-      <div><p class="shop-name">${esc(it.name)}${owned ? '<span class="owned-mark">Possédé</span>' : ''}</p><p class="muted-sm">${esc(it.desc)}</p></div>${action}</div>`;
-  }).join('');
+  if (!$('#shop-boosts')) return;
+  const rate = autoRate();
+  patchList($('#shop-boosts'), BOOSTS.map(b => {
+    const on = boostActive() && S.boost.mult === b.mult;
+    const est = rate > 0 ? `Avec vos machines actuelles : environ +${money(r2(rate * 300 * (b.mult - 1)))} en plus, sans compter les clics.` : 'Multiplie aussi vos clics : achetez des machines pour en profiter pleinement.';
+    return { key: 'b' + b.mult, html: `<div class="shop-row"><span><span class="boost-tag">×${b.mult}</span></span>
+      <div><p class="shop-name">Boost ×${b.mult} pendant 5 minutes${on ? `<span class="owned-mark">Actif, encore ${Boost.left()}</span>` : ''}</p><p class="muted-sm">${est}</p></div>
+      ${priceButton(b.price, `data-boost="${b.mult}"`, on ? 'Prolonger' : 'Activer')}</div>` };
+  }));
+  patchList($('#shop-themes'), THEMES.map(t => {
+    const owned = t.price === 0 || !!S.inventory['theme_' + t.id], used = (S.theme || 'tapis') === t.id;
+    const v = { ...THEMES[0].vars, ...t.vars };
+    const sw = [v['--bg'] || '#0D1C18', v['--panel'] || '#162D27', v['--brass'] || '#E3B04B', '#3EC58F', '#DE4A43'];
+    const action = used ? '<span class="done-mark">Utilisé</span>'
+      : owned ? `<button class="btn btn-ghost" type="button" data-theme-use="${t.id}">Utiliser</button>`
+      : priceButton(t.price, `data-theme-buy="${t.id}"`, 'Acheter');
+    return { key: t.id, html: `<div class="shop-row"><span class="swatches">${sw.map(c => `<i style="background:${c}"></i>`).join('')}</span>
+      <div><p class="shop-name">${esc(t.name)}${owned && t.price ? '<span class="owned-mark">Possédé</span>' : ''}</p><p class="muted-sm">${esc(t.desc)}</p></div>${action}</div>` };
+  }));
+  patchList($('#shop-list'), SHOP.map(it => {
+    const owned = !!S.inventory[it.id], equipped = S.equippedBadge === it.tag;
+    const action = owned
+      ? (equipped ? `<button class="btn btn-ghost" type="button" data-unequip="${it.id}">Retirer</button>` : `<button class="btn btn-brass" type="button" data-equip="${it.id}">Équiper</button>`)
+      : priceButton(it.price, `data-buy="${it.id}"`, 'Acheter');
+    return { key: it.id, html: `<div class="shop-row"><span><span class="tag">${esc(it.tag)}</span></span>
+      <div><p class="shop-name">${esc(it.name)}${owned ? '<span class="owned-mark">Possédé</span>' : ''}</p><p class="muted-sm">${esc(it.desc)}</p></div>${action}</div>` };
+  }));
 }
 function initShop() {
-  $('#shop-list').addEventListener('click', e => {
+  $('#view-boutique').addEventListener('click', e => {
     const b = e.target.closest('button');
-    if (!b || !user) return;
+    if (!b) return;
+    if (!user) return showAuth();
+    if (b.dataset.boost) return Boost.buy(Number(b.dataset.boost));
+    if (b.dataset.themeBuy) {
+      const t = THEMES.find(x => x.id === b.dataset.themeBuy);
+      if (!t || S.inventory['theme_' + t.id]) return;
+      if (!Wallet.debit(t.price)) return toast('Solde insuffisant pour ce thème.', 'error');
+      S.inventory['theme_' + t.id] = true;
+      S.theme = t.id; applyTheme(t.id);
+      toast(`Thème ${t.name} acheté et appliqué.`, 'success');
+      celebrate(); saveNow(); return renderShop();
+    }
+    if (b.dataset.themeUse) {
+      const t = THEMES.find(x => x.id === b.dataset.themeUse);
+      if (!t || !(t.price === 0 || S.inventory['theme_' + t.id])) return;
+      S.theme = t.id; applyTheme(t.id); saveNow();
+      toast(`Thème ${t.name} appliqué.`, 'info');
+      return renderShop();
+    }
     if (b.dataset.buy) {
       const it = SHOP.find(i => i.id === b.dataset.buy);
       if (!it || S.inventory[it.id]) return;
@@ -1099,6 +1250,7 @@ const Crash = {
     const mult = Number(d.mult), pay = r2(d.payout);
     if (mult > S.bestCrash) S.bestCrash = mult;
     settle('Aviateur', this.bet, pay, mult);
+    if (mult >= 2) Goals.bump('crash2', 1);
     setPending('crash', null);
     toast(`Encaissé à ${fmtX(mult)} : ${money(pay)}.`, 'success');
     this.updateButton();
@@ -1397,6 +1549,8 @@ const Mines = {
     }
     tile.className = 'tile gem'; tile.innerHTML = GEM_SVG; tile.disabled = true;
     this.found++;
+    if (this.found > S.c.minesRun) S.c.minesRun = this.found;
+    Goals.bump('gems', 1);
     S.pending.mines = { bet: this.bet, bombs: this.bombs, found: this.found };
     saveNow();
     this.preview();
@@ -1476,7 +1630,9 @@ const Spin = {
     setTimeout(() => {
       this.pos = 15 + r; this.frac = frac;
       this.place(this.pos, frac, false); // même position visuelle, ramenée au début de la bande
+      if (win && col === 'green') S.c.greens++;
       settle('Cyber Spin', bet, pay, win ? mult : 0);
+      Goals.bump('spins', 1);
       setPending('instant', null);
       out.dataset.kind = win ? 'win' : 'lose';
       out.textContent = win ? `${COLOR_LABEL[col]} ${n} : vous gagnez ${money(pay - bet)}.` : `${COLOR_LABEL[col]} ${n} : mise perdue.`;
@@ -1577,6 +1733,8 @@ const BJ = {
     setPending('bj', null);
     this.msg(text, pay > b ? 'win' : pay === b ? 'push' : 'lose');
     this.render();
+    if (pBJ) S.c.blackjacks++;
+    if (pay > b) Goals.bump('bjwins', 1);
     if (pBJ && !dBJ) celebrate();
   },
   msg(text, kind) { const m = $('#bj-msg'); m.textContent = text; m.dataset.kind = kind; },
@@ -1629,7 +1787,10 @@ const Coin = {
     this.angle = Math.ceil((this.angle + 1) / 360) * 360 + 1440 + (res === 'face' ? 180 : 0);
     $('#coin').style.transform = `rotateY(${this.angle}deg)`;
     setTimeout(() => {
+      S.c.coinStreak = win ? S.c.coinStreak + 1 : 0;
+      if (S.c.coinStreak > S.c.coinBest) S.c.coinBest = S.c.coinStreak;
       settle('Pile ou face', bet, pay, win ? 2 : 0);
+      if (win) Goals.bump('coinwins', 1);
       setPending('instant', null);
       const label = res === 'pile' ? 'Pile' : 'Face';
       out.dataset.kind = win ? 'win' : 'lose';
@@ -1642,11 +1803,72 @@ const Coin = {
 };
 
 /* =====================================================================
-   CAISSE DE SECOURS (anti auto-clic : 12 clics par seconde maximum)
+   CLICKER : gains par clic, revenus automatiques, boosts
+   Progression volontairement lente : le prix de chaque amélioration
+   augmente de 15 % à chaque achat.
    ===================================================================== */
+const CLICK_BASE = 0.1;
+const GROWTH = 1.15;
+const UPGRADES = [
+  { id: 'gants', kind: 'click', name: 'Gants de croupier', desc: '+0,05 $ par clic', value: 0.05, base: 25 },
+  { id: 'jetons', kind: 'click', name: 'Jetons gravés', desc: '+0,50 $ par clic', value: 0.5, base: 1200 },
+  { id: 'mallette', kind: 'click', name: 'Mallette de billets', desc: '+5 $ par clic', value: 5, base: 60000 },
+  { id: 'coffre', kind: 'click', name: 'Clé du coffre-fort', desc: '+50 $ par clic', value: 50, base: 3000000 },
+  { id: 'tirelire', kind: 'auto', name: 'Tirelire', desc: '+0,10 $ par seconde', value: 0.1, base: 60 },
+  { id: 'distrib', kind: 'auto', name: 'Distributeur de jetons', desc: '+1 $ par seconde', value: 1, base: 1500 },
+  { id: 'bandit', kind: 'auto', name: 'Bandit manchot', desc: '+8 $ par seconde', value: 8, base: 25000 },
+  { id: 'poker', kind: 'auto', name: 'Table de poker privée', desc: '+60 $ par seconde', value: 60, base: 400000 },
+  { id: 'robot', kind: 'auto', name: 'Croupier robot', desc: '+400 $ par seconde', value: 400, base: 6000000 },
+  { id: 'yacht', kind: 'auto', name: 'Casino flottant', desc: '+3 000 $ par seconde', value: 3000, base: 90000000 }
+];
+const BOOSTS = [
+  { mult: 2, price: 5000 },
+  { mult: 5, price: 40000 },
+  { mult: 10, price: 150000 },
+  { mult: 50, price: 2500000 }
+];
+const BOOST_MS = 5 * 60 * 1000, BOOST_MAX_MS = 30 * 60 * 1000;
+const OFFLINE_CAP_S = 2 * 3600, OFFLINE_RATE = 0.5;
+
+const level = id => (S.clicker.up[id] || 0);
+const upCost = u => r2(u.base * GROWTH ** level(u.id));
+const clickValue = () => r2(CLICK_BASE + UPGRADES.filter(u => u.kind === 'click').reduce((s, u) => s + u.value * level(u.id), 0));
+const autoRate = () => Math.round(UPGRADES.filter(u => u.kind === 'auto').reduce((s, u) => s + u.value * level(u.id), 0) * 100) / 100;
+const boostActive = () => !!(S.boost && S.boost.until > Date.now());
+const boostMult = () => (boostActive() ? S.boost.mult : 1);
+const perSec = n => money(n) + '/s';
+
+/* Met à jour une liste sans recréer les lignes inchangées (les clics sur les boutons ne se perdent pas) */
+function patchList(container, rows) {
+  if (!container) return;
+  const old = new Map([...container.children].map(el => [el.dataset.key, el]));
+  let prev = null;
+  rows.forEach(r => {
+    let el = old.get(r.key);
+    if (!el || el.dataset.html !== r.html) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = r.html.trim();
+      const n = tmp.firstElementChild;
+      n.dataset.key = r.key; n.dataset.html = r.html;
+      if (el) el.replaceWith(n);
+      el = n;
+    }
+    const want = prev ? prev.nextSibling : container.firstChild;
+    if (el !== want) container.insertBefore(el, want);
+    old.delete(r.key);
+    prev = el;
+  });
+  old.forEach(el => el.remove());
+}
+function setHTML(el, html) { if (el && el.dataset.html !== html) { el.innerHTML = html; el.dataset.html = html; } }
+
 const Clicker = {
-  times: [],
-  init() { $('#chip-btn').addEventListener('click', e => this.click(e)); },
+  times: [], carry: 0, lastTick: Date.now(),
+  init() {
+    $('#chip-btn').addEventListener('click', e => this.click(e));
+    $('#view-clicker').addEventListener('click', e => { const b = e.target.closest('[data-up]'); if (b) this.buy(b.dataset.up); });
+    setInterval(() => this.tick(), 1000);
+  },
   click(e) {
     if (!e.isTrusted) return;
     if (!user) return showAuth();
@@ -1656,20 +1878,309 @@ const Clicker = {
     if (this.times.length >= 12) { warn.textContent = 'Trop rapide : 12 clics par seconde au maximum.'; return; }
     warn.textContent = '';
     this.times.push(now);
+    const gain = r2(clickValue() * boostMult());
     S.totalClicks++;
-    Wallet.credit(0.1);
+    S.clicker.clickEarned = r2(S.clicker.clickEarned + gain);
+    Wallet.credit(gain, true);
+    Goals.bump('clicks', 1);
     checkAchievements();
     $('#clicks-count').textContent = S.totalClicks.toLocaleString('fr-FR');
     const area = $('#chip-area'), rect = area.getBoundingClientRect();
     const f = document.createElement('span');
-    f.className = 'floater'; f.textContent = '+0,10 $';
+    f.className = 'floater'; f.textContent = '+' + money(gain);
     const x = e.clientX ? e.clientX - rect.left : rect.width / 2;
     const y = e.clientY ? e.clientY - rect.top : rect.height / 2;
     f.style.left = `${x - 24}px`; f.style.top = `${y - 26}px`;
     area.appendChild(f);
     setTimeout(() => f.remove(), 800);
+  },
+  /* Revenus automatiques, versés chaque seconde (le boost compte seulement pendant sa durée) */
+  tick() {
+    const now = Date.now();
+    const dt = Math.min(now - this.lastTick, OFFLINE_CAP_S * 1000);
+    const from = this.lastTick;
+    this.lastTick = now;
+    if (!user) return;
+    S.lastSeen = now;
+    Goals.ensureDay();
+    const rate = autoRate();
+    if (rate > 0 && dt > 0) {
+      let boostedMs = 0;
+      if (S.boost && S.boost.until > from) boostedMs = Math.min(now, S.boost.until) - from;
+      const units = (dt - boostedMs) / 1000 + (boostedMs / 1000) * (S.boost ? S.boost.mult : 1);
+      const amt = rate * units + this.carry;
+      const whole = Math.floor(amt * 100) / 100;
+      this.carry = amt - whole;
+      if (whole > 0) {
+        S.clicker.autoEarned = r2(S.clicker.autoEarned + whole);
+        Wallet.credit(whole, true);
+      }
+    }
+    Boost.tick();
+    Goals.check();
+    checkAchievements();
+  },
+  /* Gains pendant l'absence : moitié du rythme normal, 2 heures au maximum, sans boost */
+  offline() {
+    const now = Date.now(), last = S.lastSeen;
+    S.lastSeen = now; this.lastTick = now; this.carry = 0;
+    if (!last || now <= last) return;
+    const secs = Math.min((now - last) / 1000, OFFLINE_CAP_S);
+    if (secs < 60) return;
+    const gain = Math.floor(autoRate() * secs * OFFLINE_RATE * 100) / 100;
+    if (gain > 0) {
+      S.clicker.autoEarned = r2(S.clicker.autoEarned + gain);
+      Wallet.credit(gain, true);
+      toast(`Pendant votre absence, vos machines ont rapporté ${money(gain)}.`, 'success');
+    }
+  },
+  buy(id) {
+    if (!user) return showAuth();
+    const u = UPGRADES.find(x => x.id === id);
+    if (!u) return;
+    const cost = upCost(u);
+    if (!Wallet.debit(cost)) return toast(`Il vous manque ${money(r2(cost - S.balance))}.`, 'error');
+    S.clicker.up[id] = level(id) + 1;
+    S.clicker.bought++;
+    toast(`${u.name} : niveau ${level(id)}.`, 'success');
+    saveNow();
+    Goals.check();
+    this.render();
+  },
+  upRow(u) {
+    const lv = level(u.id), cost = upCost(u), can = S.balance + 1e-9 >= cost;
+    return `<div class="up-row"><div><span class="up-name">${esc(u.name)}</span>${lv ? `<span class="up-lvl">niveau ${lv}</span>` : ''}<p class="muted-sm">${esc(u.desc)}</p></div>
+      <button class="btn ${can ? 'btn-brass' : 'btn-ghost'}" type="button" data-up="${u.id}" ${can ? '' : 'disabled'}>${money(cost)}</button></div>`;
+  },
+  listFor(kind) {
+    const all = UPGRADES.filter(u => u.kind === kind);
+    // On dévoile les améliorations une par une : celles possédées, plus la suivante.
+    const shown = all.filter((u, i) => i === 0 || level(u.id) > 0 || level(all[i - 1].id) > 0);
+    return { rows: shown.map(u => ({ key: u.id, html: this.upRow(u) })), hidden: all.length - shown.length };
+  },
+  render() {
+    const mult = boostMult();
+    $('#chip-value').textContent = '+' + money(r2(clickValue() * mult));
+    $('#rate-click').textContent = money(r2(clickValue() * mult));
+    $('#rate-auto').textContent = perSec(autoRate() * mult);
+    $('#clicks-count').textContent = S.totalClicks.toLocaleString('fr-FR');
+    setHTML($('#clicker-boost'), mult > 1
+      ? `<span class="boost-on">Boost ×${mult} actif</span> encore ${Boost.left()} sur vos clics et vos revenus automatiques.`
+      : `<a href="#boutique" class="text-link">Acheter un boost</a> pour multiplier vos gains du clicker pendant 5 minutes.`);
+    for (const kind of ['click', 'auto']) {
+      const { rows, hidden } = this.listFor(kind);
+      patchList($('#up-' + kind), rows);
+      $(`#up-${kind}-more`).textContent = hidden ? `Encore ${hidden} amélioration${hidden > 1 ? 's' : ''} à découvrir.` : '';
+    }
   }
 };
+
+const Boost = {
+  endedNotice: false,
+  left() {
+    const ms = Math.max(0, (S.boost ? S.boost.until : 0) - Date.now());
+    const s = Math.ceil(ms / 1000);
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  },
+  buy(mult) {
+    if (!user) return showAuth();
+    const b = BOOSTS.find(x => x.mult === mult);
+    if (!b) return;
+    const now = Date.now(), active = boostActive();
+    if (active && S.boost.mult !== mult &&
+        !confirm(`Un boost ×${S.boost.mult} est encore actif (${this.left()}). Le remplacer par le boost ×${mult} ? Le temps restant sera perdu.`)) return;
+    if (active && S.boost.mult === mult && S.boost.until - now + BOOST_MS > BOOST_MAX_MS) {
+      return toast('Un boost ne peut pas dépasser 30 minutes d’affilée.', 'error');
+    }
+    if (!Wallet.debit(b.price)) return toast(`Il vous manque ${money(r2(b.price - S.balance))} pour ce boost.`, 'error');
+    const extend = active && S.boost.mult === mult;
+    S.boost = { mult, until: (extend ? S.boost.until : now) + BOOST_MS };
+    S.clicker.boosts++;
+    this.endedNotice = false;
+    toast(extend ? `Boost ×${mult} prolongé de 5 minutes.` : `Boost ×${mult} activé pour 5 minutes.`, 'success');
+    celebrate();
+    saveNow();
+    Goals.check();
+    markDirty();
+  },
+  tick() {
+    const chip = $('#boost-chip');
+    if (user && boostActive()) {
+      chip.hidden = false;
+      chip.textContent = `×${S.boost.mult} ${this.left()}`;
+      chip.title = `Boost ×${S.boost.mult} actif sur le clicker`;
+    } else {
+      chip.hidden = true;
+      if (user && S.boost && !this.endedNotice) {
+        this.endedNotice = true;
+        S.boost = null;
+        toast('Votre boost est terminé.', 'info');
+        scheduleSave();
+      }
+    }
+  }
+};
+
+/* =====================================================================
+   OBJECTIFS : permanents et du jour (récompenses en argent)
+   ===================================================================== */
+const GOALS = [
+  { id: 'c100', title: 'Premiers pas', desc: 'Cliquer 100 fois', goal: 100, val: () => S.totalClicks, reward: 20 },
+  { id: 'up1', title: 'Premier investissement', desc: 'Acheter une amélioration du clicker', goal: 1, val: () => S.clicker.bought, reward: 30 },
+  { id: 'g25', title: 'Habitué', desc: 'Jouer 25 parties', goal: 25, val: () => S.gamesPlayed, reward: 150 },
+  { id: 'w10', title: 'Main chaude', desc: 'Gagner 10 parties', goal: 10, val: () => S.gamesWon, reward: 200 },
+  { id: 'bj', title: 'Vingt-et-un', desc: 'Obtenir un blackjack', goal: 1, val: () => S.c.blackjacks, reward: 250 },
+  { id: 'auto1', title: 'Ça tourne tout seul', desc: 'Atteindre 1 $ par seconde de revenus automatiques', goal: 1, val: autoRate, reward: 250, fmt: 'rate' },
+  { id: 'x3', title: 'Décollage', desc: 'Encaisser à 3× ou plus à l’Aviateur', goal: 3, val: () => S.bestCrash, reward: 300, fmt: 'x' },
+  { id: 'mines8', title: 'Démineur', desc: 'Trouver 8 diamants dans une seule partie de Mines', goal: 8, val: () => S.c.minesRun, reward: 500 },
+  { id: 'green', title: 'Tout sur le vert', desc: 'Gagner sur le vert à Cyber Spin', goal: 1, val: () => S.c.greens, reward: 500 },
+  { id: 'coin5', title: 'Pile poil', desc: 'Gagner 5 lancers de suite à pile ou face', goal: 5, val: () => S.c.coinBest, reward: 800 },
+  { id: 'boost', title: 'Coup de fouet', desc: 'Acheter un boost', goal: 1, val: () => S.clicker.boosts, reward: 1000 },
+  { id: 'c5000', title: 'Infatigable', desc: 'Cliquer 5 000 fois', goal: 5000, val: () => S.totalClicks, reward: 1500 },
+  { id: 'bal100k', title: 'Six chiffres', desc: 'Avoir 100 000 $ de solde', goal: 100000, val: () => S.balance, reward: 5000, fmt: 'money' },
+  { id: 'auto50', title: 'Rentier', desc: 'Atteindre 50 $ par seconde de revenus automatiques', goal: 50, val: autoRate, reward: 20000, fmt: 'rate' },
+  { id: 'wager1m', title: 'Gros joueur', desc: 'Miser 1 000 000 $ au total', goal: 1000000, val: () => S.c.wagered, reward: 25000, fmt: 'money' },
+  { id: 'auto500', title: 'Empire', desc: 'Atteindre 500 $ par seconde de revenus automatiques', goal: 500, val: autoRate, reward: 250000, fmt: 'rate' },
+  { id: 'bal10m', title: 'Magnat', desc: 'Avoir 10 000 000 $ de solde', goal: 10000000, val: () => S.balance, reward: 500000, fmt: 'money' }
+];
+const DAILY_POOL = [
+  { id: 'd_clicks', title: 'Doigts agiles', desc: 'Cliquer 400 fois', key: 'clicks', goal: 400, reward: 100 },
+  { id: 'd_games', title: 'Tour de salle', desc: 'Jouer 15 parties', key: 'games', goal: 15, reward: 150 },
+  { id: 'd_wins', title: 'Série gagnante', desc: 'Gagner 6 parties', key: 'wins', goal: 6, reward: 200 },
+  { id: 'd_crash2', title: 'Plein ciel', desc: 'Encaisser 3 fois à 2× ou plus à l’Aviateur', key: 'crash2', goal: 3, reward: 300 },
+  { id: 'd_gems', title: 'Chercheur de diamants', desc: 'Trouver 15 diamants aux Mines', key: 'gems', goal: 15, reward: 200 },
+  { id: 'd_bj', title: 'Croupier battu', desc: 'Gagner 3 mains de blackjack', key: 'bjwins', goal: 3, reward: 250 },
+  { id: 'd_wager', title: 'Mise du jour', desc: 'Miser 2 000 $ au total', key: 'wager', goal: 2000, reward: 300, fmt: 'money' },
+  { id: 'd_coin', title: 'Bonne pioche', desc: 'Gagner 4 lancers de pièce', key: 'coinwins', goal: 4, reward: 150 },
+  { id: 'd_spin', title: 'La roue tourne', desc: 'Lancer 10 fois Cyber Spin', key: 'spins', goal: 10, reward: 150 }
+];
+const DAILY_BONUS_S = 600; // les objectifs du jour rapportent aussi 10 min de revenus automatiques
+
+const Goals = {
+  notified: new Set(),
+  dayKey() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; },
+  pick(day) { // les mêmes 3 objectifs pour tout le monde ce jour-là
+    let h = 2166136261;
+    for (const ch of day) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
+    const ids = DAILY_POOL.map(d => d.id);
+    for (let i = ids.length - 1; i > 0; i--) {
+      h = (Math.imul(h, 1664525) + 1013904223) >>> 0;
+      const j = h % (i + 1);
+      [ids[i], ids[j]] = [ids[j], ids[i]];
+    }
+    return ids.slice(0, 3);
+  },
+  ensureDay() {
+    const k = this.dayKey();
+    if (S.daily.day !== k) {
+      const isNewDay = !!S.daily.day;
+      S.daily = { day: k, ids: this.pick(k), prog: {}, claimed: {} };
+      if (isNewDay && user) { toast('Nouveaux objectifs du jour disponibles.', 'info'); markDirty(); }
+    }
+  },
+  bump(key, n) {
+    if (!user) return;
+    this.ensureDay();
+    S.daily.prog[key] = r2((S.daily.prog[key] || 0) + n);
+    this.check();
+  },
+  dailyReward(g) { return r2(g.reward + Math.round(autoRate() * DAILY_BONUS_S)); },
+  dailyItems() { return S.daily.ids.map(id => DAILY_POOL.find(d => d.id === id)).filter(Boolean); },
+  readyList() {
+    const out = GOALS.filter(g => !S.goals[g.id] && g.val() >= g.goal).map(g => 'g:' + g.id);
+    this.dailyItems().forEach(g => { if (!S.daily.claimed[g.id] && (S.daily.prog[g.key] || 0) >= g.goal) out.push('d:' + g.id); });
+    return out;
+  },
+  prime() { // à la connexion : pas de notification pour ce qui était déjà prêt
+    this.notified = new Set(this.readyList());
+    if (this.notified.size) toast(`${this.notified.size} objectif${this.notified.size > 1 ? 's' : ''} à récupérer.`, 'info');
+    this.badge(this.notified.size);
+  },
+  check() {
+    if (!user) return this.badge(0);
+    const ready = this.readyList();
+    ready.forEach(k => {
+      if (this.notified.has(k)) return;
+      this.notified.add(k);
+      const [t, id] = k.split(':');
+      const g = t === 'g' ? GOALS.find(x => x.id === id) : DAILY_POOL.find(x => x.id === id);
+      toast(`Objectif atteint : ${g.title}. Récupérez votre récompense.`, 'success');
+    });
+    this.badge(ready.length);
+  },
+  badge(n) { $$('[data-count="objectifs"]').forEach(el => { el.textContent = n || ''; el.hidden = !n; }); },
+  claim(id) {
+    const g = GOALS.find(x => x.id === id);
+    if (!g || S.goals[id] || g.val() < g.goal) return;
+    S.goals[id] = true;
+    Wallet.credit(g.reward);
+    toast(`${g.title} : +${money(g.reward)}`, 'success');
+    celebrate(); saveNow(); this.check(); this.render();
+  },
+  claimDaily(id) {
+    const g = DAILY_POOL.find(x => x.id === id);
+    if (!g || S.daily.claimed[id] || (S.daily.prog[g.key] || 0) < g.goal) return;
+    const rew = this.dailyReward(g);
+    S.daily.claimed[id] = true;
+    Wallet.credit(rew);
+    toast(`${g.title} : +${money(rew)}`, 'success');
+    celebrate(); saveNow(); this.check(); this.render();
+  },
+  row(title, desc, v, goal, fmt, reward, claimed, attr) {
+    const done = v >= goal;
+    const f = x => fmt === 'money' ? money(x) : fmt === 'x' ? fmtX(x) : fmt === 'rate' ? perSec(x) : Math.floor(x).toLocaleString('fr-FR');
+    const pct = Math.min(100, (v / goal) * 100);
+    const action = claimed ? '<span class="done-mark">Récupéré</span>'
+      : done ? `<button class="btn btn-brass" type="button" ${attr}>Récupérer ${money(reward)}</button>`
+      : `<span class="reward">${money(reward)}</span>`;
+    return `<div class="goal${claimed ? ' claimed' : ''}${done && !claimed ? ' ready' : ''}">
+      <div class="goal-txt"><b>${esc(title)}</b><span class="muted-sm">${esc(desc)}</span></div>${action}
+      <div class="goal-bar"><div class="bar"><i style="width:${pct.toFixed(1)}%"></i></div><p class="goal-prog">${f(Math.min(v, goal))} sur ${f(goal)}</p></div></div>`;
+  },
+  render() {
+    if (!user) return;
+    this.ensureDay();
+    patchList($('#daily-list'), this.dailyItems().map(g => ({
+      key: g.id,
+      html: this.row(g.title, g.desc, S.daily.prog[g.key] || 0, g.goal, g.fmt, this.dailyReward(g), !!S.daily.claimed[g.id], `data-claim-daily="${g.id}"`)
+    })));
+    const mid = new Date(); mid.setHours(24, 0, 0, 0);
+    const mins = Math.max(1, Math.round((mid - Date.now()) / 60000));
+    $('#daily-reset').textContent = `Renouvelés dans ${mins >= 60 ? `${Math.floor(mins / 60)} h ${String(mins % 60).padStart(2, '0')}` : `${mins} min`}`;
+    const order = g => (S.goals[g.id] ? 2 : g.val() >= g.goal ? 0 : 1);
+    const list = GOALS.slice().sort((a, b) => order(a) - order(b));
+    patchList($('#goal-list'), list.map(g => ({
+      key: g.id,
+      html: this.row(g.title, g.desc, g.val(), g.goal, g.fmt, g.reward, !!S.goals[g.id], `data-claim="${g.id}"`)
+    })));
+    const done = GOALS.filter(g => S.goals[g.id]).length;
+    $('#goal-count').textContent = `${done} sur ${GOALS.length} récupérés`;
+  }
+};
+
+/* =====================================================================
+   THÈMES
+   ===================================================================== */
+const THEME_KEYS = ['--bg', '--felt', '--panel', '--panel-2', '--line', '--line-soft', '--muted', '--faint', '--brass', '--brass-hi', '--brass-ink', '--glow'];
+const THEMES = [
+  { id: 'tapis', name: 'Tapis vert', desc: 'Le thème d’origine du casino.', price: 0, vars: {} },
+  { id: 'velours', name: 'Velours rouge', desc: 'L’ambiance des salons privés.', price: 20000,
+    vars: { '--bg': '#1C0E12', '--felt': '#261218', '--panel': '#2E1820', '--panel-2': '#3A1F29', '--line': '#55303B', '--line-soft': '#43252F', '--muted': '#C4A7AD', '--faint': '#8F7077', '--glow': '#3A1822' } },
+  { id: 'minuit', name: 'Bleu minuit', desc: 'Pour les parties qui finissent tard.', price: 20000,
+    vars: { '--bg': '#0B1220', '--felt': '#111A2C', '--panel': '#152036', '--panel-2': '#1B2945', '--line': '#2A3B5E', '--line-soft': '#22324F', '--muted': '#A3B1CC', '--faint': '#6E7E9C', '--glow': '#1A2B4C' } },
+  { id: 'ebene', name: 'Ébène et or', desc: 'Noir profond et dorures.', price: 300000,
+    vars: { '--bg': '#0E0D0B', '--felt': '#16140F', '--panel': '#1C1913', '--panel-2': '#262117', '--line': '#3E3524', '--line-soft': '#2F291C', '--muted': '#B8AC92', '--faint': '#857A63', '--brass': '#F0C35A', '--brass-hi': '#F7D47E', '--glow': '#2A2416' } },
+  { id: 'neon', name: 'Néon', desc: 'Violet électrique et chiffres turquoise.', price: 2000000,
+    vars: { '--bg': '#120D1F', '--felt': '#1A1230', '--panel': '#20163A', '--panel-2': '#2A1D4A', '--line': '#40306B', '--line-soft': '#332656', '--muted': '#B4A6D6', '--faint': '#7F70A6', '--brass': '#4FE0D2', '--brass-hi': '#7AF0E5', '--brass-ink': '#062A27', '--glow': '#2E1D57' } }
+];
+function applyTheme(id) {
+  const t = THEMES.find(x => x.id === id) || THEMES[0];
+  const st = document.documentElement.style;
+  THEME_KEYS.forEach(k => st.removeProperty(k));
+  Object.entries(t.vars).forEach(([k, v]) => st.setProperty(k, v));
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = t.vars['--bg'] || '#0D1C18';
+}
 
 /* =====================================================================
    RÉSEAU (Socket.io)
@@ -1749,6 +2260,10 @@ const Net = {
     if (this.balTimer) { this.balQueued = true; return; }
     if (user) this.emit('update_balance', { username: user, balance: S.balance, badge: S.equippedBadge });
     this.balTimer = setTimeout(() => { this.balTimer = 0; if (this.balQueued) { this.balQueued = false; this.pushBalance(); } }, 400);
+  },
+  pushBalanceSlow() { // revenus automatiques : un envoi toutes les 3 s suffit au classement
+    if (this.balTimer || this.slowTimer) return;
+    this.slowTimer = setTimeout(() => { this.slowTimer = 0; this.pushBalance(); }, 3000);
   },
   pushBalanceNow() {
     clearTimeout(this.balTimer); this.balTimer = 0; this.balQueued = false;
@@ -1861,6 +2376,7 @@ const ICONS = {
   card: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="3" width="13" height="18" rx="2"/><path d="M12 8.5c-1.7 1.5-2.7 2.5-2.7 3.6a1.5 1.5 0 0 0 2.7.8 1.5 1.5 0 0 0 2.7-.8c0-1.1-1-2.1-2.7-3.6zM12 13v2.5"/></svg>',
   coin: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/></svg>',
   plus: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/></svg>',
+  target: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg>',
   bag: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>',
   bars: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-8M12 20V5M19 20v-5"/></svg>',
   chat: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9.5L4 20z"/></svg>'
@@ -1871,7 +2387,8 @@ const VIEWS = [
   { id: 'roue', label: 'Cyber Spin', group: 'Jeux', icon: 'wheel' },
   { id: 'blackjack', label: 'Blackjack', group: 'Jeux', icon: 'card' },
   { id: 'pile-face', label: 'Pile ou face', group: 'Jeux', icon: 'coin' },
-  { id: 'secours', label: 'Caisse de secours', group: 'Compte', icon: 'plus' },
+  { id: 'clicker', label: 'Clicker', group: 'Gagner de l’argent', icon: 'plus' },
+  { id: 'objectifs', label: 'Objectifs', group: 'Gagner de l’argent', icon: 'target' },
   { id: 'boutique', label: 'Boutique', group: 'Compte', icon: 'bag' },
   { id: 'stats', label: 'Statistiques', group: 'Compte', icon: 'bars' },
   { id: 'social', label: 'Tchat et transferts', group: 'Communauté', icon: 'chat' }
@@ -1882,10 +2399,11 @@ function buildNav() {
   const nav = $('#nav');
   nav.innerHTML = Object.entries(groups).map(([g, items]) =>
     `<div class="nav-group"><p class="nav-group-title">${esc(g)}</p>${items.map(v =>
-      `<button type="button" class="nav-btn" data-view="${v.id}">${ICONS[v.icon]}<span>${esc(v.label)}</span></button>`).join('')}</div>`).join('');
+      `<button type="button" class="nav-btn" data-view="${v.id}">${ICONS[v.icon]}<span>${esc(v.label)}</span>${v.id === 'objectifs' ? '<span class="nav-count" data-count="objectifs" hidden></span>' : ''}</button>`).join('')}</div>`).join('');
   nav.addEventListener('click', e => { const b = e.target.closest('.nav-btn'); if (b) go(b.dataset.view); });
 }
 function go(id) {
+  if (id === 'secours') id = 'clicker'; // ancien lien
   if (!VIEWS.some(v => v.id === id)) id = 'crash';
   currentView = id;
   $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + id));
@@ -1899,6 +2417,8 @@ function go(id) {
   if (id === 'roue') Spin.place(Spin.pos, Spin.frac, false);
   if (id === 'boutique') renderShop();
   if (id === 'stats') renderStats();
+  if (id === 'clicker') Clicker.render();
+  if (id === 'objectifs') Goals.render();
   window.scrollTo(0, 0);
 }
 
@@ -1938,6 +2458,8 @@ function markDirty() {
     renderWallet(); renderBoard();
     if (currentView === 'boutique') renderShop();
     if (currentView === 'stats') renderStats();
+    if (currentView === 'clicker') Clicker.render();
+    if (currentView === 'objectifs') Goals.render();
   });
 }
 function renderWallet() { $('#wallet').textContent = user ? money(S.balance) : '—'; }
@@ -1954,7 +2476,8 @@ function renderStats() {
     ['Pertes cumulées', money(S.totalLost), 'neg', ''],
     ['Résultat net', (net > 0 ? '+' : '') + money(net), net >= 0 ? 'pos' : 'neg', ''],
     ['Parties gagnées', `${rate} %`, '', `${S.gamesWon} sur ${S.gamesPlayed}`],
-    ['Meilleur encaissement Aviateur', S.bestCrash ? fmtX(S.bestCrash) : '—', '', '']
+    ['Meilleur encaissement Aviateur', S.bestCrash ? fmtX(S.bestCrash) : '—', '', ''],
+    ['Gagné au clicker', money(r2(S.clicker.clickEarned + S.clicker.autoEarned)), '', `dont ${money(S.clicker.autoEarned)} automatiques`]
   ];
   $('#figures').innerHTML = figs.map(([l, v, c, sub]) => `<div class="figure"><dt>${l}</dt><dd class="${c}">${v}</dd>${sub ? `<small>${sub}</small>` : ''}</div>`).join('');
   $('#ach-list').innerHTML = ACH.map(a => {
@@ -1972,7 +2495,7 @@ function renderStats() {
 }
 function renderAll() {
   renderWallet(); renderUser(); renderBoard(); renderShop(); renderStats(); renderOnline();
-  $('#clicks-count').textContent = S.totalClicks.toLocaleString('fr-FR');
+  Clicker.render(); Goals.render(); Boost.tick();
   $('#bj-pname').textContent = user || 'Vous';
   Mines.preview();
 }
