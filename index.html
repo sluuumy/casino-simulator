@@ -2530,6 +2530,13 @@ document.addEventListener('DOMContentLoaded', () => {
   BJ.init();
   Coin.init();
   Clicker.init();
+  $('#view-objectifs').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (!user) return showAuth();
+    if (b.dataset.claim) Goals.claim(b.dataset.claim);
+    else if (b.dataset.claimDaily) Goals.claimDaily(b.dataset.claimDaily);
+  });
   go(location.hash.slice(1));
   window.addEventListener('hashchange', () => go(location.hash.slice(1)));
   autoLogin();
