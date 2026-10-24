@@ -584,7 +584,7 @@ main{min-width:0}
     <section class="view" id="view-pile-face" aria-labelledby="h-coin">
       <header class="view-head">
         <h2 id="h-coin">Pile ou face</h2>
-        <p>Une chance sur deux. Si vous avez vu juste, votre mise est doublée.</p>
+        <p>Une chance sur deux. Si vous avez vu juste, vous récupérez 1,95 fois votre mise.</p>
       </header>
       <div class="panel coin-layout">
         <div class="coin-wrap"><div class="coin" id="coin"><div class="coin-face front">Pile</div><div class="coin-face back">Face</div></div></div>
@@ -642,7 +642,7 @@ main{min-width:0}
     <section class="view" id="view-objectifs" aria-labelledby="h-obj">
       <header class="view-head">
         <h2 id="h-obj">Objectifs</h2>
-        <p>Atteignez des objectifs pour gagner de l’argent. Ceux du jour changent chaque nuit à minuit et rapportent en plus 3 minutes de vos revenus automatiques.</p>
+        <p>Atteignez des objectifs pour gagner de l’argent. Ceux du jour changent chaque nuit à minuit et rapportent en plus 3 minutes de vos revenus automatiques. Pour les objectifs de jeux, seules les parties misées à 10 $ ou plus comptent.</p>
       </header>
       <div class="panel">
         <div class="panel-head"><h3 class="panel-title">Objectifs du jour</h3><span class="muted-sm" id="daily-reset"></span></div>
@@ -664,7 +664,7 @@ main{min-width:0}
       </header>
       <div class="panel">
         <h3 class="panel-title">Boosts du clicker</h3>
-        <p class="muted-sm" style="margin:-6px 0 14px">Pendant 5 minutes, multiplient vos clics, vos revenus automatiques et le bénéfice de vos parties gagnées. Racheter le même boost le prolonge.</p>
+        <p class="muted-sm" style="margin:-6px 0 14px">Pendant 5 minutes, multiplient vos clics et vos revenus automatiques. Ils multiplient aussi le bénéfice de vos parties gagnées, dans la limite d’un bonus égal à la moitié de leur prix. Racheter le même boost le prolonge et ajoute du bonus.</p>
         <div id="shop-boosts"></div>
       </div>
       <div class="panel">
@@ -742,12 +742,15 @@ main{min-width:0}
    ===================================================================== */
 const SERVER_URL = 'https://casino-server-7b6q.onrender.com';
 const START_BALANCE = 150;
+const GOAL_MIN_BET = 10; // mise minimale pour faire avancer les objectifs de jeux
+const COIN_PAYOUT = 1.95; // pile ou face : 2,5 % d'avantage maison
 const HOUSE = 0.97; // 3 % d'avantage maison (Aviateur et Mines)
 const KEYS = {
   users: 'cyber_casino_users',
   active: 'cyber_casino_active_user',
   guestSave: 'cyber_casino_guest_save',
-  guestName: 'cyber_casino_guest_name'
+  guestName: 'cyber_casino_guest_name',
+  season: 'cyber_casino_season'
 };
 
 /* =====================================================================
@@ -799,7 +802,7 @@ const DEFAULT_STATE = () => ({
   biggestMult: 1, bestCrash: 0, gamesPlayed: 0, gamesWon: 0,
   achievements: {}, inventory: {}, equippedBadge: '', history: [], pending: {},
   clicker: { up: {}, bought: 0, boosts: 0, clickEarned: 0, autoEarned: 0 },
-  c: { minesRun: 0, blackjacks: 0, greens: 0, coinStreak: 0, coinBest: 0, wagered: 0, minesClear: 0, bestWin: 0, dailyClaimed: 0, boost50: 0, chats: 0, sabotages: 0 },
+  c: { minesRun: 0, blackjacks: 0, greens: 0, coinStreak: 0, coinBest: 0, wagered: 0, minesClear: 0, bestWin: 0, dailyClaimed: 0, boost50: 0, chats: 0, sabotages: 0, games10: 0, wins10: 0 },
   boost: null, malus: {}, goals: {}, daily: { day: '', ids: [], prog: {}, claimed: {} }, theme: 'tapis', lastSeen: 0
 });
 let user = null;
@@ -828,7 +831,7 @@ function normalize(raw) {
   const c = obj(s.c);
   s.c = {};
   for (const k of Object.keys(d.c)) s.c[k] = num(c[k]);
-  s.boost = s.boost && BOOSTS.some(b => b.mult === s.boost.mult) && Number.isFinite(s.boost.until) ? { mult: s.boost.mult, until: s.boost.until } : null;
+  s.boost = s.boost && BOOSTS.some(b => b.mult === s.boost.mult) && Number.isFinite(s.boost.until) ? { mult: s.boost.mult, until: s.boost.until, pool: num(s.boost.pool) } : null;
   s.goals = obj(s.goals);
   s.malus = {};
   const ml = obj(raw && raw.malus);
@@ -900,10 +903,13 @@ function lockBet(key, on) {
 function settle(game, bet, payout, mult) {
   payout = r2(payout);
   // Boost actif : le bénéfice d'une partie gagnée est multiplié (la mise est rendue normalement)
+  // Ce bonus puise dans une réserve égale à la moitié du prix du boost : un boost
+  // ne peut donc jamais se rembourser avec les seuls jeux.
   const bm = boostMult();
   let bonus = 0;
-  if (bm > 1 && payout > bet) {
-    bonus = r2((payout - bet) * (bm - 1));
+  if (bm > 1 && payout > bet && S.boost.pool > 0) {
+    bonus = Math.min(r2((payout - bet) * (bm - 1)), S.boost.pool);
+    S.boost.pool = r2(S.boost.pool - bonus);
     payout = r2(payout + bonus);
   }
   // Handicap « Gains divisés par 2 » : consommé par chaque partie d'au moins 10 $
@@ -926,10 +932,13 @@ function settle(game, bet, payout, mult) {
   S.history.unshift({ g: game, bet, win: payout, mult: mult || 0, t: Date.now() });
   if (S.history.length > 50) S.history.length = 50;
   S.c.wagered = r2(S.c.wagered + bet);
-  Goals.bump('games', 1);
   Goals.bump('wager', bet);
+  if (bet >= GOAL_MIN_BET) { // les petites mises ne font pas avancer les objectifs
+    S.c.games10++;
+    Goals.bump('games', 1);
+    if (net > 0) { S.c.wins10++; Goals.bump('wins', 1); }
+  }
   if (net > 0) {
-    Goals.bump('wins', 1);
     Goals.bump('profit', net);
     if (net > S.c.bestWin) S.c.bestWin = net;
   }
@@ -1094,6 +1103,21 @@ function initAuthUI() {
   $('#logout-btn').addEventListener('click', logout);
 }
 
+/* Nouvelle saison : la première fois que cette version s'ouvre sur un appareil, la
+   progression de tous les comptes de cet appareil repart de zéro (pseudos et mots
+   de passe conservés). Changer SEASON relance une remise à zéro. */
+const SEASON = '2';
+let seasonReset = false;
+function applySeason() {
+  if (store.get(KEYS.season) === SEASON) return;
+  const users = Auth.all();
+  const had = Object.keys(users).length > 0 || !!store.get(KEYS.guestSave);
+  Object.values(users).forEach(u => { u.state = DEFAULT_STATE(); });
+  Auth.write(users);
+  store.del(KEYS.guestSave);
+  store.set(KEYS.season, SEASON);
+  seasonReset = had;
+}
 function autoLogin() {
   const active = store.get(KEYS.active);
   if (!active) return showAuth();
@@ -1154,7 +1178,7 @@ function renderShop() {
   const rate = autoRate();
   patchList($('#shop-boosts'), BOOSTS.map(b => {
     const on = boostActive() && S.boost.mult === b.mult;
-    const est = `Bénéfice des parties gagnées ×${b.mult}.` + (rate > 0 ? ` Avec vos machines actuelles : environ +${money(r2(rate * 300 * (b.mult - 1)))} de revenus en plus.` : '');
+    const est = `Bénéfice des parties gagnées ×${b.mult}, jusqu’à ${money(b.price * GAME_BONUS_SHARE)} de bonus.` + (rate > 0 ? ` Avec vos machines actuelles : environ +${money(r2(rate * 300 * (b.mult - 1)))} de revenus en plus.` : '');
     return { key: 'b' + b.mult, html: `<div class="shop-row"><span><span class="boost-tag">×${b.mult}</span></span>
       <div><p class="shop-name">Boost ×${b.mult} pendant 5 minutes${on ? `<span class="owned-mark">Actif, encore ${Boost.left()}</span>` : ''}</p><p class="muted-sm">${est}</p></div>
       ${priceButton(b.price, `data-boost="${b.mult}"`, on ? 'Prolonger' : 'Activer')}</div>` };
@@ -1604,8 +1628,10 @@ const Mines = {
     }
     tile.className = 'tile gem'; tile.innerHTML = GEM_SVG; tile.disabled = true;
     this.found++;
-    if (this.found > S.c.minesRun) S.c.minesRun = this.found;
-    Goals.bump('gems', 1);
+    if (this.bet >= GOAL_MIN_BET) {
+      if (this.bombs >= 3 && this.found > S.c.minesRun) S.c.minesRun = this.found;
+      Goals.bump('gems', 1);
+    }
     S.pending.mines = { bet: this.bet, bombs: this.bombs, found: this.found };
     saveNow();
     this.preview();
@@ -1616,7 +1642,7 @@ const Mines = {
     const m = this.mult(this.bombs, this.found), pay = r2(this.bet * m);
     const got = settle('Mines', this.bet, pay, m);
     Goals.bump('mineswins', 1);
-    if (this.found === 25 - this.bombs && this.bombs >= 3) S.c.minesClear++;
+    if (this.found === 25 - this.bombs && this.bombs >= 3 && this.bet >= GOAL_MIN_BET) S.c.minesClear++;
     toast(`Encaissé à ${fmtX(m)} : ${money(got)}.`, 'success');
     this.finish(true);
   },
@@ -1687,9 +1713,9 @@ const Spin = {
     setTimeout(() => {
       this.pos = 15 + r; this.frac = frac;
       this.place(this.pos, frac, false); // même position visuelle, ramenée au début de la bande
-      if (win && col === 'green') { S.c.greens++; Goals.bump('greens', 1); }
+      if (win && col === 'green' && bet >= GOAL_MIN_BET) { S.c.greens++; Goals.bump('greens', 1); }
       const got = settle('Cyber Spin', bet, pay, win ? mult : 0);
-      Goals.bump('spins', 1);
+      if (bet >= GOAL_MIN_BET) Goals.bump('spins', 1);
       setPending('instant', null);
       out.dataset.kind = win ? 'win' : 'lose';
       out.textContent = win ? `${COLOR_LABEL[col]} ${n} : vous gagnez ${money(got - bet)}.` : `${COLOR_LABEL[col]} ${n} : mise perdue.`;
@@ -1838,8 +1864,8 @@ const Coin = {
     if (bet == null || !Wallet.debit(bet)) return;
     this.busy = true; this.lock(true);
     const res = RNG.int(2) === 0 ? 'pile' : 'face';
-    const win = res === side, pay = win ? r2(bet * 2) : 0;
-    setPending('instant', { game: 'Pile ou face', bet, payout: pay, mult: win ? 2 : 0 });
+    const win = res === side, pay = win ? r2(bet * COIN_PAYOUT) : 0;
+    setPending('instant', { game: 'Pile ou face', bet, payout: pay, mult: win ? COIN_PAYOUT : 0 });
     Net.emit('place_bet', { game: 'Pile ou face', amount: bet, win: false, payout: 0 });
     const out = $('#coin-result'); out.dataset.kind = ''; out.textContent = '';
     this.angle = Math.ceil((this.angle + 1) / 360) * 360 + 1440 + (res === 'face' ? 180 : 0);
@@ -1847,7 +1873,7 @@ const Coin = {
     setTimeout(() => {
       S.c.coinStreak = win ? S.c.coinStreak + 1 : 0;
       if (S.c.coinStreak > S.c.coinBest) S.c.coinBest = S.c.coinStreak;
-      const got = settle('Pile ou face', bet, pay, win ? 2 : 0);
+      const got = settle('Pile ou face', bet, pay, win ? COIN_PAYOUT : 0);
       if (win) Goals.bump('coinwins', 1);
       setPending('instant', null);
       const label = res === 'pile' ? 'Pile' : 'Face';
@@ -1886,6 +1912,7 @@ const BOOSTS = [
   { mult: 50, price: 2500000 }
 ];
 const BOOST_MS = 5 * 60 * 1000, BOOST_MAX_MS = 30 * 60 * 1000;
+const GAME_BONUS_SHARE = 0.5; // bonus de jeux maximal par boost : la moitié de son prix
 const OFFLINE_CAP_S = 2 * 3600, OFFLINE_RATE = 0.5;
 
 const level = id => (S.clicker.up[id] || 0);
@@ -2045,7 +2072,7 @@ const Clicker = {
     setHTML($('#clicker-boost'), malusOn('noboost') && boostActive()
       ? `<span class="malus-on">Panne de boost</span> : votre boost ×${S.boost.mult} est sans effet pendant encore ${Malus.left('noboost')}.`
       : mult > 1
-      ? `<span class="boost-on">Boost ×${mult} actif</span> encore ${Boost.left()} sur vos clics, vos revenus automatiques et vos gains aux jeux.`
+      ? `<span class="boost-on">Boost ×${mult} actif</span> encore ${Boost.left()} sur vos clics et vos revenus automatiques. Bonus restant pour les jeux : ${money(S.boost.pool || 0)}.`
       : `<a href="#boutique" class="text-link">Acheter un boost</a> pour multiplier vos gains du clicker et des jeux pendant 5 minutes.`);
     for (const kind of ['click', 'auto']) {
       const { rows, hidden } = this.listFor(kind);
@@ -2074,7 +2101,8 @@ const Boost = {
     }
     if (!Wallet.debit(b.price)) return toast(`Il vous manque ${money(r2(b.price - S.balance))} pour ce boost.`, 'error');
     const extend = active && S.boost.mult === mult;
-    S.boost = { mult, until: (extend ? S.boost.until : now) + BOOST_MS };
+    const pool = r2(b.price * GAME_BONUS_SHARE + (extend ? S.boost.pool || 0 : 0));
+    S.boost = { mult, until: (extend ? S.boost.until : now) + BOOST_MS, pool };
     S.clicker.boosts++;
     if (mult === 50) S.c.boost50++;
     Goals.bump('boosts', 1);
@@ -2193,17 +2221,17 @@ const GOALS = [
   { id: 'boost10', cat: 'clicker', title: 'Accro à la vitesse', desc: 'Acheter 10 boosts', goal: 10, val: () => S.clicker.boosts, reward: 20000 },
   { id: 'boost50', cat: 'clicker', title: 'Turbo', desc: 'Acheter un boost ×50', goal: 1, val: () => S.c.boost50, reward: 100000 },
   // ----- Jeux -----
-  { id: 'g25', cat: 'jeux', title: 'Habitué', desc: 'Jouer 25 parties', goal: 25, val: () => S.gamesPlayed, reward: 60 },
-  { id: 'g100', cat: 'jeux', title: 'Pilier du casino', desc: 'Jouer 100 parties', goal: 100, val: () => S.gamesPlayed, reward: 400 },
-  { id: 'g1000', cat: 'jeux', title: 'Résident', desc: 'Jouer 1 000 parties', goal: 1000, val: () => S.gamesPlayed, reward: 8000 },
-  { id: 'w10', cat: 'jeux', title: 'Main chaude', desc: 'Gagner 10 parties', goal: 10, val: () => S.gamesWon, reward: 80 },
-  { id: 'w50', cat: 'jeux', title: 'En veine', desc: 'Gagner 50 parties', goal: 50, val: () => S.gamesWon, reward: 800 },
-  { id: 'w250', cat: 'jeux', title: 'Intouchable', desc: 'Gagner 250 parties', goal: 250, val: () => S.gamesWon, reward: 6000 },
+  { id: 'g25', cat: 'jeux', title: 'Habitué', desc: 'Jouer 25 parties', goal: 25, val: () => S.c.games10, reward: 60 },
+  { id: 'g100', cat: 'jeux', title: 'Pilier du casino', desc: 'Jouer 100 parties', goal: 100, val: () => S.c.games10, reward: 400 },
+  { id: 'g1000', cat: 'jeux', title: 'Résident', desc: 'Jouer 1 000 parties', goal: 1000, val: () => S.c.games10, reward: 8000 },
+  { id: 'w10', cat: 'jeux', title: 'Main chaude', desc: 'Gagner 10 parties', goal: 10, val: () => S.c.wins10, reward: 80 },
+  { id: 'w50', cat: 'jeux', title: 'En veine', desc: 'Gagner 50 parties', goal: 50, val: () => S.c.wins10, reward: 800 },
+  { id: 'w250', cat: 'jeux', title: 'Intouchable', desc: 'Gagner 250 parties', goal: 250, val: () => S.c.wins10, reward: 6000 },
   { id: 'x3', cat: 'jeux', title: 'Décollage', desc: 'Encaisser à 3× ou plus à l’Aviateur', goal: 3, val: () => S.bestCrash, reward: 120, fmt: 'x' },
   { id: 'x10', cat: 'jeux', title: 'Haute altitude', desc: 'Encaisser à 10× ou plus à l’Aviateur', goal: 10, val: () => S.bestCrash, reward: 1000, fmt: 'x' },
   { id: 'x100', cat: 'jeux', title: 'Stratosphère', desc: 'Encaisser à 100× ou plus à l’Aviateur', goal: 100, val: () => S.bestCrash, reward: 40000, fmt: 'x' },
-  { id: 'mines8', cat: 'jeux', title: 'Démineur', desc: 'Trouver 8 diamants dans une seule partie de Mines', goal: 8, val: () => S.c.minesRun, reward: 200 },
-  { id: 'mines15', cat: 'jeux', title: 'Expert en déminage', desc: 'Trouver 15 diamants dans une seule partie de Mines', goal: 15, val: () => S.c.minesRun, reward: 4000 },
+  { id: 'mines8', cat: 'jeux', title: 'Démineur', desc: 'Trouver 8 diamants dans une partie de Mines à 3 mines ou plus', goal: 8, val: () => S.c.minesRun, reward: 200 },
+  { id: 'mines15', cat: 'jeux', title: 'Expert en déminage', desc: 'Trouver 15 diamants dans une partie de Mines à 3 mines ou plus', goal: 15, val: () => S.c.minesRun, reward: 4000 },
   { id: 'minesClear', cat: 'jeux', title: 'Sans faute', desc: 'Trouver tous les diamants d’une partie de Mines à 3 mines ou plus', goal: 1, val: () => S.c.minesClear, reward: 2000 },
   { id: 'bj', cat: 'jeux', title: 'Vingt-et-un', desc: 'Obtenir un blackjack', goal: 1, val: () => S.c.blackjacks, reward: 100 },
   { id: 'bj10', cat: 'jeux', title: 'Croupier en sueur', desc: 'Obtenir 10 blackjacks', goal: 10, val: () => S.c.blackjacks, reward: 1200 },
@@ -2777,8 +2805,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   go(location.hash.slice(1));
   window.addEventListener('hashchange', () => go(location.hash.slice(1)));
+  applySeason();
   autoLogin();
   renderAll();
+  if (seasonReset) toast(`Nouvelle saison : tous les comptes repartent de zéro avec ${money(START_BALANCE)}. Bonne chance !`, 'info');
   Net.init();
   document.addEventListener('visibilitychange', () => { if (document.hidden) saveNow(); });
   window.addEventListener('pagehide', saveNow);
