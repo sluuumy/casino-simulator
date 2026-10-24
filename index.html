@@ -250,8 +250,13 @@ main{min-width:0}
 .up-name{font-weight:700}
 .up-lvl{color:var(--jade);font-size:12px;font-weight:700;margin-left:8px}
 .up-row .btn{min-width:120px}
-.boost-chip{border:0;cursor:pointer;background:rgba(62,197,143,.15);color:var(--jade);font-weight:850;font-size:14px;border-radius:999px;padding:6px 12px;white-space:nowrap;font-stretch:112%;margin-left:auto}
-.boost-chip:not([hidden])+.wallet{margin-left:0}
+.top-chips{margin-left:auto;display:flex;gap:8px;align-items:center;min-width:0}
+.top-chips+.wallet{margin-left:0}
+.boost-chip{border:0;cursor:pointer;background:rgba(62,197,143,.15);color:var(--jade);font-weight:850;font-size:14px;border-radius:999px;padding:6px 12px;white-space:nowrap;font-stretch:112%}
+.malus-chip{background:rgba(222,74,67,.15);color:var(--red);font-weight:800;font-size:13px;border-radius:999px;padding:6px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px;cursor:help}
+.malus-on{color:var(--red);font-weight:800}
+.sab-tag{display:inline-block;font-stretch:112%;font-weight:850;font-size:13px;color:var(--red);border:1px solid rgba(222,74,67,.45);background:rgba(222,74,67,.08);border-radius:6px;padding:3px 8px;white-space:nowrap}
+.sab-field{margin-bottom:16px;max-width:360px}
 .boost-tag{display:inline-block;font-stretch:125%;font-weight:900;font-size:24px;color:var(--jade);line-height:1}
 .swatches{display:flex;gap:4px}
 .swatches i{width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
@@ -360,6 +365,7 @@ main{min-width:0}
   .clicker{text-align:center;gap:24px}
 }
 @media (max-width:620px){
+  .malus-chip{max-width:120px}
   .topbar-in{gap:12px;padding:8px 14px}
   .brand span{display:none}
   .wallet-label{display:none}
@@ -422,7 +428,10 @@ main{min-width:0}
       <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#DE4A43"/><circle cx="16" cy="16" r="13" fill="none" stroke="#F2E6C8" stroke-width="4" stroke-dasharray="5.1 5.1"/><circle cx="16" cy="16" r="8" fill="#12261F" stroke="#F2E6C8" stroke-width="1.2"/></svg>
       <span>Cyber Casino</span>
     </a>
-    <button class="boost-chip" id="boost-chip" type="button" hidden onclick="go('clicker')"></button>
+    <div class="top-chips">
+      <span class="malus-chip" id="malus-chip" hidden></span>
+      <button class="boost-chip" id="boost-chip" type="button" hidden onclick="go('clicker')"></button>
+    </div>
     <div class="wallet">
       <span class="wallet-label">Solde</span>
       <span class="wallet-amount" id="wallet" aria-live="polite">—</span>
@@ -633,7 +642,7 @@ main{min-width:0}
     <section class="view" id="view-objectifs" aria-labelledby="h-obj">
       <header class="view-head">
         <h2 id="h-obj">Objectifs</h2>
-        <p>Atteignez des objectifs pour gagner de l’argent. Ceux du jour changent chaque nuit à minuit et rapportent en plus 10 minutes de vos revenus automatiques.</p>
+        <p>Atteignez des objectifs pour gagner de l’argent. Ceux du jour changent chaque nuit à minuit et rapportent en plus 3 minutes de vos revenus automatiques.</p>
       </header>
       <div class="panel">
         <div class="panel-head"><h3 class="panel-title">Objectifs du jour</h3><span class="muted-sm" id="daily-reset"></span></div>
@@ -651,12 +660,18 @@ main{min-width:0}
     <section class="view" id="view-boutique" aria-labelledby="h-shop">
       <header class="view-head">
         <h2 id="h-shop">Boutique</h2>
-        <p>Des boosts pour le clicker, des thèmes pour changer l’ambiance du casino et des titres affichés à côté de votre pseudo.</p>
+        <p>Des boosts pour accélérer vos gains, des handicaps pour ralentir les autres joueurs, des thèmes pour changer l’ambiance du casino et des titres affichés à côté de votre pseudo.</p>
       </header>
       <div class="panel">
         <h3 class="panel-title">Boosts du clicker</h3>
         <p class="muted-sm" style="margin:-6px 0 14px">Pendant 5 minutes, multiplient vos clics, vos revenus automatiques et le bénéfice de vos parties gagnées. Racheter le même boost le prolonge.</p>
         <div id="shop-boosts"></div>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title">Handicaps</h3>
+        <p class="muted-sm" style="margin:-6px 0 14px">Ralentissez un joueur connecté. Un même joueur ne peut pas recevoir plus de 3 handicaps en 10 minutes.</p>
+        <div class="field sab-field"><label for="sab-target">Joueur visé</label><select id="sab-target" class="input"><option value="">Choisir un joueur connecté</option></select></div>
+        <div id="shop-sabotage"></div>
       </div>
       <div class="panel">
         <h3 class="panel-title">Thèmes</h3>
@@ -784,8 +799,8 @@ const DEFAULT_STATE = () => ({
   biggestMult: 1, bestCrash: 0, gamesPlayed: 0, gamesWon: 0,
   achievements: {}, inventory: {}, equippedBadge: '', history: [], pending: {},
   clicker: { up: {}, bought: 0, boosts: 0, clickEarned: 0, autoEarned: 0 },
-  c: { minesRun: 0, blackjacks: 0, greens: 0, coinStreak: 0, coinBest: 0, wagered: 0, minesClear: 0, bestWin: 0, dailyClaimed: 0, boost50: 0, chats: 0 },
-  boost: null, goals: {}, daily: { day: '', ids: [], prog: {}, claimed: {} }, theme: 'tapis', lastSeen: 0
+  c: { minesRun: 0, blackjacks: 0, greens: 0, coinStreak: 0, coinBest: 0, wagered: 0, minesClear: 0, bestWin: 0, dailyClaimed: 0, boost50: 0, chats: 0, sabotages: 0 },
+  boost: null, malus: {}, goals: {}, daily: { day: '', ids: [], prog: {}, claimed: {} }, theme: 'tapis', lastSeen: 0
 });
 let user = null;
 let isGuest = false;
@@ -815,6 +830,10 @@ function normalize(raw) {
   for (const k of Object.keys(d.c)) s.c[k] = num(c[k]);
   s.boost = s.boost && BOOSTS.some(b => b.mult === s.boost.mult) && Number.isFinite(s.boost.until) ? { mult: s.boost.mult, until: s.boost.until } : null;
   s.goals = obj(s.goals);
+  s.malus = {};
+  const ml = obj(raw && raw.malus);
+  if (ml.halve && num(ml.halve.games) > 0) s.malus.halve = { games: Math.min(Math.floor(num(ml.halve.games)), MALUS_MAX_GAMES), from: String(ml.halve.from || '') };
+  for (const k of ['clicker', 'noboost']) if (ml[k] && num(ml[k].until) > Date.now()) s.malus[k] = { until: num(ml[k].until), from: String(ml[k].from || '') };
   const dl = obj(s.daily);
   s.daily = { day: typeof dl.day === 'string' ? dl.day : '', ids: Array.isArray(dl.ids) ? dl.ids.filter(i => DAILY_POOL.some(x => x.id === i)) : [], prog: obj(dl.prog), claimed: obj(dl.claimed) };
   s.theme = THEMES.some(t => t.id === s.theme) ? s.theme : 'tapis';
@@ -886,6 +905,13 @@ function settle(game, bet, payout, mult) {
   if (bm > 1 && payout > bet) {
     bonus = r2((payout - bet) * (bm - 1));
     payout = r2(payout + bonus);
+  }
+  // Handicap « Gains divisés par 2 » : consommé par chaque partie d'au moins 10 $
+  if (malusOn('halve') && bet >= 10) {
+    if (payout > bet) payout = r2(bet + (payout - bet) / 2);
+    S.malus.halve.games--;
+    if (S.malus.halve.games <= 0) { delete S.malus.halve; toast('Le handicap « Gains divisés par 2 » est terminé.', 'info'); }
+    Malus.render();
   }
   if (payout > 0) Wallet.credit(payout);
   const net = r2(payout - bet);
@@ -1024,6 +1050,7 @@ function logout() {
   store.del(KEYS.active);
   applyTheme('tapis');
   Boost.tick();
+  Malus.render();
   Goals.badge(0);
   Net.leave();
   renderAll();
@@ -1132,6 +1159,12 @@ function renderShop() {
       <div><p class="shop-name">Boost ×${b.mult} pendant 5 minutes${on ? `<span class="owned-mark">Actif, encore ${Boost.left()}</span>` : ''}</p><p class="muted-sm">${est}</p></div>
       ${priceButton(b.price, `data-boost="${b.mult}"`, on ? 'Prolonger' : 'Activer')}</div>` };
   }));
+  patchList($('#shop-sabotage'), SABOTAGES.map(t => ({
+    key: t.id,
+    html: `<div class="shop-row"><span><span class="sab-tag">${esc(t.short)}</span></span>
+      <div><p class="shop-name">${esc(t.name)}</p><p class="muted-sm">${esc(t.desc)}</p></div>
+      ${priceButton(t.price, `data-sab="${t.id}"`, 'Envoyer')}</div>`
+  })));
   patchList($('#shop-themes'), THEMES.map(t => {
     const owned = t.price === 0 || !!S.inventory['theme_' + t.id], used = (S.theme || 'tapis') === t.id;
     const v = { ...THEMES[0].vars, ...t.vars };
@@ -1157,6 +1190,7 @@ function initShop() {
     if (!b) return;
     if (!user) return showAuth();
     if (b.dataset.boost) return Boost.buy(Number(b.dataset.boost));
+    if (b.dataset.sab) return Malus.send(b.dataset.sab);
     if (b.dataset.themeBuy) {
       const t = THEMES.find(x => x.id === b.dataset.themeBuy);
       if (!t || S.inventory['theme_' + t.id]) return;
@@ -1829,21 +1863,21 @@ const Coin = {
 /* =====================================================================
    CLICKER : gains par clic, revenus automatiques, boosts
    Progression volontairement lente : le prix de chaque amélioration
-   augmente de 15 % à chaque achat.
+   augmente de 18 % à chaque achat.
    ===================================================================== */
 const CLICK_BASE = 0.1;
-const GROWTH = 1.15;
+const GROWTH = 1.18;
 const UPGRADES = [
-  { id: 'gants', kind: 'click', name: 'Gants de croupier', desc: '+0,05 $ par clic', value: 0.05, base: 25 },
-  { id: 'jetons', kind: 'click', name: 'Jetons gravés', desc: '+0,50 $ par clic', value: 0.5, base: 1200 },
-  { id: 'mallette', kind: 'click', name: 'Mallette de billets', desc: '+5 $ par clic', value: 5, base: 60000 },
-  { id: 'coffre', kind: 'click', name: 'Clé du coffre-fort', desc: '+50 $ par clic', value: 50, base: 3000000 },
-  { id: 'tirelire', kind: 'auto', name: 'Tirelire', desc: '+0,10 $ par seconde', value: 0.1, base: 60 },
-  { id: 'distrib', kind: 'auto', name: 'Distributeur de jetons', desc: '+1 $ par seconde', value: 1, base: 1500 },
-  { id: 'bandit', kind: 'auto', name: 'Bandit manchot', desc: '+8 $ par seconde', value: 8, base: 25000 },
-  { id: 'poker', kind: 'auto', name: 'Table de poker privée', desc: '+60 $ par seconde', value: 60, base: 400000 },
-  { id: 'robot', kind: 'auto', name: 'Croupier robot', desc: '+400 $ par seconde', value: 400, base: 6000000 },
-  { id: 'yacht', kind: 'auto', name: 'Casino flottant', desc: '+3 000 $ par seconde', value: 3000, base: 90000000 }
+  { id: 'gants', kind: 'click', name: 'Gants de croupier', desc: '+0,05 $ par clic', value: 0.05, base: 60 },
+  { id: 'jetons', kind: 'click', name: 'Jetons gravés', desc: '+0,50 $ par clic', value: 0.5, base: 3000 },
+  { id: 'mallette', kind: 'click', name: 'Mallette de billets', desc: '+5 $ par clic', value: 5, base: 150000 },
+  { id: 'coffre', kind: 'click', name: 'Clé du coffre-fort', desc: '+50 $ par clic', value: 50, base: 7500000 },
+  { id: 'tirelire', kind: 'auto', name: 'Tirelire', desc: '+0,10 $ par seconde', value: 0.1, base: 150 },
+  { id: 'distrib', kind: 'auto', name: 'Distributeur de jetons', desc: '+1 $ par seconde', value: 1, base: 4000 },
+  { id: 'bandit', kind: 'auto', name: 'Bandit manchot', desc: '+8 $ par seconde', value: 8, base: 65000 },
+  { id: 'poker', kind: 'auto', name: 'Table de poker privée', desc: '+60 $ par seconde', value: 60, base: 1000000 },
+  { id: 'robot', kind: 'auto', name: 'Croupier robot', desc: '+400 $ par seconde', value: 400, base: 15000000 },
+  { id: 'yacht', kind: 'auto', name: 'Casino flottant', desc: '+3 000 $ par seconde', value: 3000, base: 225000000 }
 ];
 const BOOSTS = [
   { mult: 2, price: 5000 },
@@ -1859,7 +1893,24 @@ const upCost = u => r2(u.base * GROWTH ** level(u.id));
 const clickValue = () => r2(CLICK_BASE + UPGRADES.filter(u => u.kind === 'click').reduce((s, u) => s + u.value * level(u.id), 0));
 const autoRate = () => Math.round(UPGRADES.filter(u => u.kind === 'auto').reduce((s, u) => s + u.value * level(u.id), 0) * 100) / 100;
 const boostActive = () => !!(S.boost && S.boost.until > Date.now());
-const boostMult = () => (boostActive() ? S.boost.mult : 1);
+
+/* ----- Handicaps envoyés par les autres joueurs ----- */
+const SABOTAGES = [
+  { id: 'halve', name: 'Gains divisés par 2', short: 'Gains ÷2', price: 100000,
+    desc: 'Le bénéfice de ses 2 prochaines parties est divisé par 2 (seules les mises d’au moins 10 $ comptent).' },
+  { id: 'clicker', name: 'Clicker grippé', short: 'Clicker ÷2', price: 125000,
+    desc: 'Ses clics et ses revenus automatiques sont divisés par 2 pendant 5 minutes.' },
+  { id: 'noboost', name: 'Panne de boost', short: 'Boost coupé', price: 150000,
+    desc: 'Ses boosts ne font plus effet pendant 5 minutes, et leur temps continue de s’écouler.' }
+];
+const MALUS_MS = 5 * 60 * 1000, MALUS_MAX_MS = 15 * 60 * 1000, MALUS_MAX_GAMES = 6;
+const malusOn = id => {
+  const m = S.malus && S.malus[id];
+  if (!m) return false;
+  return id === 'halve' ? m.games > 0 : m.until > Date.now();
+};
+const clickerFactor = () => (malusOn('clicker') ? 0.5 : 1);
+const boostMult = () => (boostActive() && !malusOn('noboost') ? S.boost.mult : 1);
 const perSec = n => money(n) + '/s';
 
 /* Met à jour une liste sans recréer les lignes inchangées (les clics sur les boutons ne se perdent pas) */
@@ -1902,7 +1953,7 @@ const Clicker = {
     if (this.times.length >= 12) { warn.textContent = 'Trop rapide : 12 clics par seconde au maximum.'; return; }
     warn.textContent = '';
     this.times.push(now);
-    const gain = r2(clickValue() * boostMult());
+    const gain = r2(clickValue() * boostMult() * clickerFactor());
     S.totalClicks++;
     S.clicker.clickEarned = r2(S.clicker.clickEarned + gain);
     Wallet.credit(gain, true);
@@ -1931,8 +1982,9 @@ const Clicker = {
     if (rate > 0 && dt > 0) {
       let boostedMs = 0;
       if (S.boost && S.boost.until > from) boostedMs = Math.min(now, S.boost.until) - from;
-      const units = (dt - boostedMs) / 1000 + (boostedMs / 1000) * (S.boost ? S.boost.mult : 1);
-      const amt = rate * units + this.carry;
+      const bm = S.boost && !malusOn('noboost') ? S.boost.mult : 1;
+      const units = (dt - boostedMs) / 1000 + (boostedMs / 1000) * bm;
+      const amt = rate * units * clickerFactor() + this.carry;
       const whole = Math.floor(amt * 100) / 100;
       this.carry = amt - whole;
       if (whole > 0) {
@@ -1941,6 +1993,7 @@ const Clicker = {
       }
     }
     Boost.tick();
+    Malus.render();
     Goals.check();
     checkAchievements();
   },
@@ -1984,12 +2037,14 @@ const Clicker = {
     return { rows: shown.map(u => ({ key: u.id, html: this.upRow(u) })), hidden: all.length - shown.length };
   },
   render() {
-    const mult = boostMult();
-    $('#chip-value').textContent = '+' + money(r2(clickValue() * mult));
-    $('#rate-click').textContent = money(r2(clickValue() * mult));
-    $('#rate-auto').textContent = perSec(autoRate() * mult);
+    const mult = boostMult(), f = clickerFactor();
+    $('#chip-value').textContent = '+' + money(r2(clickValue() * mult * f));
+    $('#rate-click').textContent = money(r2(clickValue() * mult * f));
+    $('#rate-auto').textContent = perSec(autoRate() * mult * f);
     $('#clicks-count').textContent = S.totalClicks.toLocaleString('fr-FR');
-    setHTML($('#clicker-boost'), mult > 1
+    setHTML($('#clicker-boost'), malusOn('noboost') && boostActive()
+      ? `<span class="malus-on">Panne de boost</span> : votre boost ×${S.boost.mult} est sans effet pendant encore ${Malus.left('noboost')}.`
+      : mult > 1
       ? `<span class="boost-on">Boost ×${mult} actif</span> encore ${Boost.left()} sur vos clics, vos revenus automatiques et vos gains aux jeux.`
       : `<a href="#boutique" class="text-link">Acheter un boost</a> pour multiplier vos gains du clicker et des jeux pendant 5 minutes.`);
     for (const kind of ['click', 'auto']) {
@@ -2048,6 +2103,66 @@ const Boost = {
   }
 };
 
+const Malus = {
+  left(id) {
+    const s = Math.ceil(Math.max(0, (S.malus[id] ? S.malus[id].until : 0) - Date.now()) / 1000);
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  },
+  receive(d) {
+    const t = SABOTAGES.find(x => x.id === (d && d.type));
+    if (!t || !user) return;
+    const from = String((d && d.from) || 'Un joueur').slice(0, 24), now = Date.now();
+    if (t.id === 'halve') {
+      const cur = S.malus.halve ? S.malus.halve.games : 0;
+      S.malus.halve = { games: Math.min(cur + 2, MALUS_MAX_GAMES), from };
+    } else {
+      const cur = Math.max(now, S.malus[t.id] ? S.malus[t.id].until : 0);
+      S.malus[t.id] = { until: Math.min(cur + MALUS_MS, now + MALUS_MAX_MS), from };
+    }
+    saveNow();
+    this.render();
+    markDirty();
+    toast(`${from} vous a envoyé le handicap « ${t.name} ».`, 'error');
+  },
+  async send(type) {
+    if (!user) return showAuth();
+    const t = SABOTAGES.find(x => x.id === type);
+    const target = $('#sab-target').value;
+    if (!t) return;
+    if (!Net.ready()) return toast('Handicaps indisponibles : vous êtes hors ligne.', 'error');
+    if (!target) { toast('Choisissez d’abord le joueur à handicaper.', 'error'); return $('#sab-target').focus(); }
+    if (!Wallet.canPay(t.price)) return toast(`Il vous manque ${money(r2(t.price - S.balance))}.`, 'error');
+    if (!confirm(`Envoyer « ${t.name} » à ${target} pour ${money(t.price)} ?`)) return;
+    Net.pushBalanceNow();
+    const res = await Net.request('sabotage', { type, targetUser: target });
+    if (!res.ok) return toast(res.msg || 'Handicap refusé.', 'error');
+    Wallet.debit(t.price);
+    S.c.sabotages = (S.c.sabotages || 0) + 1;
+    saveNow();
+    toast(`« ${t.name} » envoyé à ${res.to || target}.`, 'success');
+  },
+  render() {
+    const chip = $('#malus-chip');
+    if (!chip) return;
+    if (!user) { chip.hidden = true; return; }
+    const parts = [];
+    for (const id of ['clicker', 'noboost']) {
+      if (S.malus[id] && !malusOn(id)) {
+        delete S.malus[id];
+        toast(`Le handicap « ${SABOTAGES.find(x => x.id === id).name} » est terminé.`, 'info');
+        scheduleSave();
+      }
+    }
+    SABOTAGES.forEach(t => {
+      if (!malusOn(t.id)) return;
+      parts.push(t.id === 'halve' ? `${t.short} (${S.malus.halve.games} partie${S.malus.halve.games > 1 ? 's' : ''})` : `${t.short} ${this.left(t.id)}`);
+    });
+    chip.hidden = !parts.length;
+    chip.textContent = parts.join(', ');
+    chip.title = parts.length ? 'Handicaps reçus : ' + SABOTAGES.filter(t => malusOn(t.id)).map(t => `${t.name} (de ${S.malus[t.id].from})`).join(', ') : '';
+  }
+};
+
 /* =====================================================================
    OBJECTIFS : permanents et du jour (récompenses en argent)
    ===================================================================== */
@@ -2059,82 +2174,82 @@ const titlesOwned = () => SHOP.filter(i => S.inventory[i.id]).length;
 const themesOwned = () => THEMES.filter(t => t.price && S.inventory['theme_' + t.id]).length;
 const GOALS = [
   // ----- Clicker -----
-  { id: 'c100', cat: 'clicker', title: 'Premiers pas', desc: 'Cliquer 100 fois', goal: 100, val: () => S.totalClicks, reward: 20 },
-  { id: 'c5000', cat: 'clicker', title: 'Infatigable', desc: 'Cliquer 5 000 fois', goal: 5000, val: () => S.totalClicks, reward: 1500 },
-  { id: 'c25k', cat: 'clicker', title: 'Machine humaine', desc: 'Cliquer 25 000 fois', goal: 25000, val: () => S.totalClicks, reward: 15000 },
-  { id: 'c100k', cat: 'clicker', title: 'Légende du clic', desc: 'Cliquer 100 000 fois', goal: 100000, val: () => S.totalClicks, reward: 150000 },
-  { id: 'up1', cat: 'clicker', title: 'Premier investissement', desc: 'Acheter une amélioration du clicker', goal: 1, val: () => S.clicker.bought, reward: 30 },
-  { id: 'up10', cat: 'clicker', title: 'Collectionneur de machines', desc: 'Acheter 10 améliorations', goal: 10, val: () => S.clicker.bought, reward: 500 },
-  { id: 'up50', cat: 'clicker', title: 'Industriel', desc: 'Acheter 50 améliorations', goal: 50, val: () => S.clicker.bought, reward: 25000 },
-  { id: 'up150', cat: 'clicker', title: 'Conglomérat', desc: 'Acheter 150 améliorations', goal: 150, val: () => S.clicker.bought, reward: 1000000 },
-  { id: 'cv1', cat: 'clicker', title: 'Clic en or', desc: 'Gagner 1 $ par clic, sans boost', goal: 1, val: clickValue, reward: 500, fmt: 'money' },
-  { id: 'cv25', cat: 'clicker', title: 'Clic en diamant', desc: 'Gagner 25 $ par clic, sans boost', goal: 25, val: clickValue, reward: 50000, fmt: 'money' },
-  { id: 'auto1', cat: 'clicker', title: 'Ça tourne tout seul', desc: 'Atteindre 1 $ par seconde de revenus automatiques', goal: 1, val: autoRate, reward: 250, fmt: 'rate' },
-  { id: 'auto10', cat: 'clicker', title: 'Petit rentier', desc: 'Atteindre 10 $ par seconde', goal: 10, val: autoRate, reward: 3000, fmt: 'rate' },
-  { id: 'auto50', cat: 'clicker', title: 'Rentier', desc: 'Atteindre 50 $ par seconde', goal: 50, val: autoRate, reward: 20000, fmt: 'rate' },
-  { id: 'auto500', cat: 'clicker', title: 'Empire', desc: 'Atteindre 500 $ par seconde', goal: 500, val: autoRate, reward: 250000, fmt: 'rate' },
-  { id: 'auto5000', cat: 'clicker', title: 'Empire mondial', desc: 'Atteindre 5 000 $ par seconde', goal: 5000, val: autoRate, reward: 5000000, fmt: 'rate' },
-  { id: 'boost', cat: 'clicker', title: 'Coup de fouet', desc: 'Acheter un boost', goal: 1, val: () => S.clicker.boosts, reward: 1000 },
-  { id: 'boost10', cat: 'clicker', title: 'Accro à la vitesse', desc: 'Acheter 10 boosts', goal: 10, val: () => S.clicker.boosts, reward: 50000 },
-  { id: 'boost50', cat: 'clicker', title: 'Turbo', desc: 'Acheter un boost ×50', goal: 1, val: () => S.c.boost50, reward: 250000 },
+  { id: 'c100', cat: 'clicker', title: 'Premiers pas', desc: 'Cliquer 100 fois', goal: 100, val: () => S.totalClicks, reward: 10 },
+  { id: 'c5000', cat: 'clicker', title: 'Infatigable', desc: 'Cliquer 5 000 fois', goal: 5000, val: () => S.totalClicks, reward: 600 },
+  { id: 'c25k', cat: 'clicker', title: 'Machine humaine', desc: 'Cliquer 25 000 fois', goal: 25000, val: () => S.totalClicks, reward: 6000 },
+  { id: 'c100k', cat: 'clicker', title: 'Légende du clic', desc: 'Cliquer 100 000 fois', goal: 100000, val: () => S.totalClicks, reward: 60000 },
+  { id: 'up1', cat: 'clicker', title: 'Premier investissement', desc: 'Acheter une amélioration du clicker', goal: 1, val: () => S.clicker.bought, reward: 10 },
+  { id: 'up10', cat: 'clicker', title: 'Collectionneur de machines', desc: 'Acheter 10 améliorations', goal: 10, val: () => S.clicker.bought, reward: 200 },
+  { id: 'up50', cat: 'clicker', title: 'Industriel', desc: 'Acheter 50 améliorations', goal: 50, val: () => S.clicker.bought, reward: 10000 },
+  { id: 'up150', cat: 'clicker', title: 'Conglomérat', desc: 'Acheter 150 améliorations', goal: 150, val: () => S.clicker.bought, reward: 400000 },
+  { id: 'cv1', cat: 'clicker', title: 'Clic en or', desc: 'Gagner 1 $ par clic, sans boost', goal: 1, val: clickValue, reward: 200, fmt: 'money' },
+  { id: 'cv25', cat: 'clicker', title: 'Clic en diamant', desc: 'Gagner 25 $ par clic, sans boost', goal: 25, val: clickValue, reward: 20000, fmt: 'money' },
+  { id: 'auto1', cat: 'clicker', title: 'Ça tourne tout seul', desc: 'Atteindre 1 $ par seconde de revenus automatiques', goal: 1, val: autoRate, reward: 100, fmt: 'rate' },
+  { id: 'auto10', cat: 'clicker', title: 'Petit rentier', desc: 'Atteindre 10 $ par seconde', goal: 10, val: autoRate, reward: 1200, fmt: 'rate' },
+  { id: 'auto50', cat: 'clicker', title: 'Rentier', desc: 'Atteindre 50 $ par seconde', goal: 50, val: autoRate, reward: 8000, fmt: 'rate' },
+  { id: 'auto500', cat: 'clicker', title: 'Empire', desc: 'Atteindre 500 $ par seconde', goal: 500, val: autoRate, reward: 100000, fmt: 'rate' },
+  { id: 'auto5000', cat: 'clicker', title: 'Empire mondial', desc: 'Atteindre 5 000 $ par seconde', goal: 5000, val: autoRate, reward: 2000000, fmt: 'rate' },
+  { id: 'boost', cat: 'clicker', title: 'Coup de fouet', desc: 'Acheter un boost', goal: 1, val: () => S.clicker.boosts, reward: 400 },
+  { id: 'boost10', cat: 'clicker', title: 'Accro à la vitesse', desc: 'Acheter 10 boosts', goal: 10, val: () => S.clicker.boosts, reward: 20000 },
+  { id: 'boost50', cat: 'clicker', title: 'Turbo', desc: 'Acheter un boost ×50', goal: 1, val: () => S.c.boost50, reward: 100000 },
   // ----- Jeux -----
-  { id: 'g25', cat: 'jeux', title: 'Habitué', desc: 'Jouer 25 parties', goal: 25, val: () => S.gamesPlayed, reward: 150 },
-  { id: 'g100', cat: 'jeux', title: 'Pilier du casino', desc: 'Jouer 100 parties', goal: 100, val: () => S.gamesPlayed, reward: 1000 },
-  { id: 'g1000', cat: 'jeux', title: 'Résident', desc: 'Jouer 1 000 parties', goal: 1000, val: () => S.gamesPlayed, reward: 20000 },
-  { id: 'w10', cat: 'jeux', title: 'Main chaude', desc: 'Gagner 10 parties', goal: 10, val: () => S.gamesWon, reward: 200 },
-  { id: 'w50', cat: 'jeux', title: 'En veine', desc: 'Gagner 50 parties', goal: 50, val: () => S.gamesWon, reward: 2000 },
-  { id: 'w250', cat: 'jeux', title: 'Intouchable', desc: 'Gagner 250 parties', goal: 250, val: () => S.gamesWon, reward: 15000 },
-  { id: 'x3', cat: 'jeux', title: 'Décollage', desc: 'Encaisser à 3× ou plus à l’Aviateur', goal: 3, val: () => S.bestCrash, reward: 300, fmt: 'x' },
-  { id: 'x10', cat: 'jeux', title: 'Haute altitude', desc: 'Encaisser à 10× ou plus à l’Aviateur', goal: 10, val: () => S.bestCrash, reward: 2500, fmt: 'x' },
-  { id: 'x100', cat: 'jeux', title: 'Stratosphère', desc: 'Encaisser à 100× ou plus à l’Aviateur', goal: 100, val: () => S.bestCrash, reward: 100000, fmt: 'x' },
-  { id: 'mines8', cat: 'jeux', title: 'Démineur', desc: 'Trouver 8 diamants dans une seule partie de Mines', goal: 8, val: () => S.c.minesRun, reward: 500 },
-  { id: 'mines15', cat: 'jeux', title: 'Expert en déminage', desc: 'Trouver 15 diamants dans une seule partie de Mines', goal: 15, val: () => S.c.minesRun, reward: 10000 },
-  { id: 'minesClear', cat: 'jeux', title: 'Sans faute', desc: 'Trouver tous les diamants d’une partie de Mines à 3 mines ou plus', goal: 1, val: () => S.c.minesClear, reward: 5000 },
-  { id: 'bj', cat: 'jeux', title: 'Vingt-et-un', desc: 'Obtenir un blackjack', goal: 1, val: () => S.c.blackjacks, reward: 250 },
-  { id: 'bj10', cat: 'jeux', title: 'Croupier en sueur', desc: 'Obtenir 10 blackjacks', goal: 10, val: () => S.c.blackjacks, reward: 3000 },
-  { id: 'green', cat: 'jeux', title: 'Tout sur le vert', desc: 'Gagner sur le vert à Cyber Spin', goal: 1, val: () => S.c.greens, reward: 500 },
-  { id: 'green5', cat: 'jeux', title: 'Œil de lynx', desc: 'Gagner 5 fois sur le vert à Cyber Spin', goal: 5, val: () => S.c.greens, reward: 10000 },
-  { id: 'coin5', cat: 'jeux', title: 'Pile poil', desc: 'Gagner 5 lancers de suite à pile ou face', goal: 5, val: () => S.c.coinBest, reward: 800 },
-  { id: 'coin10', cat: 'jeux', title: 'Insolent', desc: 'Gagner 10 lancers de suite à pile ou face', goal: 10, val: () => S.c.coinBest, reward: 25000 },
-  { id: 'win10k', cat: 'jeux', title: 'Coup de maître', desc: 'Gagner 10 000 $ de bénéfice en une seule partie', goal: 10000, val: () => S.c.bestWin, reward: 5000, fmt: 'money' },
-  { id: 'win1m', cat: 'jeux', title: 'Jackpot', desc: 'Gagner 1 000 000 $ de bénéfice en une seule partie', goal: 1000000, val: () => S.c.bestWin, reward: 100000, fmt: 'money' },
+  { id: 'g25', cat: 'jeux', title: 'Habitué', desc: 'Jouer 25 parties', goal: 25, val: () => S.gamesPlayed, reward: 60 },
+  { id: 'g100', cat: 'jeux', title: 'Pilier du casino', desc: 'Jouer 100 parties', goal: 100, val: () => S.gamesPlayed, reward: 400 },
+  { id: 'g1000', cat: 'jeux', title: 'Résident', desc: 'Jouer 1 000 parties', goal: 1000, val: () => S.gamesPlayed, reward: 8000 },
+  { id: 'w10', cat: 'jeux', title: 'Main chaude', desc: 'Gagner 10 parties', goal: 10, val: () => S.gamesWon, reward: 80 },
+  { id: 'w50', cat: 'jeux', title: 'En veine', desc: 'Gagner 50 parties', goal: 50, val: () => S.gamesWon, reward: 800 },
+  { id: 'w250', cat: 'jeux', title: 'Intouchable', desc: 'Gagner 250 parties', goal: 250, val: () => S.gamesWon, reward: 6000 },
+  { id: 'x3', cat: 'jeux', title: 'Décollage', desc: 'Encaisser à 3× ou plus à l’Aviateur', goal: 3, val: () => S.bestCrash, reward: 120, fmt: 'x' },
+  { id: 'x10', cat: 'jeux', title: 'Haute altitude', desc: 'Encaisser à 10× ou plus à l’Aviateur', goal: 10, val: () => S.bestCrash, reward: 1000, fmt: 'x' },
+  { id: 'x100', cat: 'jeux', title: 'Stratosphère', desc: 'Encaisser à 100× ou plus à l’Aviateur', goal: 100, val: () => S.bestCrash, reward: 40000, fmt: 'x' },
+  { id: 'mines8', cat: 'jeux', title: 'Démineur', desc: 'Trouver 8 diamants dans une seule partie de Mines', goal: 8, val: () => S.c.minesRun, reward: 200 },
+  { id: 'mines15', cat: 'jeux', title: 'Expert en déminage', desc: 'Trouver 15 diamants dans une seule partie de Mines', goal: 15, val: () => S.c.minesRun, reward: 4000 },
+  { id: 'minesClear', cat: 'jeux', title: 'Sans faute', desc: 'Trouver tous les diamants d’une partie de Mines à 3 mines ou plus', goal: 1, val: () => S.c.minesClear, reward: 2000 },
+  { id: 'bj', cat: 'jeux', title: 'Vingt-et-un', desc: 'Obtenir un blackjack', goal: 1, val: () => S.c.blackjacks, reward: 100 },
+  { id: 'bj10', cat: 'jeux', title: 'Croupier en sueur', desc: 'Obtenir 10 blackjacks', goal: 10, val: () => S.c.blackjacks, reward: 1200 },
+  { id: 'green', cat: 'jeux', title: 'Tout sur le vert', desc: 'Gagner sur le vert à Cyber Spin', goal: 1, val: () => S.c.greens, reward: 200 },
+  { id: 'green5', cat: 'jeux', title: 'Œil de lynx', desc: 'Gagner 5 fois sur le vert à Cyber Spin', goal: 5, val: () => S.c.greens, reward: 4000 },
+  { id: 'coin5', cat: 'jeux', title: 'Pile poil', desc: 'Gagner 5 lancers de suite à pile ou face', goal: 5, val: () => S.c.coinBest, reward: 320 },
+  { id: 'coin10', cat: 'jeux', title: 'Insolent', desc: 'Gagner 10 lancers de suite à pile ou face', goal: 10, val: () => S.c.coinBest, reward: 10000 },
+  { id: 'win10k', cat: 'jeux', title: 'Coup de maître', desc: 'Gagner 10 000 $ de bénéfice en une seule partie', goal: 10000, val: () => S.c.bestWin, reward: 2000, fmt: 'money' },
+  { id: 'win1m', cat: 'jeux', title: 'Jackpot', desc: 'Gagner 1 000 000 $ de bénéfice en une seule partie', goal: 1000000, val: () => S.c.bestWin, reward: 40000, fmt: 'money' },
   // ----- Richesse -----
-  { id: 'bal100k', cat: 'richesse', title: 'Six chiffres', desc: 'Avoir 100 000 $ de solde', goal: 100000, val: () => S.balance, reward: 5000, fmt: 'money' },
-  { id: 'bal10m', cat: 'richesse', title: 'Magnat', desc: 'Avoir 10 000 000 $ de solde', goal: 10000000, val: () => S.balance, reward: 500000, fmt: 'money' },
-  { id: 'bal1b', cat: 'richesse', title: 'Milliardaire', desc: 'Avoir 1 000 000 000 $ de solde', goal: 1000000000, val: () => S.balance, reward: 25000000, fmt: 'money' },
-  { id: 'won1m', cat: 'richesse', title: 'Fortune de jeu', desc: 'Cumuler 1 000 000 $ de gains aux jeux', goal: 1000000, val: () => S.totalWon, reward: 50000, fmt: 'money' },
-  { id: 'wager1m', cat: 'richesse', title: 'Gros joueur', desc: 'Miser 1 000 000 $ au total', goal: 1000000, val: () => S.c.wagered, reward: 25000, fmt: 'money' },
-  { id: 'wager100m', cat: 'richesse', title: 'Baleine', desc: 'Miser 100 000 000 $ au total', goal: 100000000, val: () => S.c.wagered, reward: 2000000, fmt: 'money' },
+  { id: 'bal100k', cat: 'richesse', title: 'Six chiffres', desc: 'Avoir 100 000 $ de solde', goal: 100000, val: () => S.balance, reward: 2000, fmt: 'money' },
+  { id: 'bal10m', cat: 'richesse', title: 'Magnat', desc: 'Avoir 10 000 000 $ de solde', goal: 10000000, val: () => S.balance, reward: 200000, fmt: 'money' },
+  { id: 'bal1b', cat: 'richesse', title: 'Milliardaire', desc: 'Avoir 1 000 000 000 $ de solde', goal: 1000000000, val: () => S.balance, reward: 10000000, fmt: 'money' },
+  { id: 'won1m', cat: 'richesse', title: 'Fortune de jeu', desc: 'Cumuler 1 000 000 $ de gains aux jeux', goal: 1000000, val: () => S.totalWon, reward: 20000, fmt: 'money' },
+  { id: 'wager1m', cat: 'richesse', title: 'Gros joueur', desc: 'Miser 1 000 000 $ au total', goal: 1000000, val: () => S.c.wagered, reward: 10000, fmt: 'money' },
+  { id: 'wager100m', cat: 'richesse', title: 'Baleine', desc: 'Miser 100 000 000 $ au total', goal: 100000000, val: () => S.c.wagered, reward: 800000, fmt: 'money' },
   // ----- Collection -----
-  { id: 'daily10', cat: 'collection', title: 'Fidèle', desc: 'Récupérer 10 objectifs du jour', goal: 10, val: () => S.c.dailyClaimed, reward: 5000 },
-  { id: 'daily50', cat: 'collection', title: 'Assidu', desc: 'Récupérer 50 objectifs du jour', goal: 50, val: () => S.c.dailyClaimed, reward: 50000 },
-  { id: 'theme1', cat: 'collection', title: 'Décorateur', desc: 'Acheter un thème', goal: 1, val: themesOwned, reward: 2000 },
-  { id: 'themeAll', cat: 'collection', title: 'Nuancier', desc: 'Posséder tous les thèmes', goal: 4, val: themesOwned, reward: 500000 },
-  { id: 'title1', cat: 'collection', title: 'Premier titre', desc: 'Acheter un titre', goal: 1, val: titlesOwned, reward: 1000 },
-  { id: 'title5', cat: 'collection', title: 'Collection de titres', desc: 'Posséder 5 titres', goal: 5, val: titlesOwned, reward: 100000 },
-  { id: 'chat20', cat: 'collection', title: 'Bavard', desc: 'Envoyer 20 messages dans le tchat', goal: 20, val: () => S.c.chats, reward: 300 }
+  { id: 'daily10', cat: 'collection', title: 'Fidèle', desc: 'Récupérer 10 objectifs du jour', goal: 10, val: () => S.c.dailyClaimed, reward: 2000 },
+  { id: 'daily50', cat: 'collection', title: 'Assidu', desc: 'Récupérer 50 objectifs du jour', goal: 50, val: () => S.c.dailyClaimed, reward: 20000 },
+  { id: 'theme1', cat: 'collection', title: 'Décorateur', desc: 'Acheter un thème', goal: 1, val: themesOwned, reward: 800 },
+  { id: 'themeAll', cat: 'collection', title: 'Nuancier', desc: 'Posséder tous les thèmes', goal: 4, val: themesOwned, reward: 200000 },
+  { id: 'title1', cat: 'collection', title: 'Premier titre', desc: 'Acheter un titre', goal: 1, val: titlesOwned, reward: 400 },
+  { id: 'title5', cat: 'collection', title: 'Collection de titres', desc: 'Posséder 5 titres', goal: 5, val: titlesOwned, reward: 40000 },
+  { id: 'chat20', cat: 'collection', title: 'Bavard', desc: 'Envoyer 20 messages dans le tchat', goal: 20, val: () => S.c.chats, reward: 120 }
 ];
 const DAILY_COUNT = 4;
 const DAILY_POOL = [
-  { id: 'd_clicks', title: 'Doigts agiles', desc: 'Cliquer 400 fois', key: 'clicks', goal: 400, reward: 100 },
-  { id: 'd_clicks2', title: 'Marathon du clic', desc: 'Cliquer 1 500 fois', key: 'clicks', goal: 1500, reward: 400 },
-  { id: 'd_upgrades', title: 'Investisseur du jour', desc: 'Acheter 3 améliorations du clicker', key: 'upgrades', goal: 3, reward: 250 },
-  { id: 'd_boost', title: 'Accélération', desc: 'Acheter un boost', key: 'boosts', goal: 1, reward: 500 },
-  { id: 'd_games', title: 'Tour de salle', desc: 'Jouer 15 parties', key: 'games', goal: 15, reward: 150 },
-  { id: 'd_wins', title: 'Série gagnante', desc: 'Gagner 6 parties', key: 'wins', goal: 6, reward: 200 },
-  { id: 'd_profit', title: 'Bonne journée', desc: 'Gagner 1 000 $ de bénéfice aux jeux', key: 'profit', goal: 1000, reward: 300, fmt: 'money' },
-  { id: 'd_wager', title: 'Mise du jour', desc: 'Miser 2 000 $ au total', key: 'wager', goal: 2000, reward: 300, fmt: 'money' },
-  { id: 'd_crash2', title: 'Plein ciel', desc: 'Encaisser 3 fois à 2× ou plus à l’Aviateur', key: 'crash2', goal: 3, reward: 300 },
-  { id: 'd_crash5', title: 'Haut vol', desc: 'Encaisser une fois à 5× ou plus à l’Aviateur', key: 'crash5', goal: 1, reward: 400 },
-  { id: 'd_gems', title: 'Chercheur de diamants', desc: 'Trouver 15 diamants aux Mines', key: 'gems', goal: 15, reward: 200 },
-  { id: 'd_mineswins', title: 'Prudence', desc: 'Encaisser 3 parties de Mines', key: 'mineswins', goal: 3, reward: 250 },
-  { id: 'd_bj', title: 'Croupier battu', desc: 'Gagner 3 mains de blackjack', key: 'bjwins', goal: 3, reward: 250 },
-  { id: 'd_bjbj', title: 'Blackjack !', desc: 'Obtenir un blackjack', key: 'bjs', goal: 1, reward: 300 },
-  { id: 'd_coin', title: 'Bonne pioche', desc: 'Gagner 4 lancers de pièce', key: 'coinwins', goal: 4, reward: 150 },
-  { id: 'd_spin', title: 'La roue tourne', desc: 'Lancer 10 fois Cyber Spin', key: 'spins', goal: 10, reward: 150 },
-  { id: 'd_green', title: 'Vert espoir', desc: 'Gagner sur le vert à Cyber Spin', key: 'greens', goal: 1, reward: 400 }
+  { id: 'd_clicks', title: 'Doigts agiles', desc: 'Cliquer 400 fois', key: 'clicks', goal: 400, reward: 50 },
+  { id: 'd_clicks2', title: 'Marathon du clic', desc: 'Cliquer 1 500 fois', key: 'clicks', goal: 1500, reward: 200 },
+  { id: 'd_upgrades', title: 'Investisseur du jour', desc: 'Acheter 3 améliorations du clicker', key: 'upgrades', goal: 3, reward: 120 },
+  { id: 'd_boost', title: 'Accélération', desc: 'Acheter un boost', key: 'boosts', goal: 1, reward: 250 },
+  { id: 'd_games', title: 'Tour de salle', desc: 'Jouer 15 parties', key: 'games', goal: 15, reward: 75 },
+  { id: 'd_wins', title: 'Série gagnante', desc: 'Gagner 6 parties', key: 'wins', goal: 6, reward: 100 },
+  { id: 'd_profit', title: 'Bonne journée', desc: 'Gagner 1 000 $ de bénéfice aux jeux', key: 'profit', goal: 1000, reward: 150, fmt: 'money' },
+  { id: 'd_wager', title: 'Mise du jour', desc: 'Miser 2 000 $ au total', key: 'wager', goal: 2000, reward: 150, fmt: 'money' },
+  { id: 'd_crash2', title: 'Plein ciel', desc: 'Encaisser 3 fois à 2× ou plus à l’Aviateur', key: 'crash2', goal: 3, reward: 150 },
+  { id: 'd_crash5', title: 'Haut vol', desc: 'Encaisser une fois à 5× ou plus à l’Aviateur', key: 'crash5', goal: 1, reward: 200 },
+  { id: 'd_gems', title: 'Chercheur de diamants', desc: 'Trouver 15 diamants aux Mines', key: 'gems', goal: 15, reward: 100 },
+  { id: 'd_mineswins', title: 'Prudence', desc: 'Encaisser 3 parties de Mines', key: 'mineswins', goal: 3, reward: 120 },
+  { id: 'd_bj', title: 'Croupier battu', desc: 'Gagner 3 mains de blackjack', key: 'bjwins', goal: 3, reward: 120 },
+  { id: 'd_bjbj', title: 'Blackjack !', desc: 'Obtenir un blackjack', key: 'bjs', goal: 1, reward: 150 },
+  { id: 'd_coin', title: 'Bonne pioche', desc: 'Gagner 4 lancers de pièce', key: 'coinwins', goal: 4, reward: 75 },
+  { id: 'd_spin', title: 'La roue tourne', desc: 'Lancer 10 fois Cyber Spin', key: 'spins', goal: 10, reward: 75 },
+  { id: 'd_green', title: 'Vert espoir', desc: 'Gagner sur le vert à Cyber Spin', key: 'greens', goal: 1, reward: 200 }
 ];
-const DAILY_BONUS_S = 600; // les objectifs du jour rapportent aussi 10 min de revenus automatiques
+const DAILY_BONUS_S = 180; // les objectifs du jour rapportent aussi 3 min de revenus automatiques
 
 const Goals = {
   notified: new Set(), filter: 'all',
@@ -2330,6 +2445,7 @@ const Net = {
       celebrate();
     });
     s.on('live_bet', d => addLiveBet(d));
+    s.on('sabotaged', d => Malus.receive(d));
     s.on('crash_state', d => Crash.onState(d));
     s.on('crash_betting', d => Crash.applyRound(d));
     s.on('crash_start', d => Crash.applyRound(d));
@@ -2428,6 +2544,15 @@ function renderOnline() {
     ? on.map(u => `<span class="p">${u.badge ? `<span class="tag sm">${esc(u.badge)}</span> ` : ''}${esc(u.username)}</span>`).join('')
     : '<span class="empty">Aucun autre joueur en ligne.</span>';
   $('#tr-list').innerHTML = on.filter(u => u.username !== user).map(u => `<option value="${esc(u.username)}"></option>`).join('');
+  const sel = $('#sab-target');
+  if (sel) { // la liste change sans perdre le joueur choisi
+    const cur = sel.value, others = on.filter(u => u.username !== user);
+    const html = '<option value="">Choisir un joueur connecté</option>' + others.map(u => `<option value="${esc(u.username)}">${esc(u.username)} (${money(u.balance)})</option>`).join('');
+    if (sel.dataset.html !== html) {
+      sel.innerHTML = html; sel.dataset.html = html;
+      sel.value = others.some(u => u.username === cur) ? cur : '';
+    }
+  }
 }
 function renderBoard() {
   const list = Net.online.filter(u => u.username !== user).map(u => ({ ...u }));
@@ -2606,7 +2731,7 @@ function renderStats() {
 }
 function renderAll() {
   renderWallet(); renderUser(); renderBoard(); renderShop(); renderStats(); renderOnline();
-  Clicker.render(); Goals.render(); Boost.tick();
+  Clicker.render(); Goals.render(); Boost.tick(); Malus.render();
   $('#bj-pname').textContent = user || 'Vous';
   Mines.preview();
 }
