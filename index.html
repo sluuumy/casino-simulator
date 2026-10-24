@@ -271,6 +271,12 @@ main{min-width:0}
 .goal.claimed{opacity:.5}
 .reward{color:var(--brass);font-weight:800;font-size:14px;white-space:nowrap}
 .done-mark{color:var(--jade);font-weight:700;font-size:14px;white-space:nowrap}
+.filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.filter{border:1px solid var(--line);background:none;color:var(--muted);border-radius:999px;padding:5px 12px;font-weight:700;font-size:13px;cursor:pointer}
+.filter span{color:var(--faint);font-weight:600;margin-left:2px}
+.filter:hover{color:var(--ink)}
+.filter.on{background:var(--panel-2);color:var(--ink);border-color:var(--brass)}
+.claim-all{margin-left:auto;padding:7px 14px;font-size:13px}
 
 /* ---------- Boutique ---------- */
 .shop-row{display:grid;grid-template-columns:130px minmax(0,1fr) auto;gap:18px;align-items:center;padding:16px 0;border-top:1px solid var(--line-soft)}
@@ -635,7 +641,9 @@ main{min-width:0}
       </div>
       <div class="panel">
         <div class="panel-head"><h3 class="panel-title">Objectifs permanents</h3><span class="muted-sm" id="goal-count"></span></div>
+        <div class="filters" id="goal-filters"></div>
         <div id="goal-list"></div>
+        <p class="muted-sm" id="goal-empty" hidden>Aucun objectif à récupérer pour l’instant.</p>
       </div>
     </section>
 
@@ -776,7 +784,7 @@ const DEFAULT_STATE = () => ({
   biggestMult: 1, bestCrash: 0, gamesPlayed: 0, gamesWon: 0,
   achievements: {}, inventory: {}, equippedBadge: '', history: [], pending: {},
   clicker: { up: {}, bought: 0, boosts: 0, clickEarned: 0, autoEarned: 0 },
-  c: { minesRun: 0, blackjacks: 0, greens: 0, coinStreak: 0, coinBest: 0, wagered: 0 },
+  c: { minesRun: 0, blackjacks: 0, greens: 0, coinStreak: 0, coinBest: 0, wagered: 0, minesClear: 0, bestWin: 0, dailyClaimed: 0, boost50: 0, chats: 0 },
   boost: null, goals: {}, daily: { day: '', ids: [], prog: {}, claimed: {} }, theme: 'tapis', lastSeen: 0
 });
 let user = null;
@@ -894,12 +902,16 @@ function settle(game, bet, payout, mult) {
   S.c.wagered = r2(S.c.wagered + bet);
   Goals.bump('games', 1);
   Goals.bump('wager', bet);
-  if (net > 0) Goals.bump('wins', 1);
+  if (net > 0) {
+    Goals.bump('wins', 1);
+    Goals.bump('profit', net);
+    if (net > S.c.bestWin) S.c.bestWin = net;
+  }
   checkAchievements();
   markDirty();
   scheduleSave();
-  if (bonus > 0) toast(`Boost ×${bm} : +${money(bonus)} de bonus sur ${game}.`, 'success');
   if (net > 0 && (mult >= 5 || bm >= 10)) celebrate();
+  return payout;
 }
 
 /* Reprise après rechargement de page : rien n'est perdu ni dupliqué. */
@@ -914,8 +926,8 @@ function resolvePending() {
   if (p.mines) {
     if (p.mines.found > 0) {
       const m = Mines.mult(p.mines.bombs, p.mines.found);
-      settle('Mines', p.mines.bet, r2(p.mines.bet * m), m);
-      notes.push(`Partie de Mines encaissée automatiquement à ${fmtX(m)}.`);
+      const got = settle('Mines', p.mines.bet, r2(p.mines.bet * m), m);
+      notes.push(`Partie de Mines encaissée automatiquement à ${fmtX(m)} : ${money(got)}.`);
     } else { Wallet.credit(p.mines.bet); notes.push('Partie de Mines non commencée : mise remboursée.'); }
   }
   if (p.bj) { settle('Blackjack', p.bj.bet, 0, 0); notes.push('Main de blackjack abandonnée : mise perdue.'); }
@@ -1257,10 +1269,11 @@ const Crash = {
     this.cashed = true; this.active = false;
     const mult = Number(d.mult), pay = r2(d.payout);
     if (mult > S.bestCrash) S.bestCrash = mult;
-    settle('Aviateur', this.bet, pay, mult);
+    const got = settle('Aviateur', this.bet, pay, mult);
     if (mult >= 2) Goals.bump('crash2', 1);
+    if (mult >= 5) Goals.bump('crash5', 1);
     setPending('crash', null);
-    toast(`Encaissé à ${fmtX(mult)} : ${money(pay)}.`, 'success');
+    toast(`Encaissé à ${fmtX(mult)} : ${money(got)}.`, 'success');
     this.updateButton();
   },
   onBets(list) {
@@ -1286,9 +1299,9 @@ const Crash = {
     if (r.ok === false) return; // serveur muet : on réessaiera à la prochaine connexion
     if (r.status === 'cashed') {
       if (r.mult > S.bestCrash) S.bestCrash = r.mult;
-      settle('Aviateur', p.bet, r2(r.payout), r.mult);
+      const got = settle('Aviateur', p.bet, r2(r.payout), r.mult);
       setPending('crash', null);
-      toast(`Votre mise Aviateur a été encaissée à ${fmtX(r.mult)} : ${money(r.payout)}.`, 'success');
+      toast(`Votre mise Aviateur a été encaissée à ${fmtX(r.mult)} : ${money(got)}.`, 'success');
     } else if (r.status === 'lost') {
       settle('Aviateur', p.bet, 0, r.point || 0);
       setPending('crash', null);
@@ -1567,8 +1580,10 @@ const Mines = {
   cashout() {
     if (!this.active || this.found === 0) return;
     const m = this.mult(this.bombs, this.found), pay = r2(this.bet * m);
-    settle('Mines', this.bet, pay, m);
-    toast(`Encaissé à ${fmtX(m)} : ${money(pay)}.`, 'success');
+    const got = settle('Mines', this.bet, pay, m);
+    Goals.bump('mineswins', 1);
+    if (this.found === 25 - this.bombs && this.bombs >= 3) S.c.minesClear++;
+    toast(`Encaissé à ${fmtX(m)} : ${money(got)}.`, 'success');
     this.finish(true);
   },
   finish(won) {
@@ -1638,12 +1653,12 @@ const Spin = {
     setTimeout(() => {
       this.pos = 15 + r; this.frac = frac;
       this.place(this.pos, frac, false); // même position visuelle, ramenée au début de la bande
-      if (win && col === 'green') S.c.greens++;
-      settle('Cyber Spin', bet, pay, win ? mult : 0);
+      if (win && col === 'green') { S.c.greens++; Goals.bump('greens', 1); }
+      const got = settle('Cyber Spin', bet, pay, win ? mult : 0);
       Goals.bump('spins', 1);
       setPending('instant', null);
       out.dataset.kind = win ? 'win' : 'lose';
-      out.textContent = win ? `${COLOR_LABEL[col]} ${n} : vous gagnez ${money(pay - bet)}.` : `${COLOR_LABEL[col]} ${n} : mise perdue.`;
+      out.textContent = win ? `${COLOR_LABEL[col]} ${n} : vous gagnez ${money(got - bet)}.` : `${COLOR_LABEL[col]} ${n} : mise perdue.`;
       this.recent.unshift({ col, n });
       this.recent.length = Math.min(this.recent.length, 16);
       $('#spin-recent').innerHTML = this.recent.map(x => `<i class="${x.col}" title="${COLOR_LABEL[x.col]} ${x.n}">${x.n}</i>`).join('');
@@ -1730,18 +1745,19 @@ const BJ = {
     const pBJ = this.isBJ(this.player), dBJ = this.isBJ(this.dealer), b = this.bet;
     let pay = 0, text;
     if (pBJ && dBJ) { pay = b; text = 'Deux blackjacks : égalité, mise rendue.'; }
-    else if (pBJ) { pay = r2(b * 2.5); text = `Blackjack ! Vous gagnez ${money(pay - b)}.`; }
+    else if (pBJ) { pay = r2(b * 2.5); text = 'Blackjack ! Vous gagnez {G}.'; }
     else if (dBJ) { text = 'Blackjack du croupier.'; }
     else if (p > 21) { text = `Vous dépassez 21 avec ${p}.`; }
-    else if (d > 21) { pay = r2(b * 2); text = `Le croupier dépasse 21 : vous gagnez ${money(b)}.`; }
-    else if (p > d) { pay = r2(b * 2); text = `${p} contre ${d} : vous gagnez ${money(b)}.`; }
+    else if (d > 21) { pay = r2(b * 2); text = 'Le croupier dépasse 21 : vous gagnez {G}.'; }
+    else if (p > d) { pay = r2(b * 2); text = `${p} contre ${d} : vous gagnez {G}.`; }
     else if (p === d) { pay = b; text = `${p} partout : égalité, mise rendue.`; }
     else { text = `${d} contre ${p} : le croupier gagne.`; }
-    settle('Blackjack', b, pay, pay ? r2(pay / b) : 0);
+    const got = settle('Blackjack', b, pay, pay ? r2(pay / b) : 0);
+    text = text.replace('{G}', money(r2(got - b)));
     setPending('bj', null);
     this.msg(text, pay > b ? 'win' : pay === b ? 'push' : 'lose');
     this.render();
-    if (pBJ) S.c.blackjacks++;
+    if (pBJ) { S.c.blackjacks++; Goals.bump('bjs', 1); }
     if (pay > b) Goals.bump('bjwins', 1);
     if (pBJ && !dBJ) celebrate();
   },
@@ -1797,12 +1813,12 @@ const Coin = {
     setTimeout(() => {
       S.c.coinStreak = win ? S.c.coinStreak + 1 : 0;
       if (S.c.coinStreak > S.c.coinBest) S.c.coinBest = S.c.coinStreak;
-      settle('Pile ou face', bet, pay, win ? 2 : 0);
+      const got = settle('Pile ou face', bet, pay, win ? 2 : 0);
       if (win) Goals.bump('coinwins', 1);
       setPending('instant', null);
       const label = res === 'pile' ? 'Pile' : 'Face';
       out.dataset.kind = win ? 'win' : 'lose';
-      out.textContent = win ? `${label} : vous gagnez ${money(bet)}.` : `${label} : mise perdue.`;
+      out.textContent = win ? `${label} : vous gagnez ${money(got - bet)}.` : `${label} : mise perdue.`;
       this.recent.unshift(res); this.recent.length = Math.min(this.recent.length, 16);
       $('#coin-recent').innerHTML = this.recent.map(r => `<i class="${r}">${r === 'pile' ? 'P' : 'F'}</i>`).join('');
       this.busy = false; this.lock(false);
@@ -1950,6 +1966,7 @@ const Clicker = {
     if (!Wallet.debit(cost)) return toast(`Il vous manque ${money(r2(cost - S.balance))}.`, 'error');
     S.clicker.up[id] = level(id) + 1;
     S.clicker.bought++;
+    Goals.bump('upgrades', 1);
     toast(`${u.name} : niveau ${level(id)}.`, 'success');
     saveNow();
     Goals.check();
@@ -2004,6 +2021,8 @@ const Boost = {
     const extend = active && S.boost.mult === mult;
     S.boost = { mult, until: (extend ? S.boost.until : now) + BOOST_MS };
     S.clicker.boosts++;
+    if (mult === 50) S.c.boost50++;
+    Goals.bump('boosts', 1);
     this.endedNotice = false;
     toast(extend ? `Boost ×${mult} prolongé de 5 minutes.` : `Boost ×${mult} activé pour 5 minutes.`, 'success');
     celebrate();
@@ -2032,42 +2051,95 @@ const Boost = {
 /* =====================================================================
    OBJECTIFS : permanents et du jour (récompenses en argent)
    ===================================================================== */
-const GOALS = [
-  { id: 'c100', title: 'Premiers pas', desc: 'Cliquer 100 fois', goal: 100, val: () => S.totalClicks, reward: 20 },
-  { id: 'up1', title: 'Premier investissement', desc: 'Acheter une amélioration du clicker', goal: 1, val: () => S.clicker.bought, reward: 30 },
-  { id: 'g25', title: 'Habitué', desc: 'Jouer 25 parties', goal: 25, val: () => S.gamesPlayed, reward: 150 },
-  { id: 'w10', title: 'Main chaude', desc: 'Gagner 10 parties', goal: 10, val: () => S.gamesWon, reward: 200 },
-  { id: 'bj', title: 'Vingt-et-un', desc: 'Obtenir un blackjack', goal: 1, val: () => S.c.blackjacks, reward: 250 },
-  { id: 'auto1', title: 'Ça tourne tout seul', desc: 'Atteindre 1 $ par seconde de revenus automatiques', goal: 1, val: autoRate, reward: 250, fmt: 'rate' },
-  { id: 'x3', title: 'Décollage', desc: 'Encaisser à 3× ou plus à l’Aviateur', goal: 3, val: () => S.bestCrash, reward: 300, fmt: 'x' },
-  { id: 'mines8', title: 'Démineur', desc: 'Trouver 8 diamants dans une seule partie de Mines', goal: 8, val: () => S.c.minesRun, reward: 500 },
-  { id: 'green', title: 'Tout sur le vert', desc: 'Gagner sur le vert à Cyber Spin', goal: 1, val: () => S.c.greens, reward: 500 },
-  { id: 'coin5', title: 'Pile poil', desc: 'Gagner 5 lancers de suite à pile ou face', goal: 5, val: () => S.c.coinBest, reward: 800 },
-  { id: 'boost', title: 'Coup de fouet', desc: 'Acheter un boost', goal: 1, val: () => S.clicker.boosts, reward: 1000 },
-  { id: 'c5000', title: 'Infatigable', desc: 'Cliquer 5 000 fois', goal: 5000, val: () => S.totalClicks, reward: 1500 },
-  { id: 'bal100k', title: 'Six chiffres', desc: 'Avoir 100 000 $ de solde', goal: 100000, val: () => S.balance, reward: 5000, fmt: 'money' },
-  { id: 'auto50', title: 'Rentier', desc: 'Atteindre 50 $ par seconde de revenus automatiques', goal: 50, val: autoRate, reward: 20000, fmt: 'rate' },
-  { id: 'wager1m', title: 'Gros joueur', desc: 'Miser 1 000 000 $ au total', goal: 1000000, val: () => S.c.wagered, reward: 25000, fmt: 'money' },
-  { id: 'auto500', title: 'Empire', desc: 'Atteindre 500 $ par seconde de revenus automatiques', goal: 500, val: autoRate, reward: 250000, fmt: 'rate' },
-  { id: 'bal10m', title: 'Magnat', desc: 'Avoir 10 000 000 $ de solde', goal: 10000000, val: () => S.balance, reward: 500000, fmt: 'money' }
+const GOAL_CATS = [
+  { id: 'all', label: 'Tout' }, { id: 'ready', label: 'Prêts' }, { id: 'clicker', label: 'Clicker' },
+  { id: 'jeux', label: 'Jeux' }, { id: 'richesse', label: 'Richesse' }, { id: 'collection', label: 'Collection' }
 ];
+const titlesOwned = () => SHOP.filter(i => S.inventory[i.id]).length;
+const themesOwned = () => THEMES.filter(t => t.price && S.inventory['theme_' + t.id]).length;
+const GOALS = [
+  // ----- Clicker -----
+  { id: 'c100', cat: 'clicker', title: 'Premiers pas', desc: 'Cliquer 100 fois', goal: 100, val: () => S.totalClicks, reward: 20 },
+  { id: 'c5000', cat: 'clicker', title: 'Infatigable', desc: 'Cliquer 5 000 fois', goal: 5000, val: () => S.totalClicks, reward: 1500 },
+  { id: 'c25k', cat: 'clicker', title: 'Machine humaine', desc: 'Cliquer 25 000 fois', goal: 25000, val: () => S.totalClicks, reward: 15000 },
+  { id: 'c100k', cat: 'clicker', title: 'Légende du clic', desc: 'Cliquer 100 000 fois', goal: 100000, val: () => S.totalClicks, reward: 150000 },
+  { id: 'up1', cat: 'clicker', title: 'Premier investissement', desc: 'Acheter une amélioration du clicker', goal: 1, val: () => S.clicker.bought, reward: 30 },
+  { id: 'up10', cat: 'clicker', title: 'Collectionneur de machines', desc: 'Acheter 10 améliorations', goal: 10, val: () => S.clicker.bought, reward: 500 },
+  { id: 'up50', cat: 'clicker', title: 'Industriel', desc: 'Acheter 50 améliorations', goal: 50, val: () => S.clicker.bought, reward: 25000 },
+  { id: 'up150', cat: 'clicker', title: 'Conglomérat', desc: 'Acheter 150 améliorations', goal: 150, val: () => S.clicker.bought, reward: 1000000 },
+  { id: 'cv1', cat: 'clicker', title: 'Clic en or', desc: 'Gagner 1 $ par clic, sans boost', goal: 1, val: clickValue, reward: 500, fmt: 'money' },
+  { id: 'cv25', cat: 'clicker', title: 'Clic en diamant', desc: 'Gagner 25 $ par clic, sans boost', goal: 25, val: clickValue, reward: 50000, fmt: 'money' },
+  { id: 'auto1', cat: 'clicker', title: 'Ça tourne tout seul', desc: 'Atteindre 1 $ par seconde de revenus automatiques', goal: 1, val: autoRate, reward: 250, fmt: 'rate' },
+  { id: 'auto10', cat: 'clicker', title: 'Petit rentier', desc: 'Atteindre 10 $ par seconde', goal: 10, val: autoRate, reward: 3000, fmt: 'rate' },
+  { id: 'auto50', cat: 'clicker', title: 'Rentier', desc: 'Atteindre 50 $ par seconde', goal: 50, val: autoRate, reward: 20000, fmt: 'rate' },
+  { id: 'auto500', cat: 'clicker', title: 'Empire', desc: 'Atteindre 500 $ par seconde', goal: 500, val: autoRate, reward: 250000, fmt: 'rate' },
+  { id: 'auto5000', cat: 'clicker', title: 'Empire mondial', desc: 'Atteindre 5 000 $ par seconde', goal: 5000, val: autoRate, reward: 5000000, fmt: 'rate' },
+  { id: 'boost', cat: 'clicker', title: 'Coup de fouet', desc: 'Acheter un boost', goal: 1, val: () => S.clicker.boosts, reward: 1000 },
+  { id: 'boost10', cat: 'clicker', title: 'Accro à la vitesse', desc: 'Acheter 10 boosts', goal: 10, val: () => S.clicker.boosts, reward: 50000 },
+  { id: 'boost50', cat: 'clicker', title: 'Turbo', desc: 'Acheter un boost ×50', goal: 1, val: () => S.c.boost50, reward: 250000 },
+  // ----- Jeux -----
+  { id: 'g25', cat: 'jeux', title: 'Habitué', desc: 'Jouer 25 parties', goal: 25, val: () => S.gamesPlayed, reward: 150 },
+  { id: 'g100', cat: 'jeux', title: 'Pilier du casino', desc: 'Jouer 100 parties', goal: 100, val: () => S.gamesPlayed, reward: 1000 },
+  { id: 'g1000', cat: 'jeux', title: 'Résident', desc: 'Jouer 1 000 parties', goal: 1000, val: () => S.gamesPlayed, reward: 20000 },
+  { id: 'w10', cat: 'jeux', title: 'Main chaude', desc: 'Gagner 10 parties', goal: 10, val: () => S.gamesWon, reward: 200 },
+  { id: 'w50', cat: 'jeux', title: 'En veine', desc: 'Gagner 50 parties', goal: 50, val: () => S.gamesWon, reward: 2000 },
+  { id: 'w250', cat: 'jeux', title: 'Intouchable', desc: 'Gagner 250 parties', goal: 250, val: () => S.gamesWon, reward: 15000 },
+  { id: 'x3', cat: 'jeux', title: 'Décollage', desc: 'Encaisser à 3× ou plus à l’Aviateur', goal: 3, val: () => S.bestCrash, reward: 300, fmt: 'x' },
+  { id: 'x10', cat: 'jeux', title: 'Haute altitude', desc: 'Encaisser à 10× ou plus à l’Aviateur', goal: 10, val: () => S.bestCrash, reward: 2500, fmt: 'x' },
+  { id: 'x100', cat: 'jeux', title: 'Stratosphère', desc: 'Encaisser à 100× ou plus à l’Aviateur', goal: 100, val: () => S.bestCrash, reward: 100000, fmt: 'x' },
+  { id: 'mines8', cat: 'jeux', title: 'Démineur', desc: 'Trouver 8 diamants dans une seule partie de Mines', goal: 8, val: () => S.c.minesRun, reward: 500 },
+  { id: 'mines15', cat: 'jeux', title: 'Expert en déminage', desc: 'Trouver 15 diamants dans une seule partie de Mines', goal: 15, val: () => S.c.minesRun, reward: 10000 },
+  { id: 'minesClear', cat: 'jeux', title: 'Sans faute', desc: 'Trouver tous les diamants d’une partie de Mines à 3 mines ou plus', goal: 1, val: () => S.c.minesClear, reward: 5000 },
+  { id: 'bj', cat: 'jeux', title: 'Vingt-et-un', desc: 'Obtenir un blackjack', goal: 1, val: () => S.c.blackjacks, reward: 250 },
+  { id: 'bj10', cat: 'jeux', title: 'Croupier en sueur', desc: 'Obtenir 10 blackjacks', goal: 10, val: () => S.c.blackjacks, reward: 3000 },
+  { id: 'green', cat: 'jeux', title: 'Tout sur le vert', desc: 'Gagner sur le vert à Cyber Spin', goal: 1, val: () => S.c.greens, reward: 500 },
+  { id: 'green5', cat: 'jeux', title: 'Œil de lynx', desc: 'Gagner 5 fois sur le vert à Cyber Spin', goal: 5, val: () => S.c.greens, reward: 10000 },
+  { id: 'coin5', cat: 'jeux', title: 'Pile poil', desc: 'Gagner 5 lancers de suite à pile ou face', goal: 5, val: () => S.c.coinBest, reward: 800 },
+  { id: 'coin10', cat: 'jeux', title: 'Insolent', desc: 'Gagner 10 lancers de suite à pile ou face', goal: 10, val: () => S.c.coinBest, reward: 25000 },
+  { id: 'win10k', cat: 'jeux', title: 'Coup de maître', desc: 'Gagner 10 000 $ de bénéfice en une seule partie', goal: 10000, val: () => S.c.bestWin, reward: 5000, fmt: 'money' },
+  { id: 'win1m', cat: 'jeux', title: 'Jackpot', desc: 'Gagner 1 000 000 $ de bénéfice en une seule partie', goal: 1000000, val: () => S.c.bestWin, reward: 100000, fmt: 'money' },
+  // ----- Richesse -----
+  { id: 'bal100k', cat: 'richesse', title: 'Six chiffres', desc: 'Avoir 100 000 $ de solde', goal: 100000, val: () => S.balance, reward: 5000, fmt: 'money' },
+  { id: 'bal10m', cat: 'richesse', title: 'Magnat', desc: 'Avoir 10 000 000 $ de solde', goal: 10000000, val: () => S.balance, reward: 500000, fmt: 'money' },
+  { id: 'bal1b', cat: 'richesse', title: 'Milliardaire', desc: 'Avoir 1 000 000 000 $ de solde', goal: 1000000000, val: () => S.balance, reward: 25000000, fmt: 'money' },
+  { id: 'won1m', cat: 'richesse', title: 'Fortune de jeu', desc: 'Cumuler 1 000 000 $ de gains aux jeux', goal: 1000000, val: () => S.totalWon, reward: 50000, fmt: 'money' },
+  { id: 'wager1m', cat: 'richesse', title: 'Gros joueur', desc: 'Miser 1 000 000 $ au total', goal: 1000000, val: () => S.c.wagered, reward: 25000, fmt: 'money' },
+  { id: 'wager100m', cat: 'richesse', title: 'Baleine', desc: 'Miser 100 000 000 $ au total', goal: 100000000, val: () => S.c.wagered, reward: 2000000, fmt: 'money' },
+  // ----- Collection -----
+  { id: 'daily10', cat: 'collection', title: 'Fidèle', desc: 'Récupérer 10 objectifs du jour', goal: 10, val: () => S.c.dailyClaimed, reward: 5000 },
+  { id: 'daily50', cat: 'collection', title: 'Assidu', desc: 'Récupérer 50 objectifs du jour', goal: 50, val: () => S.c.dailyClaimed, reward: 50000 },
+  { id: 'theme1', cat: 'collection', title: 'Décorateur', desc: 'Acheter un thème', goal: 1, val: themesOwned, reward: 2000 },
+  { id: 'themeAll', cat: 'collection', title: 'Nuancier', desc: 'Posséder tous les thèmes', goal: 4, val: themesOwned, reward: 500000 },
+  { id: 'title1', cat: 'collection', title: 'Premier titre', desc: 'Acheter un titre', goal: 1, val: titlesOwned, reward: 1000 },
+  { id: 'title5', cat: 'collection', title: 'Collection de titres', desc: 'Posséder 5 titres', goal: 5, val: titlesOwned, reward: 100000 },
+  { id: 'chat20', cat: 'collection', title: 'Bavard', desc: 'Envoyer 20 messages dans le tchat', goal: 20, val: () => S.c.chats, reward: 300 }
+];
+const DAILY_COUNT = 4;
 const DAILY_POOL = [
   { id: 'd_clicks', title: 'Doigts agiles', desc: 'Cliquer 400 fois', key: 'clicks', goal: 400, reward: 100 },
+  { id: 'd_clicks2', title: 'Marathon du clic', desc: 'Cliquer 1 500 fois', key: 'clicks', goal: 1500, reward: 400 },
+  { id: 'd_upgrades', title: 'Investisseur du jour', desc: 'Acheter 3 améliorations du clicker', key: 'upgrades', goal: 3, reward: 250 },
+  { id: 'd_boost', title: 'Accélération', desc: 'Acheter un boost', key: 'boosts', goal: 1, reward: 500 },
   { id: 'd_games', title: 'Tour de salle', desc: 'Jouer 15 parties', key: 'games', goal: 15, reward: 150 },
   { id: 'd_wins', title: 'Série gagnante', desc: 'Gagner 6 parties', key: 'wins', goal: 6, reward: 200 },
-  { id: 'd_crash2', title: 'Plein ciel', desc: 'Encaisser 3 fois à 2× ou plus à l’Aviateur', key: 'crash2', goal: 3, reward: 300 },
-  { id: 'd_gems', title: 'Chercheur de diamants', desc: 'Trouver 15 diamants aux Mines', key: 'gems', goal: 15, reward: 200 },
-  { id: 'd_bj', title: 'Croupier battu', desc: 'Gagner 3 mains de blackjack', key: 'bjwins', goal: 3, reward: 250 },
+  { id: 'd_profit', title: 'Bonne journée', desc: 'Gagner 1 000 $ de bénéfice aux jeux', key: 'profit', goal: 1000, reward: 300, fmt: 'money' },
   { id: 'd_wager', title: 'Mise du jour', desc: 'Miser 2 000 $ au total', key: 'wager', goal: 2000, reward: 300, fmt: 'money' },
+  { id: 'd_crash2', title: 'Plein ciel', desc: 'Encaisser 3 fois à 2× ou plus à l’Aviateur', key: 'crash2', goal: 3, reward: 300 },
+  { id: 'd_crash5', title: 'Haut vol', desc: 'Encaisser une fois à 5× ou plus à l’Aviateur', key: 'crash5', goal: 1, reward: 400 },
+  { id: 'd_gems', title: 'Chercheur de diamants', desc: 'Trouver 15 diamants aux Mines', key: 'gems', goal: 15, reward: 200 },
+  { id: 'd_mineswins', title: 'Prudence', desc: 'Encaisser 3 parties de Mines', key: 'mineswins', goal: 3, reward: 250 },
+  { id: 'd_bj', title: 'Croupier battu', desc: 'Gagner 3 mains de blackjack', key: 'bjwins', goal: 3, reward: 250 },
+  { id: 'd_bjbj', title: 'Blackjack !', desc: 'Obtenir un blackjack', key: 'bjs', goal: 1, reward: 300 },
   { id: 'd_coin', title: 'Bonne pioche', desc: 'Gagner 4 lancers de pièce', key: 'coinwins', goal: 4, reward: 150 },
-  { id: 'd_spin', title: 'La roue tourne', desc: 'Lancer 10 fois Cyber Spin', key: 'spins', goal: 10, reward: 150 }
+  { id: 'd_spin', title: 'La roue tourne', desc: 'Lancer 10 fois Cyber Spin', key: 'spins', goal: 10, reward: 150 },
+  { id: 'd_green', title: 'Vert espoir', desc: 'Gagner sur le vert à Cyber Spin', key: 'greens', goal: 1, reward: 400 }
 ];
 const DAILY_BONUS_S = 600; // les objectifs du jour rapportent aussi 10 min de revenus automatiques
 
 const Goals = {
-  notified: new Set(),
+  notified: new Set(), filter: 'all',
   dayKey() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; },
-  pick(day) { // les mêmes 3 objectifs pour tout le monde ce jour-là
+  pick(day) { // les mêmes objectifs pour tout le monde ce jour-là
     let h = 2166136261;
     for (const ch of day) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
     const ids = DAILY_POOL.map(d => d.id);
@@ -2076,7 +2148,14 @@ const Goals = {
       const j = h % (i + 1);
       [ids[i], ids[j]] = [ids[j], ids[i]];
     }
-    return ids.slice(0, 3);
+    const keys = new Set(), out = [];
+    for (const id of ids) { // jamais deux objectifs du même type le même jour
+      const k = DAILY_POOL.find(d => d.id === id).key;
+      if (keys.has(k)) continue;
+      keys.add(k); out.push(id);
+      if (out.length === DAILY_COUNT) break;
+    }
+    return out;
   },
   ensureDay() {
     const k = this.dayKey();
@@ -2084,6 +2163,10 @@ const Goals = {
       const isNewDay = !!S.daily.day;
       S.daily = { day: k, ids: this.pick(k), prog: {}, claimed: {} };
       if (isNewDay && user) { toast('Nouveaux objectifs du jour disponibles.', 'info'); markDirty(); }
+    } else if (S.daily.ids.length < DAILY_COUNT) {
+      const used = new Set(S.daily.ids.map(id => DAILY_POOL.find(d => d.id === id).key));
+      const extra = this.pick(k).filter(id => !S.daily.ids.includes(id) && !used.has(DAILY_POOL.find(d => d.id === id).key));
+      S.daily.ids = S.daily.ids.concat(extra).slice(0, DAILY_COUNT);
     }
   },
   bump(key, n) {
@@ -2130,8 +2213,20 @@ const Goals = {
     if (!g || S.daily.claimed[id] || (S.daily.prog[g.key] || 0) < g.goal) return;
     const rew = this.dailyReward(g);
     S.daily.claimed[id] = true;
+    S.c.dailyClaimed++;
     Wallet.credit(rew);
     toast(`${g.title} : +${money(rew)}`, 'success');
+    celebrate(); saveNow(); this.check(); this.render();
+  },
+  claimAll() {
+    let total = 0, n = 0;
+    GOALS.forEach(g => { if (!S.goals[g.id] && g.val() >= g.goal) { S.goals[g.id] = true; total += g.reward; n++; } });
+    this.dailyItems().forEach(g => {
+      if (!S.daily.claimed[g.id] && (S.daily.prog[g.key] || 0) >= g.goal) { total += this.dailyReward(g); S.daily.claimed[g.id] = true; S.c.dailyClaimed++; n++; }
+    });
+    if (!n) return;
+    Wallet.credit(r2(total));
+    toast(`${n} objectif${n > 1 ? 's' : ''} récupéré${n > 1 ? 's' : ''} : +${money(r2(total))}`, 'success');
     celebrate(); saveNow(); this.check(); this.render();
   },
   row(title, desc, v, goal, fmt, reward, claimed, attr) {
@@ -2156,7 +2251,14 @@ const Goals = {
     const mins = Math.max(1, Math.round((mid - Date.now()) / 60000));
     $('#daily-reset').textContent = `Renouvelés dans ${mins >= 60 ? `${Math.floor(mins / 60)} h ${String(mins % 60).padStart(2, '0')}` : `${mins} min`}`;
     const order = g => (S.goals[g.id] ? 2 : g.val() >= g.goal ? 0 : 1);
-    const list = GOALS.slice().sort((a, b) => order(a) - order(b));
+    const readyN = this.readyList().length;
+    setHTML($('#goal-filters'), GOAL_CATS.map(c => {
+      const n = c.id === 'ready' ? readyN : c.id === 'all' ? GOALS.length : GOALS.filter(g => g.cat === c.id).length;
+      return `<button type="button" class="filter${this.filter === c.id ? ' on' : ''}" data-goal-filter="${c.id}" aria-pressed="${this.filter === c.id}">${c.label} <span>${n}</span></button>`;
+    }).join('') + (readyN > 1 ? `<button type="button" class="btn btn-brass claim-all" data-claim-all>Tout récupérer (${readyN})</button>` : ''));
+    const list = GOALS.filter(g => this.filter === 'all' || (this.filter === 'ready' ? order(g) === 0 : g.cat === this.filter))
+      .sort((a, b) => order(a) - order(b));
+    $('#goal-empty').hidden = list.length > 0;
     patchList($('#goal-list'), list.map(g => ({
       key: g.id,
       html: this.row(g.title, g.desc, g.val(), g.goal, g.fmt, g.reward, !!S.goals[g.id], `data-claim="${g.id}"`)
@@ -2349,6 +2451,7 @@ function initSocial() {
     if (now - lastChat < 800) return toast('Un message par seconde au maximum.', 'error');
     lastChat = now;
     Net.socket.emit('send_message', { text: text.slice(0, 200), badge: S.equippedBadge });
+    S.c.chats++; scheduleSave();
     inp.value = '';
   });
   $('#transfer-form').addEventListener('submit', async e => {
@@ -2542,6 +2645,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const b = e.target.closest('button');
     if (!b) return;
     if (!user) return showAuth();
+    if (b.dataset.goalFilter) { Goals.filter = b.dataset.goalFilter; return Goals.render(); }
+    if ('claimAll' in b.dataset) return Goals.claimAll();
     if (b.dataset.claim) Goals.claim(b.dataset.claim);
     else if (b.dataset.claimDaily) Goals.claimDaily(b.dataset.claimDaily);
   });
