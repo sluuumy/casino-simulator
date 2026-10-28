@@ -78,7 +78,7 @@ svg.i,.nav-btn svg,.icon-btn svg{width:18px;height:18px;fill:none;stroke:current
 
 /* ---------- Structure ---------- */
 .shell{max-width:1240px;margin:0 auto;padding:28px 20px 40px;display:grid;grid-template-columns:216px minmax(0,1fr);gap:32px;align-items:start}
-.side{min-width:0;position:sticky;top:calc(var(--tb) + 20px);display:flex;flex-direction:column;gap:24px}
+.side{min-width:0;position:sticky;top:calc(var(--tb) + 20px);display:flex;flex-direction:column;gap:24px;max-height:calc(100vh - var(--tb) - 40px);overflow-y:auto;scrollbar-width:thin}
 .nav{display:flex;flex-direction:column;gap:18px}
 .nav-group{display:flex;flex-direction:column;gap:2px}
 .nav-group-title{font-size:12px;font-weight:600;color:var(--faint);padding:0 12px 4px}
@@ -86,8 +86,31 @@ svg.i,.nav-btn svg,.icon-btn svg{width:18px;height:18px;fill:none;stroke:current
 .nav-btn:hover{color:var(--ink);background:var(--felt)}
 .nav-btn[aria-current="page"]{color:var(--ink);background:var(--panel)}
 .nav-btn[aria-current="page"]::before{content:"";position:absolute;left:-10px;top:9px;bottom:9px;width:3px;border-radius:2px;background:var(--brass)}
-.side-board h3{font-size:13px;font-weight:600;color:var(--faint);padding:0 12px 6px}
 .board{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.lb{position:fixed;left:12px;top:calc(50% + var(--tb) / 2);transform:translateY(-50%);z-index:35}
+.lb-tab{display:flex;flex-direction:column;align-items:center;gap:2px;width:46px;padding:10px 0;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.lb-tab:hover{border-color:var(--brass)}
+.lb-ic{font-size:20px;line-height:1}
+.lb-rank{font-size:12px;font-weight:850;color:var(--brass)}
+.lb-panel{width:212px;max-height:calc(100vh - var(--tb) - 40px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 6px 10px;box-shadow:0 12px 32px rgba(0,0,0,.4)}
+.lb-head{display:flex;align-items:center;justify-content:space-between;padding:0 6px 6px 10px}
+.lb-head h3{font-size:14px;font-weight:800}
+.lb-close{width:28px;height:28px;border-radius:8px;border:0;background:var(--panel-2);color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
+.lb-close:hover{color:var(--ink)}
+.lb-board li{padding:6px 8px;font-size:13px;grid-template-columns:20px minmax(0,1fr) auto;gap:6px}
+.lb-board li.me{background:var(--panel-2)}
+.lb-board .amt{font-size:12px}
+.lb-board .lb-gap{display:block;text-align:center;color:var(--faint);padding:0}
+.lb-foot{font-size:11px;color:var(--faint);padding:8px 10px 0}
+@media (min-width:1100px){
+  body.lb-open .shell{margin-left:max(244px, calc((100vw - 1240px) / 2));margin-right:auto}
+  body:not(.lb-open) .shell{margin-left:max(68px, calc((100vw - 1240px) / 2));margin-right:auto}
+}
+@media (max-width:1099px){
+  .lb{left:0}
+  .lb-tab{border-radius:0 12px 12px 0;border-left:0;width:38px;padding:9px 0}
+  .lb-panel{border-radius:0 16px 16px 0;border-left:0}
+}
 .board li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 12px;font-size:14px;border-radius:8px}
 .board li.me{background:var(--panel)}
 .board .rank{color:var(--faint);font-weight:700}
@@ -296,6 +319,21 @@ main{min-width:0}
   .race-lane{grid-template-columns:86px minmax(0,1fr)} .race-name{font-size:12px}
 }
 
+.loto-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:28px;align-items:center}
+.loto-pot-box{text-align:center;padding:10px;border-radius:14px;background:radial-gradient(ellipse at 50% 0%,rgba(227,176,75,.18),transparent 70%)}
+.loto-pot{font-stretch:125%;font-weight:900;font-size:clamp(40px,6vw,64px);line-height:1.05;color:var(--brass);margin:4px 0}
+.loto-when{color:var(--muted);font-weight:700}
+.loto-buy{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.loto-buy .btn{white-space:normal;padding:10px 6px;font-size:14px}
+.loto-winners{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.loto-winners li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--bg)}
+.loto-winners .who{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.loto-winners .amt{color:var(--jade);font-weight:800}
+.medal{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:13px;color:#1b1b1b}
+.medal.m1{background:#F0C35A} .medal.m2{background:#CFC8B4} .medal.m3{background:#C98A4B}
+.live li.me .who{color:var(--brass)}
+@media (max-width:900px){ .loto-hero{grid-template-columns:minmax(0,1fr)} }
+
 /* ---------- Clicker ---------- */
 .rates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--line-soft);border-radius:var(--r-ctl);overflow:hidden;margin:18px 0 0}
 .rates div{padding:12px 14px;background:var(--bg)}
@@ -385,7 +423,6 @@ main{min-width:0}
 .online li:first-child{border-top:0}
 .online .who{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .online .amt{margin-left:auto;color:var(--brass);font-weight:700;font-size:13px}
-.social-board{display:none}
 
 /* ---------- Connexion ---------- */
 .auth{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;background:rgba(6,14,12,.84);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);overflow:auto}
@@ -417,10 +454,9 @@ main{min-width:0}
   .nav{flex-direction:row;overflow-x:auto;gap:4px;scrollbar-width:none}
   .nav::-webkit-scrollbar{display:none}
   .nav-group{display:contents}
-  .nav-group-title,.side-board,.side .net{display:none}
+  .nav-group-title,.side .net{display:none}
   .nav-btn{width:auto;white-space:nowrap;padding:8px 12px}
   .nav-btn[aria-current="page"]::before{left:12px;right:12px;top:auto;bottom:2px;width:auto;height:3px}
-  .social-board{display:block}
   .mines-layout,.coin-layout,.clicker,.up-grid{grid-template-columns:minmax(0,1fr)}
   .coin-wrap,.chip-area{justify-self:center}
   .clicker{text-align:center;gap:24px}
@@ -509,13 +545,19 @@ main{min-width:0}
   </div>
 </header>
 
+<aside class="lb" id="lb" aria-label="Classement des joueurs">
+  <button class="lb-tab" id="lb-tab" type="button" aria-expanded="false" aria-controls="lb-panel" title="Afficher le classement">
+    <span class="lb-ic" aria-hidden="true">🏆</span><span class="lb-rank" id="lb-rank"></span>
+  </button>
+  <div class="lb-panel" id="lb-panel">
+    <div class="lb-head"><h3>Classement</h3><button class="lb-close" id="lb-close" type="button" aria-label="Replier le classement" title="Replier">‹</button></div>
+    <ol class="board lb-board" id="board-float"></ol>
+    <p class="lb-foot" id="lb-foot"></p>
+  </div>
+</aside>
 <div class="shell">
   <aside class="side" aria-label="Navigation principale">
     <nav class="nav" id="nav"></nav>
-    <section class="side-board" aria-labelledby="board-title">
-      <h3 id="board-title">Classement</h3>
-      <ol class="board" id="board-side"></ol>
-    </section>
     <p class="net" id="net-side" data-state="connecting"><span class="dot"></span><span class="net-text">Connexion au serveur…</span></p>
   </aside>
 
@@ -524,7 +566,7 @@ main{min-width:0}
     <section class="view" id="view-salle" aria-labelledby="h-salle">
       <header class="view-head">
         <h2 id="h-salle">Tous les jeux</h2>
-        <p>9 jeux en argent virtuel. Le taux de retour indique la part des mises rendue en moyenne aux joueurs sur le long terme : plus il est proche de 100 %, moins la maison garde.</p>
+        <p>9 jeux en argent virtuel, plus un loto tiré chaque soir. Le taux de retour indique la part des mises rendue en moyenne aux joueurs sur le long terme : plus il est proche de 100 %, moins la maison garde.</p>
       </header>
       <div class="lobby" id="lobby"></div>
       <div class="panel">
@@ -764,6 +806,42 @@ main{min-width:0}
       </div>
     </section>
 
+    <!-- ===== Loto ===== -->
+    <section class="view" id="view-loto" aria-labelledby="h-loto">
+      <header class="view-head">
+        <h2 id="h-loto">Loto du jour</h2>
+        <p>Chaque soir à 21 h, trois tickets sont tirés au sort parmi tous ceux achetés par les joueurs. Ils se partagent la cagnotte : 60 %, 25 % et 15 %.</p>
+      </header>
+      <div class="panel loto-hero">
+        <div class="loto-pot-box">
+          <p class="muted-sm">Cagnotte du tirage</p>
+          <p class="loto-pot" id="loto-pot">—</p>
+          <p class="loto-when" id="loto-when">Connexion au serveur…</p>
+        </div>
+        <div class="stack">
+          <p class="muted-sm">Ticket à <b id="loto-price">—</b>, <span id="loto-max">—</span> tickets au maximum par tirage.</p>
+          <div class="loto-buy">
+            <button class="btn btn-brass" type="button" data-loto-buy="1">1 ticket</button>
+            <button class="btn btn-brass" type="button" data-loto-buy="5">5 tickets</button>
+            <button class="btn btn-brass" type="button" data-loto-buy="10">10 tickets</button>
+          </div>
+          <dl class="readouts">
+            <div><dt>Vos tickets</dt><dd id="loto-mine">0</dd></div>
+            <div><dt>Tickets en jeu</dt><dd id="loto-total">0</dd></div>
+            <div><dt>Vos chances de gagner un lot</dt><dd id="loto-chance">—</dd></div>
+          </dl>
+        </div>
+      </div>
+      <div class="game-grid">
+        <div class="panel"><h3 class="panel-title">Participants</h3><ul class="live" id="loto-players"></ul></div>
+        <div class="panel"><h3 class="panel-title">Dernier tirage</h3><div id="loto-last"></div></div>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title">Règles</h3>
+        <p class="muted-sm">La cagnotte réunit 90 % du prix des tickets et 1 000 $ offerts par le casino à chaque tirage. Trois tickets différents sont tirés : un même joueur peut donc remporter plusieurs lots. S’il y a moins de trois tickets, les parts non gagnées sont reportées sur le tirage suivant. Si vous êtes absent au moment du tirage, vos gains vous sont versés à votre prochaine visite.</p>
+      </div>
+    </section>
+
     <!-- ===== Clicker ===== -->
     <section class="view" id="view-clicker" aria-labelledby="h-clk">
       <header class="view-head">
@@ -885,10 +963,6 @@ main{min-width:0}
             <h3 class="panel-title">Activité des jeux</h3>
             <ul class="live" id="activity"><li class="empty">Les mises des autres joueurs apparaîtront ici.</li></ul>
           </div>
-          <div class="panel social-board">
-            <h3 class="panel-title">Classement</h3>
-            <ol class="board" id="board-social"></ol>
-          </div>
         </div>
       </div>
     </section>
@@ -966,8 +1040,8 @@ const DEFAULT_STATE = () => ({
   biggestMult: 1, bestCrash: 0, gamesPlayed: 0, gamesWon: 0,
   achievements: {}, inventory: {}, equippedBadge: '', history: [], pending: {},
   clicker: { up: {}, bought: 0, boosts: 0, clickEarned: 0, autoEarned: 0 },
-  c: { minesRun: 0, blackjacks: 0, coinStreak: 0, coinBest: 0, wagered: 0, minesClear: 0, bestWin: 0, dailyClaimed: 0, boost50: 0, chats: 0, sabotages: 0, games10: 0, wins10: 0, plinkoEdge: 0, hiloBest: 0, wheelTop: 0, slot7: 0, outsider: 0 },
-  seen: {},
+  c: { minesRun: 0, blackjacks: 0, coinStreak: 0, coinBest: 0, wagered: 0, minesClear: 0, bestWin: 0, dailyClaimed: 0, boost50: 0, chats: 0, sabotages: 0, games10: 0, wins10: 0, plinkoEdge: 0, hiloBest: 0, wheelTop: 0, slot7: 0, outsider: 0, lotoTickets: 0, lotoWins: 0 },
+  seen: {}, loto: {},
   boost: null, malus: {}, goals: {}, daily: { day: '', ids: [], prog: {}, claimed: {} }, theme: 'tapis', lastSeen: 0
 });
 let user = null;
@@ -999,6 +1073,8 @@ function normalize(raw) {
   s.boost = s.boost && BOOSTS.some(b => b.mult === s.boost.mult) && Number.isFinite(s.boost.until) ? { mult: s.boost.mult, until: s.boost.until, pool: num(s.boost.pool) } : null;
   s.goals = obj(s.goals);
   s.seen = obj(s.seen);
+  s.loto = {};
+  Object.entries(obj(raw && raw.loto)).forEach(([id, t]) => { if (/^\d{4}-\d{2}-\d{2}(-\w+)?$/.test(id) && t && num(t.n) > 0) s.loto[id] = { n: Math.floor(num(t.n)), paid: num(t.paid) }; });
   s.malus = {};
   const ml = obj(raw && raw.malus);
   if (ml.halve && num(ml.halve.games) > 0) s.malus.halve = { games: Math.min(Math.floor(num(ml.halve.games)), MALUS_MAX_GAMES), from: String(ml.halve.from || '') };
@@ -1220,6 +1296,8 @@ function startSession(name, state, guest) {
   Net.join();
   Crash.resume();
   Race.resume();
+  Loto.render();
+  Loto.claimAll();
 }
 function startGuest() {
   let name = store.get(KEYS.guestName);
@@ -2512,6 +2590,141 @@ const WheelF = {
   }
 };
 
+/* ---------- Loto du jour (géré par le serveur) ---------- */
+const MOIS_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const lotoDay = id => { const [y, m, d] = String(id).split('-').map(Number); return d ? `${d} ${MOIS_FR[m - 1]}` : id; };
+const durText = ms => {
+  const m = Math.max(0, Math.round(ms / 60000));
+  if (m < 1) return 'moins d’une minute';
+  if (m < 60) return `${m} min`;
+  return `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')}`;
+};
+const Loto = {
+  state: null, busy: false, claiming: false,
+  init() {
+    $('#view-loto').addEventListener('click', e => { const b = e.target.closest('[data-loto-buy]'); if (b) this.buy(Number(b.dataset.lotoBuy)); });
+    setInterval(() => { if (currentView === 'loto' || currentView === 'salle') this.renderTime(); }, 1000);
+    this.render();
+  },
+  mine() { const t = this.state && S.loto[this.state.id]; return t ? t.n : 0; },
+  onState(d) { if (!d || !d.id) return; this.state = d; this.render(); this.claimAll(); },
+  onDrawn(d) {
+    if (!d) return;
+    const w = d.winners || [];
+    addChat({ system: true, text: w.length ? `Tirage du loto du ${lotoDay(d.id)} : ${w.map(x => `${x.username} (${money(x.amount)})`).join(', ')}.` : `Tirage du loto du ${lotoDay(d.id)} : aucun ticket, la cagnotte est reportée.` });
+  },
+  async buy(n) {
+    if (this.busy) return;
+    if (!user) return showAuth();
+    if (!Net.ready() || !this.state) return toast('Loto indisponible : connexion au serveur en cours.', 'error');
+    const cost = n * this.state.price;
+    if (this.mine() + n > this.state.max) return toast(`${this.state.max} tickets au maximum par tirage.`, 'error');
+    if (!Wallet.canPay(cost)) return toast(`Il vous manque ${money(r2(cost - S.balance))}.`, 'error');
+    this.busy = true; this.render();
+    Net.pushBalanceNow();
+    const res = await Net.request('loto_buy', { count: n });
+    this.busy = false;
+    if (!res.ok) { toast(res.msg || 'Achat refusé.', 'error'); return this.render(); }
+    Wallet.debit(res.cost);
+    const cur = S.loto[res.drawId] || { n: 0, paid: 0 };
+    S.loto[res.drawId] = { n: res.total, paid: r2(cur.paid + res.cost) };
+    S.c.lotoTickets += n;
+    saveNow();
+    Goals.check();
+    toast(`${n} ticket${n > 1 ? 's' : ''} acheté${n > 1 ? 's' : ''} : vous en avez ${res.total} pour le tirage de ce soir.`, 'success');
+    this.render();
+  },
+  async claimAll() { // résultat des tirages passés auxquels j'ai participé
+    if (this.claiming || !user || !Net.ready()) return;
+    const ids = Object.keys(S.loto).filter(id => !this.state || id !== this.state.id);
+    if (!ids.length) return;
+    this.claiming = true;
+    for (const id of ids) {
+      const r = await Net.request('loto_result', { drawId: id });
+      if (r.ok === false || r.status === 'open') continue;
+      const t = S.loto[id];
+      delete S.loto[id];
+      if (r.status === 'drawn') {
+        if (r.win > 0) {
+          S.c.lotoWins++;
+          Wallet.credit(r.win);
+          toast(`Loto du ${lotoDay(id)} : vous gagnez ${money(r.win)} !`, 'success');
+          celebrate();
+        } else toast(`Loto du ${lotoDay(id)} : pas de ticket gagnant cette fois.`, 'info');
+      } else if (r.status === 'unknown' && t) {
+        Wallet.credit(t.paid);
+        toast(`Le tirage du ${lotoDay(id)} a été perdu par le serveur : vos ${t.n} tickets sont remboursés.`, 'info');
+      }
+      saveNow();
+    }
+    this.claiming = false;
+    Goals.check();
+    this.render();
+  },
+  chance() {
+    const T = this.state ? this.state.tickets : 0, m = this.mine();
+    if (!m) return 0;
+    if (T <= 3) return 1;
+    let lose = 1;
+    for (let i = 0; i < 3; i++) lose *= (T - m - i) / (T - i);
+    return 1 - Math.max(0, lose);
+  },
+  renderTime() {
+    const st = this.state, el = $('#loto-when'), live = $('[data-live="loto"]');
+    if (!st) { if (el) el.textContent = 'Connexion au serveur…'; if (live) live.textContent = 'Hors ligne'; return; }
+    const left = st.drawAt - Crash.now();
+    const txt = left > 0 ? `Tirage ce soir à 21 h, dans ${durText(left)}` : 'Tirage en cours…';
+    if (el) el.textContent = txt;
+    if (live) live.textContent = `Cagnotte ${money(st.pot)}, tirage dans ${durText(Math.max(0, left))}`;
+  },
+  render() {
+    const st = this.state;
+    $('#loto-pot').textContent = st ? money(st.pot) : '—';
+    $('#loto-price').textContent = st ? money(st.price) : '—';
+    $('#loto-max').textContent = st ? st.max : '—';
+    $('#loto-mine').textContent = this.mine();
+    $('#loto-total').textContent = st ? st.tickets : 0;
+    $('#loto-chance').textContent = this.mine() ? `${NUM.format(this.chance() * 100)} %` : '—';
+    $$('[data-loto-buy]').forEach(b => {
+      const n = Number(b.dataset.lotoBuy);
+      b.disabled = this.busy || !st || this.mine() + n > st.max;
+      b.textContent = st ? `${n} ticket${n > 1 ? 's' : ''} (${money(n * st.price)})` : `${n} ticket${n > 1 ? 's' : ''}`;
+    });
+    $('#loto-players').innerHTML = st && st.players.length
+      ? st.players.map(p => `<li class="${p.username === user ? 'me' : ''}"><span class="who">${esc(p.username)}</span><span class="g">${p.n} ticket${p.n > 1 ? 's' : ''}</span><span class="amt">${NUM.format((p.n / st.tickets) * 100)} %</span></li>`).join('')
+      : '<li class="empty">Aucun ticket pour l’instant. Soyez le premier !</li>';
+    const last = st && st.last;
+    $('#loto-last').innerHTML = last
+      ? `<p class="muted-sm" style="margin-bottom:10px">Tirage du ${lotoDay(last.id)} : cagnotte de ${money(last.pot)}, ${last.tickets} ticket${last.tickets > 1 ? 's' : ''}.</p>`
+        + (last.winners.length ? `<ol class="loto-winners">${last.winners.map(w => `<li><span class="medal m${w.rank}">${w.rank}</span><span class="who">${esc(w.username)}</span><span class="amt">+${money(w.amount)}</span></li>`).join('')}</ol>` : '<p class="muted-sm">Aucun ticket n’avait été acheté : la cagnotte a été reportée.</p>')
+      : '<p class="muted-sm">Aucun tirage pour l’instant.</p>';
+    this.renderTime();
+  }
+};
+
+/* ---------- Classement flottant ---------- */
+const COMPACT = new Intl.NumberFormat('fr-FR', { notation: 'compact', maximumFractionDigits: 1 });
+const LB = {
+  init() {
+    let open = store.get('cyber_casino_lb');
+    open = open === null ? window.innerWidth >= 1100 : open === '1';
+    this.set(open, false);
+    $('#lb-tab').addEventListener('click', () => this.set(true));
+    $('#lb-close').addEventListener('click', () => this.set(false));
+    document.addEventListener('click', e => { // sur petit écran, un clic à côté referme le classement
+      if (window.innerWidth < 1100 && document.body.classList.contains('lb-open') && !e.target.closest('#lb')) this.set(false, false);
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && window.innerWidth < 1100) this.set(false, false); });
+  },
+  set(open, remember = true) {
+    document.body.classList.toggle('lb-open', open);
+    $('#lb-panel').hidden = !open;
+    $('#lb-tab').hidden = open;
+    $('#lb-tab').setAttribute('aria-expanded', String(open));
+    if (remember) store.set('cyber_casino_lb', open ? '1' : '0');
+  }
+};
+
 /* ---------- Grosses victoires (tous les joueurs) ---------- */
 const GAME_AT = {
   'Aviateur': 'à l’Aviateur', 'Machine à sous': 'à la machine à sous', 'Course': 'à la course de chevaux', 'Plinko': 'au Plinko',
@@ -2550,12 +2763,13 @@ const LOBBY = [
   { id: 'blackjack', name: 'Blackjack', icon: 'card', rtp: '99 %', desc: 'Battez le croupier sans dépasser 21.' },
   { id: 'hilo', name: 'Hilo', icon: 'hilo', rtp: '99 %', desc: 'La carte suivante sera-t-elle plus haute ou plus basse ?' },
   { id: 'roue-fortune', name: 'Roue de la fortune', icon: 'wheel2', rtp: '97 à 98 %', desc: 'Trois niveaux de risque, jusqu’à ×29,4.' },
-  { id: 'pile-face', name: 'Pile ou face', icon: 'coin', rtp: '97,5 %', desc: 'Une chance sur deux, gain ×1,95.' }
+  { id: 'pile-face', name: 'Pile ou face', icon: 'coin', rtp: '97,5 %', desc: 'Une chance sur deux, gain ×1,95.' },
+  { id: 'loto', name: 'Loto du jour', icon: 'ticket', note: 'Tirage chaque soir à 21 h', desc: 'Achetez des tickets : trois gagnants se partagent la cagnotte chaque soir.' }
 ];
 function renderLobby() {
   $('#lobby').innerHTML = LOBBY.map(g => `<button type="button" class="lobby-card" data-go-view="${g.id}">
     <span class="lobby-ic">${ICONS[g.icon]}</span><span class="lobby-name">${esc(g.name)}</span>
-    <span class="lobby-desc">${esc(g.desc)}</span>${g.id === 'crash' || g.id === 'course' ? `<span class="lobby-live" data-live="${g.id}"></span>` : ''}<span class="lobby-rtp">Taux de retour ${g.rtp}</span></button>`).join('');
+    <span class="lobby-desc">${esc(g.desc)}</span>${g.id === 'crash' || g.id === 'course' || g.id === 'loto' ? `<span class="lobby-live" data-live="${g.id}"></span>` : ''}<span class="lobby-rtp">${g.rtp ? `Taux de retour ${g.rtp}` : esc(g.note)}</span></button>`).join('');
   setInterval(() => { // état des jeux multijoueurs, en direct
     if (currentView !== 'salle') return;
     const c = $('[data-live="crash"]'), r = $('[data-live="course"]'), now = Crash.now();
@@ -2940,6 +3154,8 @@ const GOALS = [
   { id: 'themeAll', cat: 'collection', title: 'Nuancier', desc: 'Posséder tous les thèmes', goal: 4, val: themesOwned, reward: 200000 },
   { id: 'title1', cat: 'collection', title: 'Premier titre', desc: 'Acheter un titre', goal: 1, val: titlesOwned, reward: 400 },
   { id: 'title5', cat: 'collection', title: 'Collection de titres', desc: 'Posséder 5 titres', goal: 5, val: titlesOwned, reward: 40000 },
+  { id: 'loto1', cat: 'collection', title: 'Tenter sa chance', desc: 'Acheter un ticket de loto', goal: 1, val: () => S.c.lotoTickets, reward: 50 },
+  { id: 'lotoWin', cat: 'collection', title: 'Main heureuse', desc: 'Remporter un lot au loto du jour', goal: 1, val: () => S.c.lotoWins, reward: 2000 },
   { id: 'chat20', cat: 'collection', title: 'Bavard', desc: 'Envoyer 20 messages dans le tchat', goal: 20, val: () => S.c.chats, reward: 120 }
 ];
 const DAILY_COUNT = 4;
@@ -3138,6 +3354,7 @@ const Net = {
       this.join();
       Crash.resume();
       Race.resume();
+      Loto.claimAll();
       await this.syncClock();
     });
     s.on('disconnect', () => { if (!this.manual) this.setStatus('connecting'); Crash.onDisconnect(); Race.onDisconnect(); });
@@ -3170,6 +3387,8 @@ const Net = {
     s.on('crash_cashed', d => Crash.onCashed(d));
     s.on('race_state', d => Race.onState(d));
     s.on('big_win', d => BigWins.add(d, true));
+    s.on('loto_state', d => Loto.onState(d));
+    s.on('loto_drawn', d => Loto.onDrawn(d));
     s.on('big_wins', list => { BigWins.list = []; (Array.isArray(list) ? list : []).slice().reverse().forEach(d => BigWins.add(d, false)); });
     s.on('race_bets', d => Race.onBets(d));
   },
@@ -3278,11 +3497,13 @@ function renderBoard() {
   const list = Net.online.filter(u => u.username !== user).map(u => ({ ...u }));
   if (user) list.push({ username: user, balance: S.balance, badge: S.equippedBadge, me: true });
   list.sort((a, b) => b.balance - a.balance);
-  const html = list.length
-    ? list.slice(0, 8).map((p, i) => `<li class="${p.me ? 'me' : ''}"><span class="rank">${i + 1}</span><span class="who">${p.badge ? `<span class="tag sm">${esc(p.badge)}</span> ` : ''}${esc(p.username)}</span><span class="amt">${money(p.balance)}</span></li>`).join('')
-    : '<li class="empty">Connectez-vous pour apparaître ici.</li>';
-  $('#board-side').innerHTML = html;
-  $('#board-social').innerHTML = html;
+  const row = (p, i) => `<li class="${p.me ? 'me' : ''}"><span class="rank">${i + 1}</span><span class="who" title="${esc(p.username)}">${p.badge ? `<span class="tag sm">${esc(p.badge)}</span> ` : ''}${esc(p.username)}</span><span class="amt">${COMPACT.format(p.balance)}\u00a0$</span></li>`;
+  const myIdx = list.findIndex(p => p.me);
+  let html = list.slice(0, 8).map(row).join('');
+  if (myIdx >= 8) html += `<li class="lb-gap" aria-hidden="true">…</li>` + row(list[myIdx], myIdx);
+  $('#board-float').innerHTML = html || '<li class="empty">Connectez-vous pour apparaître ici.</li>';
+  $('#lb-rank').textContent = myIdx >= 0 ? `${myIdx + 1}${myIdx === 0 ? 'er' : 'e'}` : '';
+  $('#lb-foot').textContent = Net.online.length ? `${Net.online.length} joueur${Net.online.length > 1 ? 's' : ''} en ligne` : 'Hors ligne : seul votre solde est affiché';
 }
 function initSocial() {
   let lastChat = 0;
@@ -3346,6 +3567,7 @@ const ICONS = {
   roulette: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="5.8" r="1.2"/></svg>',
   chicken: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 14a5 5 0 0 0 10 0V9a4 4 0 0 0-8 0v2"/><path d="M9.5 5 10.5 2.5 12 5M17 9.5h2.5L17 11.5M10 19v2.5M14 19v2.5"/></svg>',
   slots: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M9 5v14M15 5v14"/></svg>',
+  ticket: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></svg>',
   race: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>',
   wheel2: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 13 6.5 7.5M12 13l5.5-5.5M12 13v8M9.5 2.5h5L12 5z"/></svg>'
 };
@@ -3362,6 +3584,7 @@ const VIEWS = [
   { id: 'pile-face', label: 'Pile ou face', group: 'Tables', icon: 'coin' },
   { id: 'clicker', label: 'Clicker', group: 'Gagner de l’argent', icon: 'plus' },
   { id: 'objectifs', label: 'Objectifs', group: 'Gagner de l’argent', icon: 'target' },
+  { id: 'loto', label: 'Loto du jour', group: 'Gagner de l’argent', icon: 'ticket' },
   { id: 'boutique', label: 'Boutique', group: 'Compte', icon: 'bag' },
   { id: 'stats', label: 'Statistiques', group: 'Compte', icon: 'bars' },
   { id: 'social', label: 'Tchat et transferts', group: 'Communauté', icon: 'chat' }
@@ -3502,7 +3725,7 @@ document.addEventListener('DOMContentLoaded', () => {
   BJ.init();
   Coin.init();
   Clicker.init();
-  Plinko.init(); Hilo.init(); WheelF.init(); Slots.init(); Race.init();
+  Plinko.init(); Hilo.init(); WheelF.init(); Slots.init(); Race.init(); Loto.init(); LB.init();
   renderLobby();
   $('#view-objectifs').addEventListener('click', e => {
     const b = e.target.closest('button');
