@@ -291,6 +291,9 @@ main{min-width:0}
 .sym.win{background:rgba(227,176,75,.45);animation:pop .3s ease-out}
 .slot-pay{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;font-size:15px}
 .slot-pay b{color:var(--brass);font-size:13px}
+.slot-pay small{color:var(--faint);font-size:11px}
+.slot-lines{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-top:6px;font-stretch:100%}
+#slot-pay-head{margin-bottom:-6px}
 .race-panel{display:flex;flex-direction:column;gap:14px}
 .race-status{font-stretch:118%;font-weight:850;font-size:22px;text-align:center}
 .horse-card.mine{border-color:var(--jade);box-shadow:0 0 0 2px rgba(62,197,143,.25)}
@@ -579,18 +582,19 @@ main{min-width:0}
     <section class="view" id="view-slots" aria-labelledby="h-slots">
       <header class="view-head">
         <h2 id="h-slots">Machine à sous</h2>
-        <p>Trois rouleaux et cinq lignes : les trois rangées et les deux diagonales. Votre mise est répartie sur les cinq lignes, et trois 7 sur une ligne paient 2 000 fois la mise de cette ligne.</p>
+        <p>Trois rouleaux et cinq lignes : les trois rangées et les deux diagonales. Votre mise est répartie à parts égales sur les cinq lignes : avec 10 $, chaque ligne vaut 2 $. Le tableau sous la machine indique ce que rapporte chaque combinaison pour votre mise.</p>
       </header>
       <div class="game-grid">
         <div class="panel slot-stage">
           <div class="slot-frame"><div class="slot-reels" id="slot-reels"></div></div>
           <p class="result-line center" id="slot-msg"></p>
+          <p class="muted-sm" id="slot-pay-head"></p>
           <div class="slot-pay" id="slot-pay"></div>
         </div>
         <div class="panel stack">
           <div class="field"><span>Mise totale (5 lignes)</span><div data-bet="slots" data-min="1" data-value="10.00"></div></div>
           <button class="btn btn-go btn-lg" id="slot-spin" type="button">Lancer les rouleaux</button>
-          <p class="hint">Gains indiqués en multiple de la mise d’une ligne, soit un cinquième de votre mise totale.</p>
+          <p class="hint">Plusieurs lignes peuvent gagner en même temps : leurs gains s’additionnent. Deux cerises ne paient que si elles sont sur les deux premiers rouleaux.</p>
         </div>
       </div>
     </section>
@@ -2316,12 +2320,24 @@ const Slots = {
     const L = SLOT_STRIP.length;
     $('#slot-reels').innerHTML = [0, 1, 2].map(r => `<div class="reel"><div class="reel-strip" id="reel-${r}">${
       Array.from({ length: L * SLOT_COPIES }, (_, i) => `<span class="sym" data-i="${i}">${SLOT_SYMBOLS[SLOT_STRIP[i % L]]}</span>`).join('')}</div></div>`).join('');
-    $('#slot-pay').innerHTML = Object.entries(SLOT_PAY).reverse().map(([s, m]) => `<span>${SLOT_SYMBOLS[s].repeat(3)} <b>×${m}</b></span>`).join('')
-      + `<span>${SLOT_SYMBOLS.cerise.repeat(2)} <b>×${SLOT_CHERRY2}</b></span>`;
+    this.renderPay();
+    const bet = $('#bet-slots');
+    bet.addEventListener('input', () => this.renderPay());
+    bet.closest('.bet').addEventListener('click', () => setTimeout(() => this.renderPay(), 0)); // boutons ½, ×2, Max
     $('#slot-spin').addEventListener('click', () => this.spin());
     new ResizeObserver(() => { if (!this.busy) this.stops.forEach((s, r) => this.setReel(r, s, 0)); }).observe($('#slot-reels'));
   },
   cell() { const c = $('#slot-reels .sym'); return c ? c.offsetHeight : 80; },
+  lineBet() { // mise d'une ligne = mise totale / 5
+    const v = parseFloat(String($('#bet-slots').value).replace(',', '.'));
+    return (Number.isFinite(v) && v > 0 ? v : 10) / SLOT_LINES.length;
+  },
+  renderPay() { // table des gains en dollars, pour la mise affichée
+    const lb = this.lineBet();
+    $('#slot-pay-head').textContent = `Gain d’une ligne pour une mise de ${money(lb * SLOT_LINES.length)} (${money(lb)} par ligne)`;
+    $('#slot-pay').innerHTML = Object.entries(SLOT_PAY).reverse().map(([s, m]) => `<span>${SLOT_SYMBOLS[s].repeat(3)} <b>${money(r2(lb * m))}</b></span>`).join('')
+      + `<span>${SLOT_SYMBOLS.cerise.repeat(2)}<small> à gauche</small> <b>${money(r2(lb * SLOT_CHERRY2))}</b></span>`;
+  },
   setReel(r, top, ms) {
     const el = $('#reel-' + r);
     el.style.transition = ms ? `transform ${ms}ms cubic-bezier(.18,.7,.22,1.03)` : 'none';
@@ -2365,9 +2381,14 @@ const Slots = {
       if (counts(bet)) Goals.bump('slots', 1);
       const got = settle('Machine à sous', bet, pay, m);
       setPending(pid, null);
-      if (!wins.length) setResult($('#slot-msg'), 'Aucune ligne gagnante.', 'lose');
-      else setResult($('#slot-msg'), wins.map(w => `${SLOT_LINE_NAMES[w.li]} : ${SLOT_SYMBOLS[w.sym].repeat(w.cells.length)} ×${w.m}`).join(' ; ')
-        + ` : ${got > bet ? `vous gagnez ${money(r2(got - bet))}` : `vous récupérez ${money(got)}`}.`, got > bet ? 'win' : 'push');
+      const msg = $('#slot-msg'), net = r2(got - bet);
+      if (!wins.length) setResult(msg, `Aucune ligne gagnante : ${money(bet)} perdus.`, 'lose');
+      else {
+        const head = net > 0 ? `Vous gagnez ${money(net)}` : net === 0 ? 'Vous récupérez votre mise' : `Vous récupérez ${money(got)} sur ${money(bet)} misés`;
+        msg.dataset.kind = net > 0 ? 'win' : 'push';
+        msg.innerHTML = `${head}${got > pay + 0.001 ? ' (boost compris)' : ''}.<span class="slot-lines">${wins.map(w =>
+          `${SLOT_LINE_NAMES[w.li]} : ${SLOT_SYMBOLS[w.sym].repeat(w.cells.length)} = ${money(r2(lineBet * w.m))}`).join('<br>')}</span>`;
+      }
       this.busy = false; lockBet('slots', false); $('#slot-spin').disabled = false;
     }, base + 2 * (reducedMotion ? 100 : 550) + 80);
   }
