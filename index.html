@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Cyber Casino : jeux en argent virtuel</title>
+<title>Émeraude Club : casino en argent virtuel</title>
 <meta name="description" content="Aviateur, Mines, roulette, blackjack et pile ou face en argent virtuel, avec tchat et classement en direct.">
 <meta name="theme-color" content="#0D1C18">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23DE4A43'/%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23F2E6C8' stroke-width='4' stroke-dasharray='5.1 5.1'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%2312261F'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18.5' fill='%2312261F' stroke='%23E3B04B' stroke-width='2'/%3E%3Cpath d='M13 9h14l6 7-13 16L7 16z' fill='%232FAE78' stroke='%23E9F9F0' stroke-width='.8'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
@@ -63,7 +63,11 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 .topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft);padding-top:env(safe-area-inset-top,0px)}
 .topbar-in{max-width:1240px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:20px}
 .brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-stretch:125%;font-weight:850;font-size:18px;letter-spacing:.005em}
-.brand svg{width:32px;height:32px;flex:none}
+.brand-mark{display:flex;width:36px;height:36px;flex:none}
+.brand-mark svg{width:100%;height:100%}
+.brand-word{display:flex;align-items:baseline;gap:6px;line-height:1}
+.bw-main{font-stretch:125%;font-weight:900;font-size:20px;letter-spacing:.01em;background:linear-gradient(180deg,#F3E7C6,#E3B04B);-webkit-background-clip:text;background-clip:text;color:transparent}
+.bw-sub{font-size:11px;font-weight:800;letter-spacing:.32em;text-transform:uppercase;color:var(--jade)}
 .wallet{margin-left:auto;display:flex;align-items:baseline;gap:10px}
 .wallet-label{color:var(--muted);font-size:13px;font-weight:600}
 .wallet-amount{font-stretch:125%;font-weight:850;font-size:26px;color:var(--brass);transition:color .35s;line-height:1.1}
@@ -249,8 +253,12 @@ main{min-width:0}
 .stage-panel{display:flex;flex-direction:column;gap:18px;min-height:340px;justify-content:center}
 .result-line.center{text-align:center}
 .lobby{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
-.lobby-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:18px;border-radius:var(--r-panel);border:1px solid var(--line-soft);background:var(--panel);color:var(--ink);cursor:pointer;transition:border-color .15s,transform .15s}
+.lobby-card{display:flex;flex-direction:column;align-items:stretch;gap:0;text-align:left;padding:0;overflow:hidden;border-radius:var(--r-panel);border:1px solid var(--line-soft);background:var(--panel);color:var(--ink);cursor:pointer;transition:border-color .15s,transform .15s}
 .lobby-card:hover{border-color:var(--brass);transform:translateY(-2px)}
+.lobby-art{display:block;aspect-ratio:320/150;background:var(--felt);border-bottom:1px solid var(--line-soft)}
+.lobby-art svg{display:block;width:100%;height:100%;transition:transform .3s}
+.lobby-card:hover .lobby-art svg{transform:scale(1.04)}
+.lobby-body{display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px;flex:1}
 .lobby-ic{width:42px;height:42px;border-radius:12px;background:var(--panel-2);display:grid;place-items:center;color:var(--brass);margin-bottom:6px}
 .lobby-ic svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .lobby-name{font-stretch:115%;font-weight:850;font-size:18px}
@@ -331,6 +339,28 @@ main{min-width:0}
 .mult-badge{font-stretch:115%;font-weight:900;font-size:13px;color:#1D1606;border-radius:7px;padding:3px 8px;min-width:58px;text-align:center}
 .back-link{background:none;border:0;padding:0;margin-bottom:8px;color:var(--muted);font-weight:700;font-size:14px;cursor:pointer}
 .back-link:hover{color:var(--brass)}
+.duel-arena{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:16px;align-items:center}
+.duel-arena .result-line{grid-column:1/-1}
+.duelist{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px;border-radius:16px;border:2px solid var(--line);background:var(--bg);transition:border-color .12s,box-shadow .12s,opacity .3s}
+.dl-av{width:64px;height:64px;border-radius:50%;background:#5BA4E6;position:relative}
+#duel-b .dl-av{background:#DE4A43}
+.dl-av::before{content:"";position:absolute;left:50%;top:14px;width:22px;height:22px;margin-left:-11px;border-radius:50%;background:#0E1F1B}
+.dl-av::after{content:"";position:absolute;left:50%;bottom:10px;width:38px;height:18px;margin-left:-19px;border-radius:19px 19px 4px 4px;background:#0E1F1B}
+.dl-name{font-weight:800;font-size:17px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dl-amount{color:var(--brass);font-weight:800;font-size:14px}
+.duelist.on{border-color:var(--brass);box-shadow:0 0 0 4px rgba(227,176,75,.2)}
+.duelist.win{border-color:var(--jade);box-shadow:0 0 0 5px rgba(62,197,143,.25)}
+.duelist.lose{opacity:.45}
+.duel-vs{font-stretch:125%;font-weight:900;font-size:28px;color:var(--brass)}
+.duel-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.duel-list li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--line-soft)}
+.duel-list li.for-me{border-color:var(--brass)}
+.duel-list .who{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.duel-list .who small{display:block;font-weight:500;color:var(--faint);font-size:12px}
+.duel-list .amt{color:var(--brass);font-weight:800;white-space:nowrap}
+.duel-list .btn{padding:8px 12px;font-size:13px}
+.duel-list .empty{display:block;background:none;border:0;color:var(--faint);font-size:13px;padding:4px 0}
+@media (max-width:620px){ .duel-arena{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px} .duelist{padding:12px 6px} .dl-av{width:48px;height:48px} .dl-av::before{top:9px;width:18px;height:18px;margin-left:-9px} .dl-av::after{width:30px;height:14px;margin-left:-15px;bottom:8px} .duel-vs{font-size:20px} }
 .section-title{font-size:16px;font-weight:800;margin:6px 0 -6px}
 .top-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px}
 .top-list li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--bg)}
@@ -491,7 +521,7 @@ main{min-width:0}
   .ft-label{display:none}
   .fast-toggle{padding:6px 9px}
   .topbar-in{gap:12px;padding:8px 14px}
-  .brand span{display:none}
+  .brand-word{display:none}
   .wallet-label{display:none}
   .wallet-amount{font-size:21px}
   .user-chip{padding-left:10px}
@@ -520,7 +550,7 @@ main{min-width:0}
 <div class="auth" id="auth" role="dialog" aria-modal="true" aria-labelledby="auth-title" hidden>
   <div class="auth-card">
     <div>
-      <h2 id="auth-title">Bienvenue au Cyber Casino</h2>
+      <h2 id="auth-title">Bienvenue à l’Émeraude Club</h2>
       <p class="lead">Chaque nouveau compte reçoit 150,00 $ d’argent virtuel.</p>
     </div>
     <div class="seg" role="tablist">
@@ -547,9 +577,9 @@ main{min-width:0}
 <!-- ===== En-tête ===== -->
 <header class="topbar" id="topbar">
   <div class="topbar-in">
-    <a class="brand" href="#salle" aria-label="Cyber Casino">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#DE4A43"/><circle cx="16" cy="16" r="13" fill="none" stroke="#F2E6C8" stroke-width="4" stroke-dasharray="5.1 5.1"/><circle cx="16" cy="16" r="8" fill="#12261F" stroke="#F2E6C8" stroke-width="1.2"/></svg>
-      <span>Cyber Casino</span>
+    <a class="brand" href="#salle" aria-label="Émeraude Club, accueil">
+      <span class="brand-mark" id="brand-mark"></span>
+      <span class="brand-word"><span class="bw-main">Émeraude</span><span class="bw-sub">Club</span></span>
     </a>
     <div class="top-chips">
       <button class="fast-toggle" id="fast-toggle" type="button" aria-pressed="false" title="Mode rapide : accélère les animations des jeux solo"><span aria-hidden="true">⚡</span><span class="ft-label">Mode rapide</span></button>
@@ -592,8 +622,8 @@ main{min-width:0}
     <!-- ===== Salle de jeux ===== -->
     <section class="view" id="view-salle" aria-labelledby="h-salle">
       <header class="view-head">
-        <h2 id="h-salle">Bienvenue au Cyber Casino</h2>
-        <p id="home-hello">9 jeux en argent virtuel et un loto tiré chaque soir. Choisissez un jeu pour commencer.</p>
+        <h2 id="h-salle">Bienvenue à l’Émeraude Club</h2>
+        <p id="home-hello">9 jeux en argent virtuel, des duels entre joueurs et un loto tiré chaque soir. Choisissez un jeu pour commencer.</p>
       </header>
       <div class="panel top-hour">
         <div class="panel-head"><h3 class="panel-title">Les 10 plus gros gains de la dernière heure</h3><span class="muted-sm">Tous les jeux, tous les joueurs</span></div>
@@ -648,6 +678,36 @@ main{min-width:0}
             <h3 class="panel-title">Paris des joueurs</h3>
             <ul class="live" id="race-bets"><li class="empty">Aucun pari sur cette course.</li></ul>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Duels ===== -->
+    <section class="view" id="view-duel" aria-labelledby="h-duel">
+      <header class="view-head">
+        <h2 id="h-duel">Duels</h2>
+        <p>Lancez un défi : un autre joueur mise la même somme, puis le serveur tire au sort le gagnant, qui remporte la mise de l’autre. Une chance sur deux, sans commission.</p>
+      </header>
+      <div class="panel duel-arena">
+        <div class="duelist" id="duel-a"><span class="dl-av" aria-hidden="true"></span><span class="dl-name">Joueur 1</span><span class="dl-amount"></span></div>
+        <div class="duel-vs" aria-hidden="true">VS</div>
+        <div class="duelist" id="duel-b"><span class="dl-av" aria-hidden="true"></span><span class="dl-name">Joueur 2</span><span class="dl-amount"></span></div>
+        <p class="result-line center" id="duel-msg">Relevez un défi ou lancez le vôtre.</p>
+      </div>
+      <div class="game-grid">
+        <div class="stack">
+          <div class="panel"><h3 class="panel-title">Défis ouverts</h3><ul class="duel-list" id="duel-open"></ul></div>
+          <div class="panel"><h3 class="panel-title">Vos derniers duels</h3><ul class="live" id="duel-hist"></ul></div>
+        </div>
+        <div class="stack">
+          <div class="panel stack">
+            <h3 class="panel-title" style="margin:0">Lancer un défi</h3>
+            <div class="field"><span>Mise</span><div data-bet="duel" data-min="1" data-value="10.00"></div></div>
+            <div class="field"><label for="duel-target">Adversaire</label><select id="duel-target" class="input"><option value="">N’importe quel joueur</option></select></div>
+            <button class="btn btn-brass btn-lg" id="duel-create" type="button">Lancer le défi</button>
+            <p class="hint">Votre mise est bloquée jusqu’à ce qu’un joueur relève le défi. Vous pouvez l’annuler tant que personne ne l’a accepté, et il expire au bout de 5 minutes. Si vous quittez le site, vos défis sont annulés et remboursés.</p>
+          </div>
+          <div class="panel"><h3 class="panel-title">Vos défis en attente</h3><ul class="duel-list" id="duel-mine"></ul></div>
         </div>
       </div>
     </section>
@@ -1079,7 +1139,7 @@ const DEFAULT_STATE = () => ({
   biggestMult: 1, bestCrash: 0, gamesPlayed: 0, gamesWon: 0,
   achievements: {}, inventory: {}, equippedBadge: '', history: [], pending: {},
   clicker: { up: {}, bought: 0, boosts: 0, clickEarned: 0, autoEarned: 0 },
-  c: { minesRun: 0, blackjacks: 0, coinStreak: 0, coinBest: 0, wagered: 0, minesClear: 0, bestWin: 0, dailyClaimed: 0, boost50: 0, chats: 0, sabotages: 0, games10: 0, wins10: 0, plinkoEdge: 0, hiloBest: 0, wheelTop: 0, slot7: 0, outsider: 0, lotoTickets: 0, lotoWins: 0 },
+  c: { minesRun: 0, blackjacks: 0, coinStreak: 0, coinBest: 0, wagered: 0, minesClear: 0, bestWin: 0, dailyClaimed: 0, boost50: 0, chats: 0, sabotages: 0, games10: 0, wins10: 0, plinkoEdge: 0, hiloBest: 0, wheelTop: 0, slot7: 0, outsider: 0, lotoTickets: 0, lotoWins: 0, duelWins: 0 },
   seen: {}, loto: {}, plinkoBig: [], fast: false,
   boost: null, malus: {}, goals: {}, daily: { day: '', ids: [], prog: {}, claimed: {} }, theme: 'tapis', lastSeen: 0
 });
@@ -1185,12 +1245,12 @@ function lockBet(key, on) {
 }
 
 /* Enregistre le résultat d'une partie : payout = somme rendue au joueur (0 si perdu). */
-function settle(game, bet, payout, mult) {
+function settle(game, bet, payout, mult, opts = {}) {
   payout = r2(payout);
   // Boost actif : le bénéfice d'une partie gagnée est multiplié (la mise est rendue normalement)
   // Ce bonus puise dans une réserve égale à la moitié du prix du boost : un boost
   // ne peut donc jamais se rembourser avec les seuls jeux.
-  const bm = boostMult();
+  const bm = opts.raw ? 1 : boostMult();
   let bonus = 0;
   if (bm > 1 && payout > bet && S.boost.pool > 0) {
     bonus = Math.min(r2((payout - bet) * (bm - 1)), S.boost.pool);
@@ -1198,7 +1258,7 @@ function settle(game, bet, payout, mult) {
     payout = r2(payout + bonus);
   }
   // Handicap « Gains divisés par 2 » : consommé par chaque partie d'au moins 10 $
-  if (malusOn('halve') && bet >= 10) {
+  if (!opts.raw && malusOn('halve') && bet >= 10) {
     if (payout > bet) payout = r2(bet + (payout - bet) / 2);
     S.malus.halve.games--;
     if (S.malus.halve.games <= 0) { delete S.malus.halve; toast('Le handicap « Gains divisés par 2 » est terminé.', 'info'); }
@@ -1241,6 +1301,7 @@ function settle(game, bet, payout, mult) {
 function resolvePending() {
   const p = S.pending || {};
   S.pending = {};
+  if (p.duels && Object.keys(p.duels).length) S.pending.duels = p.duels; // le serveur dira ce qu'ils sont devenus (Duel.resume)
   const notes = [];
   if (p.crash) {
     if (p.crash.roundId) S.pending.crash = p.crash; // le serveur dira ce qu'elle est devenue (Crash.resume)
@@ -1342,6 +1403,8 @@ function startSession(name, state, guest) {
   Race.resume();
   Loto.render();
   Loto.claimAll();
+  Duel.resume();
+  Duel.render();
 }
 function startGuest() {
   let name = store.get(KEYS.guestName);
@@ -1353,7 +1416,7 @@ function startGuest() {
 function logout() {
   if (!user) return showAuth();
   if (Mines.active || BJ.active || Crash.active || S.pending.crash || Coin.busy || Hilo.active ||
-      Plinko.balls.length || WheelF.busy || Slots.busy || Race.myBet || S.pending.race) {
+      Plinko.balls.length || WheelF.busy || Slots.busy || Race.myBet || S.pending.race || Duel.anim) {
     toast('Terminez la partie en cours avant de changer de compte.', 'error');
     return;
   }
@@ -2804,6 +2867,206 @@ const LB = {
   }
 };
 
+/* ---------- Illustrations des jeux (dessins vectoriels originaux) ---------- */
+const ART = {
+  crash: `<svg viewBox="0 0 320 150" aria-hidden="true"><defs><linearGradient id="a-cr-s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16324A"/><stop offset="1" stop-color="#0E1F1B"/></linearGradient><linearGradient id="a-cr-f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3EC58F" stop-opacity=".45"/><stop offset="1" stop-color="#3EC58F" stop-opacity="0"/></linearGradient></defs>
+    <rect width="320" height="150" fill="url(#a-cr-s)"/><g fill="#EFE7D4" opacity=".5"><circle cx="40" cy="22" r="1.2"/><circle cx="120" cy="14" r="1"/><circle cx="210" cy="30" r="1.3"/><circle cx="280" cy="12" r="1"/><circle cx="170" cy="50" r=".9"/></g>
+    <g stroke="#2C4B43" stroke-width="1"><path d="M0 120H320M0 90H320M0 60H320"/></g>
+    <path d="M10 140C120 138 190 120 250 50L250 150H10Z" fill="url(#a-cr-f)"/><path d="M10 140C120 138 190 120 250 50" fill="none" stroke="#3EC58F" stroke-width="4" stroke-linecap="round"/>
+    <g transform="translate(258 42) rotate(-38)"><path d="M-16 0 14-3 20 0 14 3Z" fill="#EFE7D4"/><path d="M-2-1-8-14h5l9 13M-2 1-8 14h5l9-13M-15 0l-5-7h4l5 6" fill="#E3B04B"/></g>
+    <text x="22" y="40" fill="#E3B04B" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="30" font-stretch="125%">2,47×</text></svg>`,
+  slots: `<svg viewBox="0 0 320 150" aria-hidden="true"><defs><linearGradient id="a-sl-b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5A1714"/><stop offset="1" stop-color="#2A0C0B"/></linearGradient><linearGradient id="a-sl-r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D9D1BE"/><stop offset=".25" stop-color="#F7F1E3"/><stop offset=".75" stop-color="#F7F1E3"/><stop offset="1" stop-color="#D9D1BE"/></linearGradient></defs>
+    <rect width="320" height="150" fill="url(#a-sl-b)"/><rect x="62" y="26" width="196" height="98" rx="14" fill="#8A2A26" stroke="#E3B04B" stroke-width="3"/>
+    ${[0, 1, 2].map(i => `<rect x="${76 + i * 58}" y="38" width="50" height="74" rx="8" fill="url(#a-sl-r)"/><text x="${101 + i * 58}" y="91" text-anchor="middle" fill="#C2332D" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="44" font-stretch="125%">7</text>`).join('')}
+    <path d="M64 75H256" stroke="#E3B04B" stroke-width="2" stroke-dasharray="4 4" opacity=".8"/>
+    <g fill="#F0C35A">${Array.from({ length: 9 }, (_, i) => `<circle cx="${80 + i * 20}" cy="17" r="3.5" opacity="${i % 2 ? 1 : .45}"/>`).join('')}${Array.from({ length: 9 }, (_, i) => `<circle cx="${80 + i * 20}" cy="134" r="3.5" opacity="${i % 2 ? .45 : 1}"/>`).join('')}</g></svg>`,
+  course: `<svg viewBox="0 0 320 150" aria-hidden="true"><defs><pattern id="a-co-ck" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="#fff"/><rect x="5" y="5" width="5" height="5" fill="#fff"/><rect x="5" width="5" height="5" fill="#1b1b1b"/><rect y="5" width="5" height="5" fill="#1b1b1b"/></pattern></defs>
+    <rect width="320" height="150" fill="#4E6E42"/>${[0, 1, 2].map(i => `<rect y="${18 + i * 40}" width="320" height="34" fill="#5C7A4E"/>`).join('')}
+    <rect x="262" y="12" width="14" height="128" fill="url(#a-co-ck)"/>
+    ${[['#E3B04B', 200, 1], ['#DE4A43', 158, 2], ['#5BA4E6', 120, 3]].map(([c, x, n], i) => `<g transform="translate(${x} ${35 + i * 40})"><path d="M-70 0H-30M-58-7H-36M-58 7H-36" stroke="#EFE7D4" stroke-width="2" stroke-linecap="round" opacity=".55"/>
+      <ellipse cx="0" cy="4" rx="22" ry="9" fill="#5A3A22"/><path d="M14-2 30-12 34-6 22 4Z" fill="#5A3A22"/><path d="M-18 8-26 16M18 9 26 16M-8 11-12 18M8 11 12 18" stroke="#5A3A22" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="2" cy="-10" r="8" fill="${c}"/><text x="2" y="-6.5" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="10" fill="#1b1b1b">${n}</text></g>`).join('')}</svg>`,
+  plinko: `<svg viewBox="0 0 320 150" aria-hidden="true"><rect width="320" height="150" fill="#12261F"/>
+    <g fill="#EFE7D4" opacity=".85">${Array.from({ length: 6 }, (_, r) => Array.from({ length: r + 3 }, (_, j) => `<circle cx="${160 + (j - (r + 2) / 2) * 22}" cy="${16 + r * 18}" r="2.6"/>`).join('')).join('')}</g>
+    <path d="M160 6C160 20 150 26 149 34S160 46 171 52 160 64 160 70" fill="none" stroke="#F0C66E" stroke-width="1.5" stroke-dasharray="3 4" opacity=".7"/><circle cx="160" cy="70" r="7" fill="#F0C66E"/>
+    ${['#DE4A43', '#E7683C', '#E8913F', '#E3B04B', '#C9A85C', '#E3B04B', '#E8913F', '#E7683C', '#DE4A43'].map((c, k) => `<rect x="${160 + (k - 4) * 22 - 10}" y="122" width="20" height="16" rx="4" fill="${c}"/>`).join('')}</svg>`,
+  mines: `<svg viewBox="0 0 320 150" aria-hidden="true"><rect width="320" height="150" fill="#102620"/>
+    ${Array.from({ length: 10 }, (_, i) => { const x = 50 + (i % 5) * 46, y = 22 + Math.floor(i / 5) * 56; const gem = i === 1 || i === 7, mine = i === 3;
+      return `<rect x="${x}" y="${y}" width="40" height="48" rx="8" fill="${gem ? 'rgba(62,197,143,.18)' : mine ? '#DE4A43' : '#1C3932'}" stroke="${gem ? '#3EC58F' : 'none'}" stroke-width="2"/>`
+        + (gem ? `<path d="M${x + 10} ${y + 16}h20l5 7-15 17-15-17z" fill="#3EC58F" stroke="#05261A" stroke-width="1.2"/>` : '')
+        + (mine ? `<circle cx="${x + 20}" cy="${y + 25}" r="9" fill="#0A1210"/><path d="M${x + 20} ${y + 9}v6M${x + 20} ${y + 35}v6M${x + 4} ${y + 25}h6M${x + 30} ${y + 25}h6" stroke="#0A1210" stroke-width="3" stroke-linecap="round"/>` : ''); }).join('')}</svg>`,
+  blackjack: `<svg viewBox="0 0 320 150" aria-hidden="true"><defs><radialGradient id="a-bj-f" cx=".5" cy=".2" r=".9"><stop offset="0" stop-color="#1F4A3E"/><stop offset="1" stop-color="#0F241E"/></radialGradient></defs><rect width="320" height="150" fill="url(#a-bj-f)"/>
+    <path d="M30 150C60 104 260 104 290 150" fill="none" stroke="#E3B04B" stroke-width="1.5" opacity=".5"/>
+    <g transform="translate(108 30) rotate(-12)"><rect width="62" height="88" rx="7" fill="#F6F0E1"/><text x="8" y="22" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="18" fill="#1b1b1b">A</text><text x="31" y="60" text-anchor="middle" font-size="30" fill="#1b1b1b">♠</text></g>
+    <g transform="translate(160 28) rotate(7)"><rect width="62" height="88" rx="7" fill="#F6F0E1"/><text x="8" y="22" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="18" fill="#C2332D">K</text><text x="31" y="60" text-anchor="middle" font-size="30" fill="#C2332D">♥</text></g>
+    ${[0, 1, 2, 3].map(i => `<ellipse cx="70" cy="${118 - i * 7}" rx="20" ry="6" fill="${i % 2 ? '#F2E6C8' : '#DE4A43'}" stroke="#7A2320" stroke-width="1"/>`).join('')}
+    <text x="252" y="98" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="26" font-stretch="125%" fill="#E3B04B">21</text></svg>`,
+  hilo: `<svg viewBox="0 0 320 150" aria-hidden="true"><rect width="320" height="150" fill="#14281F"/>
+    <g transform="translate(130 22)"><rect width="66" height="96" rx="8" fill="#F6F0E1"/><text x="9" y="24" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="20" fill="#C2332D">7</text><text x="33" y="66" text-anchor="middle" font-size="32" fill="#C2332D">♦</text></g>
+    <g fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M240 92V44M224 60l16-16 16 16" stroke="#3EC58F"/><path d="M84 52v48M68 84l16 16 16-16" stroke="#DE4A43"/></g>
+    <g opacity=".35"><rect x="28" y="40" width="30" height="44" rx="5" fill="#F6F0E1"/><rect x="266" y="40" width="30" height="44" rx="5" fill="#F6F0E1"/></g></svg>`,
+  'roue-fortune': `<svg viewBox="0 0 320 150" aria-hidden="true"><rect width="320" height="150" fill="#13241F"/>
+    <g transform="translate(160 82)">${Array.from({ length: 12 }, (_, i) => { const a0 = (i / 12) * Math.PI * 2 - Math.PI / 2, a1 = ((i + 1) / 12) * Math.PI * 2 - Math.PI / 2, R = 62;
+      const c = ['#3EC58F', '#2A4A42', '#E3B04B', '#2A4A42', '#E7683C', '#2A4A42', '#3EC58F', '#2A4A42', '#9B6BE0', '#2A4A42', '#6F9E8F', '#2A4A42'][i];
+      return `<path d="M0 0L${(R * Math.cos(a0)).toFixed(1)} ${(R * Math.sin(a0)).toFixed(1)}A${R} ${R} 0 0 1 ${(R * Math.cos(a1)).toFixed(1)} ${(R * Math.sin(a1)).toFixed(1)}Z" fill="${c}" stroke="#0F1E1A" stroke-width="1"/>`; }).join('')}
+      <circle r="62" fill="none" stroke="#E3B04B" stroke-width="4"/><circle r="15" fill="#12261F" stroke="#F2E6C8" stroke-width="2"/></g>
+    <path d="M148 8h24l-12 20z" fill="#E3B04B"/></svg>`,
+  'pile-face': `<svg viewBox="0 0 320 150" aria-hidden="true"><defs><radialGradient id="a-pf-g" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#F8DE96"/><stop offset=".6" stop-color="#E3B04B"/><stop offset="1" stop-color="#9C6E1C"/></radialGradient><radialGradient id="a-pf-s" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#F4F0E3"/><stop offset=".6" stop-color="#C9C2AD"/><stop offset="1" stop-color="#7D7764"/></radialGradient></defs>
+    <rect width="320" height="150" fill="#12261F"/><ellipse cx="160" cy="132" rx="90" ry="8" fill="#000" opacity=".25"/>
+    <g transform="translate(118 78) rotate(-12)"><ellipse rx="44" ry="44" fill="url(#a-pf-g)" stroke="#8A6118" stroke-width="3"/><circle r="34" fill="none" stroke="#FCEBB8" stroke-width="2" opacity=".7"/><text y="11" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="32" fill="#5A3E0C">P</text></g>
+    <g transform="translate(206 70) rotate(14)"><ellipse rx="40" ry="16" fill="#8C8571"/><ellipse cy="-5" rx="40" ry="16" fill="url(#a-pf-s)"/><text y="1" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="14" fill="#3B3A33">F</text></g>
+    <path d="M196 24v14M188 30h16M250 40v10M245 45h10" stroke="#F0C35A" stroke-width="2" stroke-linecap="round"/></svg>`,
+  loto: `<svg viewBox="0 0 320 150" aria-hidden="true"><rect width="320" height="150" fill="#1A1E14"/>
+    <g transform="translate(46 34) rotate(-4)"><path d="M0 0h228v30a12 12 0 0 0 0 24v30H0V54a12 12 0 0 0 0-24z" fill="#E3B04B"/><path d="M160 6v72" stroke="#7A5A16" stroke-width="2" stroke-dasharray="4 4"/>
+      <text x="16" y="34" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="22" font-stretch="125%" fill="#2B1F06">LOTO</text><text x="16" y="58" font-family="Archivo, Arial, sans-serif" font-weight="700" font-size="12" fill="#5A3E0C">Tirage à 21 h</text>
+      <text x="190" y="50" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="17" fill="#2B1F06">100 $</text></g>
+    ${[['#3EC58F', 60, 128, 7], ['#DE4A43', 112, 132, 23], ['#5BA4E6', 164, 128, 41], ['#F2E6C8', 216, 132, 12]].map(([c, x, y, n]) => `<circle cx="${x}" cy="${y}" r="15" fill="${c}"/><circle cx="${x}" cy="${y}" r="8" fill="#fff" opacity=".9"/><text x="${x}" y="${y + 4}" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="10" fill="#1b1b1b">${n}</text>`).join('')}</svg>`,
+  duel: `<svg viewBox="0 0 320 150" aria-hidden="true"><defs><linearGradient id="a-du-l" x1="0" x2="1"><stop offset="0" stop-color="#1D3A55"/><stop offset=".5" stop-color="#12261F"/><stop offset="1" stop-color="#4A1C1A"/></linearGradient></defs><rect width="320" height="150" fill="url(#a-du-l)"/>
+    <g transform="translate(78 76)"><circle r="38" fill="#5BA4E6"/><circle cy="-10" r="13" fill="#0E1F1B"/><path d="M-22 22a22 18 0 0 1 44 0" fill="#0E1F1B"/></g>
+    <g transform="translate(242 76)"><circle r="38" fill="#DE4A43"/><circle cy="-10" r="13" fill="#0E1F1B"/><path d="M-22 22a22 18 0 0 1 44 0" fill="#0E1F1B"/></g>
+    <path d="M168 34 146 80h18l-10 38 30-52h-19l11-32z" fill="#E3B04B"/>
+    <text x="160" y="142" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="15" font-stretch="125%" fill="#EFE7D4" letter-spacing="2">VS</text></svg>`
+};
+const LOGO_SVG = `<svg viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="logo-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7FE3B8"/><stop offset=".5" stop-color="#2FAE78"/><stop offset="1" stop-color="#0E6B45"/></linearGradient></defs>
+  <circle cx="20" cy="20" r="18.5" fill="#12261F" stroke="#E3B04B" stroke-width="2"/>
+  <path d="M13 9h14l6 7-13 16L7 16z" fill="url(#logo-g)" stroke="#E9F9F0" stroke-width=".8" stroke-linejoin="round"/>
+  <path d="M7 16h26M13 9l4 7 3-7 3 7 4-7M17 16l3 16 3-16" fill="none" stroke="#E9F9F0" stroke-width=".8" stroke-linejoin="round" opacity=".75"/></svg>`;
+
+/* ---------- Duels entre joueurs (gérés par le serveur) ---------- */
+const Duel = {
+  list: [], busy: false, anim: false, handled: new Set(),
+  pend() { return (S.pending.duels = S.pending.duels || {}); },
+  init() {
+    $('#duel-create').addEventListener('click', () => this.create());
+    $('#view-duel').addEventListener('click', e => {
+      const a = e.target.closest('[data-duel-accept]'), c = e.target.closest('[data-duel-cancel]');
+      if (a) this.accept(a.dataset.duelAccept);
+      if (c) this.cancel(c.dataset.duelCancel);
+    });
+    this.render();
+  },
+  isMe(name) { return !!user && String(name).toLowerCase() === user.toLowerCase(); },
+  onList(l) { this.list = Array.isArray(l) ? l.filter(d => d && d.id) : []; this.render(); this.renderLive(); },
+  onInvite(d) { if (d) toast(`${d.from} vous défie en duel pour ${money(d.amount)} ! Rendez-vous dans Duels pour relever le défi.`, 'info'); },
+  onClosed(d) { if (d) { this.refund(d.id, d.status); this.render(); } },
+  refund(id, status) {
+    const p = this.pend()[id];
+    if (!p) return;
+    delete this.pend()[id];
+    Wallet.credit(p.amount);
+    saveNow();
+    toast(status === 'expired' ? `Personne n’a relevé votre défi de ${money(p.amount)} : mise remboursée.` : `Défi annulé : ${money(p.amount)} remboursés.`, 'info');
+  },
+  async create() {
+    if (this.busy) return;
+    if (!user) return showAuth();
+    if (!Net.ready()) return toast('Duels indisponibles : connexion au serveur en cours.', 'error');
+    const amount = readBet('duel');
+    if (amount == null) return;
+    this.busy = true; this.render();
+    Net.pushBalanceNow();
+    const res = await Net.request('duel_create', { amount, target: $('#duel-target').value });
+    this.busy = false;
+    if (!res.ok) { toast(res.msg || 'Défi refusé.', 'error'); return this.render(); }
+    Wallet.debit(res.amount);
+    this.pend()[res.id] = { amount: res.amount, role: 'creator' };
+    saveNow();
+    toast(`Défi lancé : ${money(res.amount)} en jeu. Votre mise est bloquée jusqu’à ce qu’un joueur l’accepte.`, 'success');
+    this.render();
+  },
+  async cancel(id) {
+    if (this.busy) return;
+    this.busy = true;
+    const res = await Net.request('duel_cancel', { id });
+    this.busy = false;
+    if (!res.ok) toast(res.msg || 'Annulation impossible.', 'error');
+    this.render(); // le remboursement arrive par l'événement duel_closed
+  },
+  async accept(id) {
+    if (this.busy || this.anim) return;
+    if (!user) return showAuth();
+    const d = this.list.find(x => x.id === id);
+    if (!d) return toast('Ce duel n’est plus disponible.', 'error');
+    if (!Wallet.canPay(d.amount)) return toast(`Il vous faut ${money(d.amount)} pour relever ce défi.`, 'error');
+    this.busy = true; this.render();
+    Net.pushBalanceNow();
+    const res = await Net.request('duel_accept', { id });
+    this.busy = false;
+    if (!res.ok) { toast(res.msg || 'Impossible d’accepter ce duel.', 'error'); return this.render(); }
+    Wallet.debit(d.amount);
+    this.pend()[id] = { amount: d.amount, role: 'acceptor' };
+    saveNow();
+    this.apply(res, true);
+  },
+  apply(r, animate) { // résultat d'un duel auquel je participe
+    if (!r || this.handled.has(r.id)) return;
+    const p = this.pend()[r.id];
+    if (!p) return;
+    this.handled.add(r.id);
+    const won = this.isMe(r.winner);
+    const finish = () => {
+      delete this.pend()[r.id];
+      if (won) S.c.duelWins++;
+      settle('Duel', p.amount, won ? r2(p.amount * 2) : 0, won ? 2 : 0, { raw: true }); // ni boost ni handicap : la mise de l'autre, rien de plus
+      setResult($('#duel-msg'), won ? `Vous battez ${r.loser} et remportez ${money(r2(p.amount * 2))} !` : `${r.winner} remporte le duel : ${money(p.amount)} perdus.`, won ? 'win' : 'lose');
+      if (won) celebrate();
+      this.anim = false;
+      this.render();
+    };
+    if (!animate) return finish();
+    go('duel');
+    this.anim = true;
+    const A = $('#duel-a'), B = $('#duel-b');
+    A.querySelector('.dl-name').textContent = r.a; B.querySelector('.dl-name').textContent = r.b;
+    $$('.dl-amount').forEach(e => { e.textContent = money(p.amount); });
+    [A, B].forEach(e => e.classList.remove('on', 'win', 'lose'));
+    setResult($('#duel-msg'), 'Tirage au sort…', '');
+    const winA = r.winner === r.a, total = FAST() ? 900 : 2600;
+    let t = 0, step = 70, side = 0;
+    const tick = () => { // le projecteur passe d'un joueur à l'autre en ralentissant
+      side = 1 - side;
+      A.classList.toggle('on', side === 0); B.classList.toggle('on', side === 1);
+      t += step; step = Math.min(step * 1.12, 420);
+      if (t < total || (side === 0) !== winA) return setTimeout(tick, step);
+      (winA ? A : B).classList.add('win'); (winA ? B : A).classList.add('lose');
+      finish();
+    };
+    tick();
+  },
+  onResult(r) { this.apply(r, true); },
+  async resume() { // après un rechargement : que sont devenus mes duels ?
+    const ids = Object.keys(this.pend());
+    if (!ids.length || !user || !Net.ready()) return;
+    const res = await Net.request('duel_status', { ids });
+    if (!res.ok) return;
+    res.list.forEach(r => {
+      if (r.status === 'open') return;
+      if (r.status === 'done') this.apply(r, false);
+      else this.refund(r.id, r.status);
+    });
+    this.render();
+  },
+  renderLive() {
+    const el = $('[data-live="duel"]');
+    if (!el) return;
+    const n = this.list.filter(d => !d.to || this.isMe(d.to)).length;
+    el.textContent = !Net.ready() ? 'Hors ligne' : n ? `En direct : ${n} défi${n > 1 ? 's' : ''} ouvert${n > 1 ? 's' : ''}` : 'En direct : aucun défi ouvert, lancez le premier';
+  },
+  render() {
+    const open = this.list.filter(d => !this.isMe(d.from) && (!d.to || this.isMe(d.to)));
+    $('#duel-open').innerHTML = open.length ? open.map(d => `<li class="${d.to ? 'for-me' : ''}"><span class="who">${esc(d.from)}<small>${d.to ? 'vous défie personnellement' : 'défie tout le monde'}</small></span>
+      <span class="amt">${money(d.amount)}</span><button class="btn btn-brass" type="button" data-duel-accept="${esc(d.id)}" ${this.busy || this.anim || !Wallet.canPay(d.amount) ? 'disabled' : ''}>Relever</button></li>`).join('')
+      : `<li class="empty">${Net.ready() ? 'Aucun défi ouvert pour l’instant. Lancez le vôtre !' : 'Les duels s’afficheront dès la connexion au serveur.'}</li>`;
+    const mine = this.list.filter(d => this.isMe(d.from));
+    $('#duel-mine').innerHTML = mine.length ? mine.map(d => `<li><span class="who">${d.to ? `Contre ${esc(d.to)}` : 'Ouvert à tous'}<small>en attente d’un adversaire</small></span><span class="amt">${money(d.amount)}</span>
+      <button class="btn btn-ghost" type="button" data-duel-cancel="${esc(d.id)}">Annuler</button></li>`).join('') : '<li class="empty">Aucun défi en attente.</li>';
+    const hist = S.history.filter(h => h.g === 'Duel').slice(0, 10);
+    $('#duel-hist').innerHTML = hist.length ? hist.map(h => `<li><span class="who">${h.win > 0 ? 'Victoire' : 'Défaite'}</span><span class="g">${new Date(h.t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span><span class="amt ${h.win > 0 ? 'pos' : 'neg'}">${h.win > 0 ? '+' : '−'}${money(h.bet)}</span></li>`).join('') : '<li class="empty">Aucun duel joué pour l’instant.</li>';
+    $('#duel-create').disabled = this.busy;
+    this.renderLive();
+  }
+};
+
 /* ---------- Top 10 des gains de la dernière heure (serveur) ---------- */
 const TopHour = {
   list: [],
@@ -2870,6 +3133,7 @@ const LOBBY = [
   { id: 'blackjack', name: 'Blackjack', icon: 'card', rtp: '99 %', desc: 'Battez le croupier sans dépasser 21.' },
   { id: 'hilo', name: 'Hilo', icon: 'hilo', rtp: '99 %', desc: 'La carte suivante sera-t-elle plus haute ou plus basse ?' },
   { id: 'roue-fortune', name: 'Roue de la fortune', icon: 'wheel2', rtp: '97 à 98 %', desc: 'Trois niveaux de risque, jusqu’à ×29,4.' },
+  { id: 'duel', name: 'Duels', icon: 'duel', rtp: '100 %', desc: 'Défiez un joueur : même mise des deux côtés, le gagnant tiré au sort rafle tout.' },
   { id: 'pile-face', name: 'Pile ou face', icon: 'coin', rtp: '97,5 %', desc: 'Une chance sur deux, gain ×1,95.' },
   { id: 'loto', name: 'Loto du jour', icon: 'ticket', note: 'Tirage chaque soir à 21 h', desc: 'Achetez des tickets : trois gagnants se partagent la cagnotte chaque soir.' }
 ];
@@ -2885,8 +3149,8 @@ const FastMode = {
 };
 function renderLobby() {
   $('#lobby').innerHTML = LOBBY.map(g => `<button type="button" class="lobby-card" data-go-view="${g.id}">
-    <span class="lobby-ic">${ICONS[g.icon]}</span><span class="lobby-name">${esc(g.name)}</span>
-    <span class="lobby-desc">${esc(g.desc)}</span>${g.id === 'crash' || g.id === 'course' || g.id === 'loto' ? `<span class="lobby-live" data-live="${g.id}"></span>` : ''}<span class="lobby-rtp">${g.rtp ? `Taux de retour ${g.rtp}` : esc(g.note)}</span></button>`).join('');
+    <span class="lobby-art">${ART[g.id] || ''}</span><span class="lobby-body"><span class="lobby-name">${esc(g.name)}</span>
+    <span class="lobby-desc">${esc(g.desc)}</span>${['crash', 'course', 'loto', 'duel'].includes(g.id) ? `<span class="lobby-live" data-live="${g.id}"></span>` : ''}<span class="lobby-rtp">${g.rtp ? `Taux de retour ${g.rtp}` : esc(g.note)}</span></span></button>`).join('');
   setInterval(() => { // état des jeux multijoueurs, en direct
     if (currentView !== 'salle') return;
     const c = $('[data-live="crash"]'), r = $('[data-live="course"]'), now = Crash.now();
@@ -3254,6 +3518,8 @@ const GOALS = [
   { id: 'explore', cat: 'jeux', title: 'Explorateur', desc: 'Jouer aux 9 jeux du casino', goal: 9, val: () => ALL_GAMES.filter(g => S.seen[g]).length, reward: 2000 },
   { id: 'slot7', cat: 'jeux', title: 'Triple sept', desc: 'Aligner trois 7 à la machine à sous', goal: 1, val: () => S.c.slot7, reward: 5000 },
   { id: 'outsider', cat: 'jeux', title: 'Coup de l’outsider', desc: 'Gagner une course sur un cheval coté ×9 ou plus', goal: 1, val: () => S.c.outsider, reward: 1500 },
+  { id: 'duel1', cat: 'jeux', title: 'Premier sang', desc: 'Gagner un duel contre un autre joueur', goal: 1, val: () => S.c.duelWins, reward: 300 },
+  { id: 'duel10', cat: 'jeux', title: 'Fine lame', desc: 'Gagner 10 duels', goal: 10, val: () => S.c.duelWins, reward: 3000 },
   { id: 'plinkoEdge', cat: 'jeux', title: 'Tout au bord', desc: 'Faire tomber une bille dans une case du bord au Plinko', goal: 1, val: () => S.c.plinkoEdge, reward: 1000 },
   { id: 'hilo8', cat: 'jeux', title: 'Devin', desc: 'Réussir 8 prédictions de suite au Hilo', goal: 8, val: () => S.c.hiloBest, reward: 1500 },
   { id: 'wheelTop', cat: 'jeux', title: 'Gros lot', desc: 'Toucher le ×29,4 à la Roue de la fortune', goal: 1, val: () => S.c.wheelTop, reward: 1500 },
@@ -3472,6 +3738,7 @@ const Net = {
       Crash.resume();
       Race.resume();
       Loto.claimAll();
+      Duel.resume();
       await this.syncClock();
     });
     s.on('disconnect', () => { if (!this.manual) this.setStatus('connecting'); Crash.onDisconnect(); Race.onDisconnect(); });
@@ -3506,6 +3773,10 @@ const Net = {
     s.on('big_win', d => BigWins.add(d, true));
     s.on('loto_state', d => Loto.onState(d));
     s.on('top_hour', d => TopHour.set(d));
+    s.on('duel_list', d => Duel.onList(d));
+    s.on('duel_invite', d => Duel.onInvite(d));
+    s.on('duel_closed', d => Duel.onClosed(d));
+    s.on('duel_result', d => Duel.onResult(d));
     s.on('loto_drawn', d => Loto.onDrawn(d));
     s.on('big_wins', list => { BigWins.list = []; (Array.isArray(list) ? list : []).slice().reverse().forEach(d => BigWins.add(d, false)); });
     s.on('race_bets', d => Race.onBets(d));
@@ -3601,6 +3872,12 @@ function renderOnline() {
     ? on.map(u => `<span class="p">${u.badge ? `<span class="tag sm">${esc(u.badge)}</span> ` : ''}${esc(u.username)}</span>`).join('')
     : '<span class="empty">Aucun autre joueur en ligne.</span>';
   $('#tr-list').innerHTML = on.filter(u => u.username !== user).map(u => `<option value="${esc(u.username)}"></option>`).join('');
+  const dsel = $('#duel-target');
+  if (dsel) {
+    const cur = dsel.value, others = on.filter(u => u.username !== user);
+    const html = '<option value="">N’importe quel joueur</option>' + others.map(u => `<option value="${esc(u.username)}">${esc(u.username)}</option>`).join('');
+    if (dsel.dataset.html !== html) { dsel.innerHTML = html; dsel.dataset.html = html; dsel.value = others.some(u => u.username === cur) ? cur : ''; }
+  }
   const sel = $('#sab-target');
   if (sel) { // la liste change sans perdre le joueur choisi
     const cur = sel.value, others = on.filter(u => u.username !== user);
@@ -3687,6 +3964,7 @@ const ICONS = {
   slots: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M9 5v14M15 5v14"/></svg>',
   ticket: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></svg>',
   home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V20h-5.5v-5h-5v5H4z"/></svg>',
+  duel: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4l10 10M4 4h4M4 4v4M20 4 10 14M20 4h-4M20 4v4M7 17l-3 3M17 17l3 3M8 13l3 3M16 13l-3 3"/></svg>',
   race: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>',
   wheel2: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 13 6.5 7.5M12 13l5.5-5.5M12 13v8M9.5 2.5h5L12 5z"/></svg>'
 };
@@ -3695,6 +3973,7 @@ const VIEWS = [
   { id: 'crash', label: 'Aviateur', group: 'Jeux', icon: 'crash' },
   { id: 'slots', label: 'Machine à sous', group: 'Jeux', icon: 'slots' },
   { id: 'course', label: 'Course de chevaux', group: 'Jeux', icon: 'race' },
+  { id: 'duel', label: 'Duels', group: 'Jeux', icon: 'duel' },
   { id: 'plinko', label: 'Plinko', group: 'Jeux', icon: 'plinko' },
   { id: 'mines', label: 'Mines', group: 'Jeux', icon: 'mines' },
   { id: 'blackjack', label: 'Blackjack', group: 'Tables', icon: 'card' },
@@ -3854,7 +4133,8 @@ document.addEventListener('DOMContentLoaded', () => {
   BJ.init();
   Coin.init();
   Clicker.init();
-  Plinko.init(); Hilo.init(); WheelF.init(); Slots.init(); Race.init(); Loto.init(); LB.init(); FastMode.init(); TopHour.init();
+  Plinko.init(); Hilo.init(); WheelF.init(); Slots.init(); Race.init(); Loto.init(); LB.init(); FastMode.init(); TopHour.init(); Duel.init();
+  $('#brand-mark').innerHTML = LOGO_SVG;
   renderLobby();
   $('#view-objectifs').addEventListener('click', e => {
     const b = e.target.closest('button');
