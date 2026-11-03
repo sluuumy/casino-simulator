@@ -329,6 +329,8 @@ main{min-width:0}
 .plinko-big .who{font-weight:700;white-space:normal;overflow:visible;line-height:1.3}
 .plinko-big .amt{white-space:nowrap}
 .mult-badge{font-stretch:115%;font-weight:900;font-size:13px;color:#1D1606;border-radius:7px;padding:3px 8px;min-width:58px;text-align:center}
+.back-link{background:none;border:0;padding:0;margin-bottom:8px;color:var(--muted);font-weight:700;font-size:14px;cursor:pointer}
+.back-link:hover{color:var(--brass)}
 .section-title{font-size:16px;font-weight:800;margin:6px 0 -6px}
 .top-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px}
 .top-list li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--bg)}
@@ -2111,7 +2113,7 @@ const Coin = {
     Net.emit('place_bet', { game: 'Pile ou face', amount: bet, win: false, payout: 0 });
     const out = $('#coin-result'); out.dataset.kind = ''; out.textContent = '';
     this.angle = Math.ceil((this.angle + 1) / 360) * 360 + 1440 + (res === 'face' ? 180 : 0);
-    const dur = FAST() ? 500 : 1400;
+    const dur = FAST() ? 260 : 1400;
     $('#coin').style.transitionDuration = `${dur - 50}ms`;
     $('#coin').style.transform = `rotateY(${this.angle}deg)`;
     setTimeout(() => {
@@ -2148,7 +2150,7 @@ const counts = bet => bet >= GOAL_MIN_BET;
 /* ---------- Plinko ---------- */
 const Plinko = {
   balls: [], hits: {}, recent: [], canvas: null, ctx: null, w: 0, h: 0, raf: 0,
-  rowMs() { return FAST() ? 140 : 430; }, // durée de chute par rangée, en millisecondes
+  rowMs() { return FAST() ? 60 : 430; }, // durée de chute par rangée, en millisecondes
   init() {
     this.canvas = $('#plinko-canvas');
     this.ctx = this.canvas.getContext('2d');
@@ -2179,7 +2181,7 @@ const Plinko = {
   },
   dropMany(c) {
     let i = 0;
-    const next = () => { if (i++ < c && this.drop() !== false) setTimeout(next, FAST() ? 260 : 650); };
+    const next = () => { if (i++ < c && this.drop() !== false) setTimeout(next, FAST() ? 110 : 650); };
     next();
   },
   resize() {
@@ -2420,7 +2422,7 @@ const Slots = {
     this.busy = true; lockBet('slots', true); $('#slot-spin').disabled = true;
     $$('#slot-reels .sym.win').forEach(e => e.classList.remove('win'));
     setResult($('#slot-msg'), 'Les rouleaux tournent…', '');
-    const base = FAST() ? 450 : 1300, gap = FAST() ? 180 : 550;
+    const base = FAST() ? 220 : 1300, gap = FAST() ? 80 : 550;
     stops.forEach((s, r) => {
       this.setReel(r, this.stops[r], 0);
       void $('#reel-' + r).offsetWidth;
@@ -2655,8 +2657,8 @@ const WheelF = {
     const pid = instantPending('Roue de la fortune', bet, pay, m);
     Net.emit('place_bet', { game: 'Roue de la fortune', amount: bet, win: false, payout: 0 });
     setResult($('#wf-msg'), 'La roue tourne…', '');
-    const dur = FAST() ? 2500 : 7500;
-    spinWheel($('#wf-svg'), this.state, i, 30, dur, FAST() ? 2 : 3);
+    const dur = FAST() ? 1100 : 7500;
+    spinWheel($('#wf-svg'), this.state, i, 30, dur, FAST() ? 1 : 3);
     setTimeout(() => {
       if (m >= 29 && counts(bet)) S.c.wheelTop++;
       const got = settle('Roue de la fortune', bet, pay, m);
@@ -3706,9 +3708,18 @@ const VIEWS = [
   { id: 'stats', label: 'Statistiques', group: 'Compte', icon: 'bars' },
   { id: 'social', label: 'Tchat et transferts', group: 'Communauté', icon: 'chat' }
 ];
+// Les jeux ne sont plus dans le menu : on y accède depuis l'accueil
+const GAME_GROUPS = ['Jeux', 'Tables'];
+const isGameView = id => VIEWS.some(v => v.id === id && GAME_GROUPS.includes(v.group));
 function buildNav() {
   const groups = {};
-  VIEWS.forEach(v => { (groups[v.group] = groups[v.group] || []).push(v); });
+  VIEWS.filter(v => !GAME_GROUPS.includes(v.group)).forEach(v => { (groups[v.group] = groups[v.group] || []).push(v); });
+  // lien de retour en haut de chaque jeu
+  VIEWS.filter(v => GAME_GROUPS.includes(v.group)).forEach(v => {
+    const head = $(`#view-${v.id} .view-head`);
+    if (head && !head.querySelector('.back-link')) head.insertAdjacentHTML('afterbegin', '<button type="button" class="back-link" data-back-home>← Accueil</button>');
+  });
+  $('#main').addEventListener('click', e => { if (e.target.closest('[data-back-home]')) go('salle'); });
   const nav = $('#nav');
   nav.innerHTML = Object.entries(groups).map(([g, items]) =>
     `<div class="nav-group"><p class="nav-group-title">${esc(g)}</p>${items.map(v =>
@@ -3720,8 +3731,9 @@ function go(id) {
   if (!VIEWS.some(v => v.id === id)) id = 'salle';
   currentView = id;
   $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + id));
+  const navId = isGameView(id) ? 'salle' : id; // dans un jeu, « Accueil » reste surligné
   $$('.nav-btn').forEach(b => {
-    const on = b.dataset.view === id;
+    const on = b.dataset.view === navId;
     b.setAttribute('aria-current', on ? 'page' : 'false');
     if (on && window.innerWidth <= 900) { const nav = $('#nav'); nav.scrollTo({ left: b.offsetLeft - nav.clientWidth / 2 + b.offsetWidth / 2, behavior: reducedMotion ? 'auto' : 'smooth' }); }
   });
