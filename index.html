@@ -329,6 +329,16 @@ main{min-width:0}
 .plinko-big .who{font-weight:700;white-space:normal;overflow:visible;line-height:1.3}
 .plinko-big .amt{white-space:nowrap}
 .mult-badge{font-stretch:115%;font-weight:900;font-size:13px;color:#1D1606;border-radius:7px;padding:3px 8px;min-width:58px;text-align:center}
+.section-title{font-size:16px;font-weight:800;margin:6px 0 -6px}
+.top-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px}
+.top-list li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--bg)}
+.top-list li.me{box-shadow:inset 0 0 0 1px var(--brass)}
+.top-list .who{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top-list .who small{display:block;font-weight:500;color:var(--faint);font-size:12px;overflow:hidden;text-overflow:ellipsis}
+.top-list .amt{color:var(--jade);font-weight:800;white-space:nowrap}
+.top-list .empty{grid-column:1/-1;background:none;display:block;color:var(--faint);font-size:13px;padding:6px 0}
+.top-rank{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;color:var(--muted);background:var(--panel-2)}
+@media (max-width:760px){ .top-list{grid-template-columns:minmax(0,1fr)} }
 .loto-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:28px;align-items:center}
 .loto-pot-box{text-align:center;padding:10px;border-radius:14px;background:radial-gradient(ellipse at 50% 0%,rgba(227,176,75,.18),transparent 70%)}
 .loto-pot{font-stretch:125%;font-weight:900;font-size:clamp(40px,6vw,64px);line-height:1.05;color:var(--brass);margin:4px 0}
@@ -359,6 +369,9 @@ main{min-width:0}
 .up-name{font-weight:700}
 .up-lvl{color:var(--jade);font-size:12px;font-weight:700;margin-left:8px}
 .up-row .btn{min-width:120px}
+.fast-toggle{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:transparent;color:var(--muted);font-weight:700;font-size:13px;border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+.fast-toggle:hover{color:var(--ink);border-color:var(--muted)}
+.fast-toggle[aria-pressed="true"]{background:rgba(227,176,75,.15);border-color:var(--brass);color:var(--brass)}
 .top-chips{margin-left:auto;display:flex;gap:8px;align-items:center;min-width:0}
 .top-chips+.wallet{margin-left:0}
 .boost-chip{border:0;cursor:pointer;background:rgba(62,197,143,.15);color:var(--jade);font-weight:850;font-size:14px;border-radius:999px;padding:6px 12px;white-space:nowrap;font-stretch:112%}
@@ -473,6 +486,8 @@ main{min-width:0}
 }
 @media (max-width:620px){
   .malus-chip{max-width:120px}
+  .ft-label{display:none}
+  .fast-toggle{padding:6px 9px}
   .topbar-in{gap:12px;padding:8px 14px}
   .brand span{display:none}
   .wallet-label{display:none}
@@ -535,6 +550,7 @@ main{min-width:0}
       <span>Cyber Casino</span>
     </a>
     <div class="top-chips">
+      <button class="fast-toggle" id="fast-toggle" type="button" aria-pressed="false" title="Mode rapide : accélère les animations des jeux solo"><span aria-hidden="true">⚡</span><span class="ft-label">Mode rapide</span></button>
       <span class="malus-chip" id="malus-chip" hidden></span>
       <button class="boost-chip" id="boost-chip" type="button" hidden onclick="go('clicker')"></button>
     </div>
@@ -574,14 +590,16 @@ main{min-width:0}
     <!-- ===== Salle de jeux ===== -->
     <section class="view" id="view-salle" aria-labelledby="h-salle">
       <header class="view-head">
-        <h2 id="h-salle">Tous les jeux</h2>
-        <p>9 jeux en argent virtuel, plus un loto tiré chaque soir. Le taux de retour indique la part des mises rendue en moyenne aux joueurs sur le long terme : plus il est proche de 100 %, moins la maison garde.</p>
+        <h2 id="h-salle">Bienvenue au Cyber Casino</h2>
+        <p id="home-hello">9 jeux en argent virtuel et un loto tiré chaque soir. Choisissez un jeu pour commencer.</p>
       </header>
-      <div class="lobby" id="lobby"></div>
-      <div class="panel">
-        <h3 class="panel-title">Grosses victoires en direct</h3>
-        <ul class="live wins-feed" id="big-wins"><li class="empty">Les gains de plus de 500 $ des joueurs connectés s’afficheront ici.</li></ul>
+      <div class="panel top-hour">
+        <div class="panel-head"><h3 class="panel-title">Les 10 plus gros gains de la dernière heure</h3><span class="muted-sm">Tous les jeux, tous les joueurs</span></div>
+        <ol class="top-list" id="top-hour"></ol>
       </div>
+      <h3 class="section-title">Les jeux</h3>
+      <div class="lobby" id="lobby"></div>
+      <p class="muted-sm">Le taux de retour indique la part des mises rendue en moyenne aux joueurs sur le long terme : plus il est proche de 100 %, moins la maison garde.</p>
     </section>
 
     <!-- ===== Machine à sous ===== -->
@@ -647,14 +665,13 @@ main{min-width:0}
           <div class="panel stack plinko-side">
             <div class="field"><span>Mise par bille</span><div data-bet="plinko" data-min="1" data-value="10.00"></div></div>
             <div class="field"><label for="plinko-risk">Risque</label><select id="plinko-risk" class="input"><option value="faible">Faible</option><option value="moyen" selected>Moyen</option><option value="eleve">Élevé</option></select></div>
-            <div class="field"><label for="plinko-speed">Vitesse des billes</label><select id="plinko-speed" class="input"><option value="normale">Normale</option><option value="rapide">Rapide</option></select></div>
             <div class="field"><label for="plinko-rows">Rangées</label><select id="plinko-rows" class="input"><option>8</option><option selected>12</option><option>16</option></select></div>
             <button class="btn btn-go btn-lg" id="plinko-drop" type="button">Lâcher une bille</button>
             <button class="btn btn-ghost" id="plinko-drop10" type="button">Lâcher 10 billes</button>
-            <p class="hint">Le risque et les rangées se règlent quand aucune bille n’est en jeu. La vitesse s’applique aux billes suivantes et ne change rien aux gains.</p>
+            <p class="hint">Le risque et les rangées se règlent quand aucune bille n’est en jeu. Pour des billes plus rapides, activez le mode rapide ⚡ en haut de l’écran : il ne change rien aux gains.</p>
           </div>
           <div class="panel plinko-big">
-            <div class="panel-head"><h3 class="panel-title">Vos gros lots (×10 et plus)</h3><span class="muted-sm" id="plinko-best"></span></div>
+            <div class="panel-head"><h3 class="panel-title">Vos billes gagnantes</h3><span class="muted-sm" id="plinko-best"></span></div>
             <ul class="live big-list" id="plinko-big"></ul>
           </div>
         </div>
@@ -1022,6 +1039,7 @@ const fmtX = m => NUM.format(m) + '×';
 // « Réduire les animations » ne coupe que les effets décoratifs (confettis…) :
 // la durée des jeux est la même pour tous les joueurs.
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const FAST = () => !!S.fast; // mode rapide choisi par le joueur (jeux solo uniquement)
 const hex = bytes => Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
 const store = {
   get(k) { try { return localStorage.getItem(k); } catch { return null; } },
@@ -1060,7 +1078,7 @@ const DEFAULT_STATE = () => ({
   achievements: {}, inventory: {}, equippedBadge: '', history: [], pending: {},
   clicker: { up: {}, bought: 0, boosts: 0, clickEarned: 0, autoEarned: 0 },
   c: { minesRun: 0, blackjacks: 0, coinStreak: 0, coinBest: 0, wagered: 0, minesClear: 0, bestWin: 0, dailyClaimed: 0, boost50: 0, chats: 0, sabotages: 0, games10: 0, wins10: 0, plinkoEdge: 0, hiloBest: 0, wheelTop: 0, slot7: 0, outsider: 0, lotoTickets: 0, lotoWins: 0 },
-  seen: {}, loto: {}, plinkoBig: [], plinkoSpeed: 'normale',
+  seen: {}, loto: {}, plinkoBig: [], fast: false,
   boost: null, malus: {}, goals: {}, daily: { day: '', ids: [], prog: {}, claimed: {} }, theme: 'tapis', lastSeen: 0
 });
 let user = null;
@@ -1092,8 +1110,9 @@ function normalize(raw) {
   s.boost = s.boost && BOOSTS.some(b => b.mult === s.boost.mult) && Number.isFinite(s.boost.until) ? { mult: s.boost.mult, until: s.boost.until, pool: num(s.boost.pool) } : null;
   s.goals = obj(s.goals);
   s.seen = obj(s.seen);
-  s.plinkoSpeed = s.plinkoSpeed === 'rapide' ? 'rapide' : 'normale';
-  s.plinkoBig = (Array.isArray(raw && raw.plinkoBig) ? raw.plinkoBig : []).filter(x => x && num(x.m) >= 10).slice(0, 20)
+  s.fast = s.fast === true || (raw && raw.plinkoSpeed === 'rapide'); // ancien réglage du Plinko repris
+  delete s.plinkoSpeed;
+  s.plinkoBig = (Array.isArray(raw && raw.plinkoBig) ? raw.plinkoBig : []).filter(x => x && num(x.win) > 0).slice(0, 30)
     .map(x => ({ m: num(x.m), rows: Math.floor(num(x.rows)), risk: String(x.risk || ''), bet: num(x.bet), win: num(x.win), t: num(x.t) }));
   s.loto = {};
   Object.entries(obj(raw && raw.loto)).forEach(([id, t]) => { if (/^\d{4}-\d{2}-\d{2}(-\w+)?$/.test(id) && t && num(t.n) > 0) s.loto[id] = { n: Math.floor(num(t.n)), paid: num(t.paid) }; });
@@ -1212,6 +1231,7 @@ function settle(game, bet, payout, mult) {
   scheduleSave();
   if (net > 0 && (mult >= 5 || bm >= 10)) celebrate();
   if (net >= 500 && (mult >= 5 || net >= 5000)) Net.emit('big_win', { game, amount: net, mult });
+  if (net > 0) TopHour.send(game, net, mult);
   return payout;
 }
 
@@ -2091,6 +2111,8 @@ const Coin = {
     Net.emit('place_bet', { game: 'Pile ou face', amount: bet, win: false, payout: 0 });
     const out = $('#coin-result'); out.dataset.kind = ''; out.textContent = '';
     this.angle = Math.ceil((this.angle + 1) / 360) * 360 + 1440 + (res === 'face' ? 180 : 0);
+    const dur = FAST() ? 500 : 1400;
+    $('#coin').style.transitionDuration = `${dur - 50}ms`;
     $('#coin').style.transform = `rotateY(${this.angle}deg)`;
     setTimeout(() => {
       S.c.coinStreak = win ? S.c.coinStreak + 1 : 0;
@@ -2104,7 +2126,7 @@ const Coin = {
       this.recent.unshift(res); this.recent.length = Math.min(this.recent.length, 16);
       $('#coin-recent').innerHTML = this.recent.map(r => `<i class="${r}">${r === 'pile' ? 'P' : 'F'}</i>`).join('');
       this.busy = false; this.lock(false);
-    }, 1400);
+    }, dur);
   }
 };
 
@@ -2126,7 +2148,7 @@ const counts = bet => bet >= GOAL_MIN_BET;
 /* ---------- Plinko ---------- */
 const Plinko = {
   balls: [], hits: {}, recent: [], canvas: null, ctx: null, w: 0, h: 0, raf: 0,
-  SPEEDS: { normale: 430, rapide: 140 }, // durée de chute par rangée, en millisecondes
+  rowMs() { return FAST() ? 140 : 430; }, // durée de chute par rangée, en millisecondes
   init() {
     this.canvas = $('#plinko-canvas');
     this.ctx = this.canvas.getContext('2d');
@@ -2134,7 +2156,6 @@ const Plinko = {
     $('#plinko-drop').addEventListener('click', () => this.drop());
     $('#plinko-drop10').addEventListener('click', () => this.dropMany(10));
     ['#plinko-rows', '#plinko-risk'].forEach(s => $(s).addEventListener('change', () => this.draw()));
-    $('#plinko-speed').addEventListener('change', e => { S.plinkoSpeed = e.target.value; scheduleSave(); });
     this.renderBig();
   },
   rows() { return Number($('#plinko-rows').value); },
@@ -2151,14 +2172,14 @@ const Plinko = {
     const m = t[k], pay = r2(bet * m);
     const pid = instantPending('Plinko', bet, pay, m);
     Net.emit('place_bet', { game: 'Plinko', amount: bet, win: false, payout: 0 });
-    this.balls.push({ path, k, n, bet, pay, m, pid, risk: this.risk(), ms: this.SPEEDS[S.plinkoSpeed] || this.SPEEDS.normale, start: performance.now() });
+    this.balls.push({ path, k, n, bet, pay, m, pid, risk: this.risk(), ms: this.rowMs(), start: performance.now() });
     this.lock();
     this.loop();
     return true;
   },
   dropMany(c) {
     let i = 0;
-    const next = () => { if (i++ < c && this.drop() !== false) setTimeout(next, S.plinkoSpeed === 'rapide' ? 260 : 650); };
+    const next = () => { if (i++ < c && this.drop() !== false) setTimeout(next, FAST() ? 260 : 650); };
     next();
   },
   resize() {
@@ -2197,10 +2218,10 @@ const Plinko = {
     if (counts(b.bet)) Goals.bump('plinko', 1);
     const got = settle('Plinko', b.bet, b.pay, b.m);
     setPending(b.pid, null);
-    if (b.m >= 10) {
+    if (got > b.bet) { // toutes les billes qui rapportent plus que leur mise
       const rec = { m: b.m, rows: b.n, risk: b.risk, bet: b.bet, win: r2(got - b.bet), t: Date.now() };
       S.plinkoBig.unshift(rec);
-      S.plinkoBig.length = Math.min(S.plinkoBig.length, 20);
+      S.plinkoBig.length = Math.min(S.plinkoBig.length, 30);
       scheduleSave();
       this.renderBig();
     }
@@ -2210,12 +2231,11 @@ const Plinko = {
   },
   renderBig() {
     const RISK = { faible: 'risque faible', moyen: 'risque moyen', eleve: 'risque élevé' };
-    $('#plinko-speed').value = S.plinkoSpeed;
     const list = S.plinkoBig;
     $('#plinko-big').innerHTML = list.length ? list.map(x => {
       const time = new Date(x.t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
       return `<li><span class="mult-badge" style="background:${this.binColor(x.m)}">${fmtX(x.m)}</span><span class="who">${x.rows} rangées, ${RISK[x.risk] || ''}<small>Mise de ${money(x.bet)}, ${new Date(x.t).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} à ${time}</small></span><span class="amt">+${money(x.win)}</span></li>`;
-    }).join('') : '<li class="empty">Aucun ×10 ou plus pour l’instant. Les cases du bord sont les plus généreuses.</li>';
+    }).join('') : '<li class="empty">Aucune bille gagnante pour l’instant. Les cases du bord sont les plus généreuses.</li>';
     const best = S.plinkoBig.reduce((a, x) => Math.max(a, x.m), 0);
     $('#plinko-best').textContent = best ? `Record : ${fmtX(best)}` : '';
   },
@@ -2400,11 +2420,11 @@ const Slots = {
     this.busy = true; lockBet('slots', true); $('#slot-spin').disabled = true;
     $$('#slot-reels .sym.win').forEach(e => e.classList.remove('win'));
     setResult($('#slot-msg'), 'Les rouleaux tournent…', '');
-    const base = 1300;
+    const base = FAST() ? 450 : 1300, gap = FAST() ? 180 : 550;
     stops.forEach((s, r) => {
       this.setReel(r, this.stops[r], 0);
       void $('#reel-' + r).offsetWidth;
-      this.setReel(r, s + (SLOT_COPIES - 2) * L, base + r * 550);
+      this.setReel(r, s + (SLOT_COPIES - 2) * L, base + r * gap);
     });
     setTimeout(() => {
       stops.forEach((s, r) => this.setReel(r, s, 0));
@@ -2426,7 +2446,7 @@ const Slots = {
           `${SLOT_LINE_NAMES[w.li]} : ${SLOT_SYMBOLS[w.sym].repeat(w.cells.length)} = ${money(r2(lineBet * w.m))}`).join('<br>')}</span>`;
       }
       this.busy = false; lockBet('slots', false); $('#slot-spin').disabled = false;
-    }, base + 2 * 550 + 80);
+    }, base + 2 * gap + 80);
   }
 };
 
@@ -2587,11 +2607,11 @@ function buildWheel(svg, segs, fontSize) {
   svg.innerHTML = html;
 }
 /* Fait tourner une roue pour amener la case i sous le pointeur (en haut) */
-function spinWheel(svg, state, i, N, dur) {
+function spinWheel(svg, state, i, N, dur, turns = 3) {
   const seg = 360 / N, jitter = (RNG.float() - 0.5) * seg * 0.7;
   const want = (360 - (i + 0.5) * seg + jitter + 360) % 360;
   const cur = ((state.rot % 360) + 360) % 360;
-  state.rot += 360 * 3 + ((want - cur + 360) % 360);
+  state.rot += 360 * turns + ((want - cur + 360) % 360);
   svg.style.transition = `transform ${dur}ms cubic-bezier(.2,.55,.1,1)`;
   svg.style.transform = `rotate(${state.rot}deg)`;
 }
@@ -2635,8 +2655,8 @@ const WheelF = {
     const pid = instantPending('Roue de la fortune', bet, pay, m);
     Net.emit('place_bet', { game: 'Roue de la fortune', amount: bet, win: false, payout: 0 });
     setResult($('#wf-msg'), 'La roue tourne…', '');
-    const dur = 7500;
-    spinWheel($('#wf-svg'), this.state, i, 30, dur);
+    const dur = FAST() ? 2500 : 7500;
+    spinWheel($('#wf-svg'), this.state, i, 30, dur, FAST() ? 2 : 3);
     setTimeout(() => {
       if (m >= 29 && counts(bet)) S.c.wheelTop++;
       const got = settle('Roue de la fortune', bet, pay, m);
@@ -2782,6 +2802,34 @@ const LB = {
   }
 };
 
+/* ---------- Top 10 des gains de la dernière heure (serveur) ---------- */
+const TopHour = {
+  list: [],
+  init() { setInterval(() => { if (currentView === 'salle') this.render(); }, 30000); this.render(); },
+  set(list) { this.list = Array.isArray(list) ? list.filter(x => x && typeof x.username === 'string').slice(0, 10) : []; this.render(); },
+  send(game, amount, mult) { // n'envoie que les gains qui peuvent entrer dans le top 10
+    if (!(amount > 0) || !Net.ready()) return;
+    if (this.list.length >= 10 && amount <= this.list[this.list.length - 1].amount) return;
+    Net.emit('game_win', { game, amount, mult });
+  },
+  ago(t) {
+    const m = Math.floor((Date.now() + (Net.offset || 0) - t) / 60000);
+    return m < 1 ? 'à l’instant' : `il y a ${m} min`;
+  },
+  render() {
+    const box = $('#top-hour');
+    if (!box) return;
+    if (!this.list.length) {
+      box.innerHTML = `<li class="empty">${Net.ready() ? 'Aucun gain dans la dernière heure. Jouez pour apparaître ici !' : 'Le classement s’affichera dès la connexion au serveur.'}</li>`;
+      return;
+    }
+    box.innerHTML = this.list.map((w, i) => `<li class="${w.username === user ? 'me' : ''}">
+      <span class="${i < 3 ? `medal m${i + 1}` : 'top-rank'}">${i + 1}</span>
+      <span class="who">${esc(w.username)}<small>${esc(w.game)}${w.mult ? `, ${fmtX(w.mult)}` : ''}, ${this.ago(w.at)}</small></span>
+      <span class="amt">+${money(w.amount)}</span></li>`).join('');
+  }
+};
+
 /* ---------- Grosses victoires (tous les joueurs) ---------- */
 const GAME_AT = {
   'Aviateur': 'à l’Aviateur', 'Machine à sous': 'à la machine à sous', 'Course': 'à la course de chevaux', 'Plinko': 'au Plinko',
@@ -2823,6 +2871,16 @@ const LOBBY = [
   { id: 'pile-face', name: 'Pile ou face', icon: 'coin', rtp: '97,5 %', desc: 'Une chance sur deux, gain ×1,95.' },
   { id: 'loto', name: 'Loto du jour', icon: 'ticket', note: 'Tirage chaque soir à 21 h', desc: 'Achetez des tickets : trois gagnants se partagent la cagnotte chaque soir.' }
 ];
+const FastMode = {
+  init() { $('#fast-toggle').addEventListener('click', () => this.toggle()); this.render(); },
+  toggle() {
+    S.fast = !S.fast;
+    if (user) saveNow();
+    this.render();
+    toast(S.fast ? 'Mode rapide activé : les jeux solo vont plus vite. L’Aviateur et la Course gardent leur rythme, partagé avec les autres joueurs.' : 'Mode rapide désactivé : vitesse normale.', 'info');
+  },
+  render() { $('#fast-toggle').setAttribute('aria-pressed', String(!!S.fast)); }
+};
 function renderLobby() {
   $('#lobby').innerHTML = LOBBY.map(g => `<button type="button" class="lobby-card" data-go-view="${g.id}">
     <span class="lobby-ic">${ICONS[g.icon]}</span><span class="lobby-name">${esc(g.name)}</span>
@@ -3445,6 +3503,7 @@ const Net = {
     s.on('race_state', d => Race.onState(d));
     s.on('big_win', d => BigWins.add(d, true));
     s.on('loto_state', d => Loto.onState(d));
+    s.on('top_hour', d => TopHour.set(d));
     s.on('loto_drawn', d => Loto.onDrawn(d));
     s.on('big_wins', list => { BigWins.list = []; (Array.isArray(list) ? list : []).slice().reverse().forEach(d => BigWins.add(d, false)); });
     s.on('race_bets', d => Race.onBets(d));
@@ -3625,11 +3684,12 @@ const ICONS = {
   chicken: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 14a5 5 0 0 0 10 0V9a4 4 0 0 0-8 0v2"/><path d="M9.5 5 10.5 2.5 12 5M17 9.5h2.5L17 11.5M10 19v2.5M14 19v2.5"/></svg>',
   slots: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M9 5v14M15 5v14"/></svg>',
   ticket: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></svg>',
+  home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V20h-5.5v-5h-5v5H4z"/></svg>',
   race: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>',
   wheel2: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 13 6.5 7.5M12 13l5.5-5.5M12 13v8M9.5 2.5h5L12 5z"/></svg>'
 };
 const VIEWS = [
-  { id: 'salle', label: 'Tous les jeux', group: 'Jeux', icon: 'grid' },
+  { id: 'salle', label: 'Accueil', group: 'Accueil', icon: 'home' },
   { id: 'crash', label: 'Aviateur', group: 'Jeux', icon: 'crash' },
   { id: 'slots', label: 'Machine à sous', group: 'Jeux', icon: 'slots' },
   { id: 'course', label: 'Course de chevaux', group: 'Jeux', icon: 'race' },
@@ -3747,7 +3807,7 @@ function renderStats() {
     : '<li class="muted-sm">Aucun pari pour l’instant : lancez une partie pour remplir l’historique.</li>';
 }
 function renderAll() {
-  renderWallet(); renderUser(); renderBoard(); renderShop(); renderStats(); renderOnline(); Plinko.renderBig();
+  renderWallet(); renderUser(); renderBoard(); renderShop(); renderStats(); renderOnline(); Plinko.renderBig(); FastMode.render();
   Clicker.render(); Goals.render(); Boost.tick(); Malus.render();
   $('#bj-pname').textContent = user || 'Vous';
   Mines.preview();
@@ -3782,7 +3842,7 @@ document.addEventListener('DOMContentLoaded', () => {
   BJ.init();
   Coin.init();
   Clicker.init();
-  Plinko.init(); Hilo.init(); WheelF.init(); Slots.init(); Race.init(); Loto.init(); LB.init();
+  Plinko.init(); Hilo.init(); WheelF.init(); Slots.init(); Race.init(); Loto.init(); LB.init(); FastMode.init(); TopHour.init();
   renderLobby();
   $('#view-objectifs').addEventListener('click', e => {
     const b = e.target.closest('button');
