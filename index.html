@@ -131,6 +131,7 @@ main{min-width:0}
 .panel{background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--r-panel);padding:20px}
 .panel-title{font-size:15px;font-weight:700;margin-bottom:12px}
 .stack{display:flex;flex-direction:column;gap:16px}
+.version{display:block;margin-top:4px;opacity:.7}
 .foot{max-width:1240px;margin:0 auto;padding:0 20px 32px;color:var(--faint);font-size:13px}
 .tag{display:inline-block;font-stretch:112%;font-weight:800;font-size:12px;line-height:1.3;padding:3px 8px;border-radius:6px;border:1px solid rgba(227,176,75,.45);color:var(--brass);background:rgba(227,176,75,.08);white-space:nowrap}
 .tag.sm{font-size:10px;padding:1px 5px;border-radius:4px;vertical-align:1px}
@@ -322,6 +323,12 @@ main{min-width:0}
   .race-lane{grid-template-columns:86px minmax(0,1fr)} .race-name{font-size:12px}
 }
 
+.plinko-big .who small{display:block;font-weight:500;color:var(--faint);font-size:12px}
+.big-list{max-height:320px}
+.big-list li{grid-template-columns:auto minmax(0,1fr) auto;align-items:center}
+.plinko-big .who{font-weight:700;white-space:normal;overflow:visible;line-height:1.3}
+.plinko-big .amt{white-space:nowrap}
+.mult-badge{font-stretch:115%;font-weight:900;font-size:13px;color:#1D1606;border-radius:7px;padding:3px 8px;min-width:58px;text-align:center}
 .loto-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:28px;align-items:center}
 .loto-pot-box{text-align:center;padding:10px;border-radius:14px;background:radial-gradient(ellipse at 50% 0%,rgba(227,176,75,.18),transparent 70%)}
 .loto-pot{font-stretch:125%;font-weight:900;font-size:clamp(40px,6vw,64px);line-height:1.05;color:var(--brass);margin:4px 0}
@@ -485,8 +492,7 @@ main{min-width:0}
   .card{width:58px;height:84px} .card .c-suit{font-size:28px}
 }
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important}
-  .coin{transition-duration:.35s}
+  .floater,.toast,.tile.gem,.tile.bomb,.sym.win,.card.deal,.card.flip{animation:none!important}
 }
 </style>
 </head>
@@ -637,13 +643,20 @@ main{min-width:0}
           <div class="plinko-box"><canvas id="plinko-canvas" aria-hidden="true"></canvas></div>
           <div class="recent"><span class="muted-sm">Dernières billes</span><div class="crash-history" id="plinko-recent"></div></div>
         </div>
-        <div class="panel stack">
-          <div class="field"><span>Mise par bille</span><div data-bet="plinko" data-min="1" data-value="10.00"></div></div>
-          <div class="field"><label for="plinko-risk">Risque</label><select id="plinko-risk" class="input"><option value="faible">Faible</option><option value="moyen" selected>Moyen</option><option value="eleve">Élevé</option></select></div>
-          <div class="field"><label for="plinko-rows">Rangées</label><select id="plinko-rows" class="input"><option>8</option><option selected>12</option><option>16</option></select></div>
-          <button class="btn btn-go btn-lg" id="plinko-drop" type="button">Lâcher une bille</button>
-          <button class="btn btn-ghost" id="plinko-drop10" type="button">Lâcher 10 billes</button>
-          <p class="hint">Le risque et les rangées se règlent quand aucune bille n’est en jeu.</p>
+        <div class="stack">
+          <div class="panel stack plinko-side">
+            <div class="field"><span>Mise par bille</span><div data-bet="plinko" data-min="1" data-value="10.00"></div></div>
+            <div class="field"><label for="plinko-risk">Risque</label><select id="plinko-risk" class="input"><option value="faible">Faible</option><option value="moyen" selected>Moyen</option><option value="eleve">Élevé</option></select></div>
+            <div class="field"><label for="plinko-speed">Vitesse des billes</label><select id="plinko-speed" class="input"><option value="normale">Normale</option><option value="rapide">Rapide</option></select></div>
+            <div class="field"><label for="plinko-rows">Rangées</label><select id="plinko-rows" class="input"><option>8</option><option selected>12</option><option>16</option></select></div>
+            <button class="btn btn-go btn-lg" id="plinko-drop" type="button">Lâcher une bille</button>
+            <button class="btn btn-ghost" id="plinko-drop10" type="button">Lâcher 10 billes</button>
+            <p class="hint">Le risque et les rangées se règlent quand aucune bille n’est en jeu. La vitesse s’applique aux billes suivantes et ne change rien aux gains.</p>
+          </div>
+          <div class="panel plinko-big">
+            <div class="panel-head"><h3 class="panel-title">Vos gros lots (×10 et plus)</h3><span class="muted-sm" id="plinko-best"></span></div>
+            <ul class="live big-list" id="plinko-big"></ul>
+          </div>
         </div>
       </div>
     </section>
@@ -973,7 +986,7 @@ main{min-width:0}
   </main>
 </div>
 
-<footer class="foot">Argent virtuel uniquement : les soldes n’ont aucune valeur réelle et ne peuvent être ni achetés ni retirés.</footer>
+<footer class="foot">Argent virtuel uniquement : les soldes n’ont aucune valeur réelle et ne peuvent être ni achetés ni retirés. <span class="version">Version du 3 novembre 2026</span></footer>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <noscript><p style="padding:20px">Le casino a besoin de JavaScript pour fonctionner.</p></noscript>
 
@@ -1006,6 +1019,8 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 const NUM = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const money = n => NUM.format(Number.isFinite(+n) ? +n : 0) + '\u00a0$';
 const fmtX = m => NUM.format(m) + '×';
+// « Réduire les animations » ne coupe que les effets décoratifs (confettis…) :
+// la durée des jeux est la même pour tous les joueurs.
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const hex = bytes => Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
 const store = {
@@ -1045,7 +1060,7 @@ const DEFAULT_STATE = () => ({
   achievements: {}, inventory: {}, equippedBadge: '', history: [], pending: {},
   clicker: { up: {}, bought: 0, boosts: 0, clickEarned: 0, autoEarned: 0 },
   c: { minesRun: 0, blackjacks: 0, coinStreak: 0, coinBest: 0, wagered: 0, minesClear: 0, bestWin: 0, dailyClaimed: 0, boost50: 0, chats: 0, sabotages: 0, games10: 0, wins10: 0, plinkoEdge: 0, hiloBest: 0, wheelTop: 0, slot7: 0, outsider: 0, lotoTickets: 0, lotoWins: 0 },
-  seen: {}, loto: {},
+  seen: {}, loto: {}, plinkoBig: [], plinkoSpeed: 'normale',
   boost: null, malus: {}, goals: {}, daily: { day: '', ids: [], prog: {}, claimed: {} }, theme: 'tapis', lastSeen: 0
 });
 let user = null;
@@ -1077,6 +1092,9 @@ function normalize(raw) {
   s.boost = s.boost && BOOSTS.some(b => b.mult === s.boost.mult) && Number.isFinite(s.boost.until) ? { mult: s.boost.mult, until: s.boost.until, pool: num(s.boost.pool) } : null;
   s.goals = obj(s.goals);
   s.seen = obj(s.seen);
+  s.plinkoSpeed = s.plinkoSpeed === 'rapide' ? 'rapide' : 'normale';
+  s.plinkoBig = (Array.isArray(raw && raw.plinkoBig) ? raw.plinkoBig : []).filter(x => x && num(x.m) >= 10).slice(0, 20)
+    .map(x => ({ m: num(x.m), rows: Math.floor(num(x.rows)), risk: String(x.risk || ''), bet: num(x.bet), win: num(x.win), t: num(x.t) }));
   s.loto = {};
   Object.entries(obj(raw && raw.loto)).forEach(([id, t]) => { if (/^\d{4}-\d{2}-\d{2}(-\w+)?$/.test(id) && t && num(t.n) > 0) s.loto[id] = { n: Math.floor(num(t.n)), paid: num(t.paid) }; });
   s.malus = {};
@@ -2086,7 +2104,7 @@ const Coin = {
       this.recent.unshift(res); this.recent.length = Math.min(this.recent.length, 16);
       $('#coin-recent').innerHTML = this.recent.map(r => `<i class="${r}">${r === 'pile' ? 'P' : 'F'}</i>`).join('');
       this.busy = false; this.lock(false);
-    }, reducedMotion ? 380 : 1400);
+    }, 1400);
   }
 };
 
@@ -2108,7 +2126,7 @@ const counts = bet => bet >= GOAL_MIN_BET;
 /* ---------- Plinko ---------- */
 const Plinko = {
   balls: [], hits: {}, recent: [], canvas: null, ctx: null, w: 0, h: 0, raf: 0,
-  ROW_MS: 430, // durée de chute par rangée
+  SPEEDS: { normale: 430, rapide: 140 }, // durée de chute par rangée, en millisecondes
   init() {
     this.canvas = $('#plinko-canvas');
     this.ctx = this.canvas.getContext('2d');
@@ -2116,6 +2134,8 @@ const Plinko = {
     $('#plinko-drop').addEventListener('click', () => this.drop());
     $('#plinko-drop10').addEventListener('click', () => this.dropMany(10));
     ['#plinko-rows', '#plinko-risk'].forEach(s => $(s).addEventListener('change', () => this.draw()));
+    $('#plinko-speed').addEventListener('change', e => { S.plinkoSpeed = e.target.value; scheduleSave(); });
+    this.renderBig();
   },
   rows() { return Number($('#plinko-rows').value); },
   risk() { return $('#plinko-risk').value; },
@@ -2131,14 +2151,14 @@ const Plinko = {
     const m = t[k], pay = r2(bet * m);
     const pid = instantPending('Plinko', bet, pay, m);
     Net.emit('place_bet', { game: 'Plinko', amount: bet, win: false, payout: 0 });
-    this.balls.push({ path, k, n, bet, pay, m, pid, start: performance.now() });
+    this.balls.push({ path, k, n, bet, pay, m, pid, risk: this.risk(), ms: this.SPEEDS[S.plinkoSpeed] || this.SPEEDS.normale, start: performance.now() });
     this.lock();
     this.loop();
     return true;
   },
   dropMany(c) {
     let i = 0;
-    const next = () => { if (i++ < c && this.drop() !== false) setTimeout(next, 650); };
+    const next = () => { if (i++ < c && this.drop() !== false) setTimeout(next, S.plinkoSpeed === 'rapide' ? 260 : 650); };
     next();
   },
   resize() {
@@ -2165,9 +2185,8 @@ const Plinko = {
     this.raf = requestAnimationFrame(f);
   },
   update(now) {
-    const ms = reducedMotion ? 40 : this.ROW_MS;
     this.balls = this.balls.filter(b => {
-      if ((now - b.start) / ms < b.n) return true;
+      if ((now - b.start) / b.ms < b.n) return true;
       this.land(b);
       return false;
     });
@@ -2178,9 +2197,27 @@ const Plinko = {
     if (counts(b.bet)) Goals.bump('plinko', 1);
     const got = settle('Plinko', b.bet, b.pay, b.m);
     setPending(b.pid, null);
+    if (b.m >= 10) {
+      const rec = { m: b.m, rows: b.n, risk: b.risk, bet: b.bet, win: r2(got - b.bet), t: Date.now() };
+      S.plinkoBig.unshift(rec);
+      S.plinkoBig.length = Math.min(S.plinkoBig.length, 20);
+      scheduleSave();
+      this.renderBig();
+    }
     this.hits[b.k] = performance.now();
     pushRecent(this.recent, { m: b.m, win: got > b.bet });
     $('#plinko-recent').innerHTML = this.recent.map(x => `<span class="hchip${x.m >= 10 ? ' moon' : x.win ? ' hi' : ''}">${fmtX(x.m)}</span>`).join('');
+  },
+  renderBig() {
+    const RISK = { faible: 'risque faible', moyen: 'risque moyen', eleve: 'risque élevé' };
+    $('#plinko-speed').value = S.plinkoSpeed;
+    const list = S.plinkoBig;
+    $('#plinko-big').innerHTML = list.length ? list.map(x => {
+      const time = new Date(x.t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      return `<li><span class="mult-badge" style="background:${this.binColor(x.m)}">${fmtX(x.m)}</span><span class="who">${x.rows} rangées, ${RISK[x.risk] || ''}<small>Mise de ${money(x.bet)}, ${new Date(x.t).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} à ${time}</small></span><span class="amt">+${money(x.win)}</span></li>`;
+    }).join('') : '<li class="empty">Aucun ×10 ou plus pour l’instant. Les cases du bord sont les plus généreuses.</li>';
+    const best = S.plinkoBig.reduce((a, x) => Math.max(a, x.m), 0);
+    $('#plinko-best').textContent = best ? `Record : ${fmtX(best)}` : '';
   },
   binColor(m) { return m >= 100 ? '#DE4A43' : m >= 10 ? '#E7683C' : m >= 2 ? '#E8913F' : m >= 1 ? '#E3B04B' : '#C9A85C'; },
   draw(now = performance.now()) {
@@ -2208,10 +2245,9 @@ const Plinko = {
       const label = t[k] >= 100 ? String(Math.round(t[k])) : String(t[k]).replace('.', ',');
       ctx.fillText(label, x, by + lift + bh / 2, bw - 2);
     }
-    const ms = reducedMotion ? 40 : this.ROW_MS;
     ctx.fillStyle = '#F0C66E';
     this.balls.forEach(b => {
-      const g = this.geom(b.n), p = Math.min(b.n, (now - b.start) / ms), i = Math.floor(p), s = p - i;
+      const g = this.geom(b.n), p = Math.min(b.n, (now - b.start) / b.ms), i = Math.floor(p), s = p - i;
       const pos = idx => {
         const R = b.path.slice(0, idx).reduce((a, v) => a + v, 0);
         return { x: g.cx + (R - idx / 2) * g.sp, y: g.top + idx * g.sp - g.sp * 0.38 };
@@ -2364,11 +2400,11 @@ const Slots = {
     this.busy = true; lockBet('slots', true); $('#slot-spin').disabled = true;
     $$('#slot-reels .sym.win').forEach(e => e.classList.remove('win'));
     setResult($('#slot-msg'), 'Les rouleaux tournent…', '');
-    const base = reducedMotion ? 300 : 1300;
+    const base = 1300;
     stops.forEach((s, r) => {
       this.setReel(r, this.stops[r], 0);
       void $('#reel-' + r).offsetWidth;
-      this.setReel(r, s + (SLOT_COPIES - 2) * L, base + r * (reducedMotion ? 100 : 550));
+      this.setReel(r, s + (SLOT_COPIES - 2) * L, base + r * 550);
     });
     setTimeout(() => {
       stops.forEach((s, r) => this.setReel(r, s, 0));
@@ -2390,7 +2426,7 @@ const Slots = {
           `${SLOT_LINE_NAMES[w.li]} : ${SLOT_SYMBOLS[w.sym].repeat(w.cells.length)} = ${money(r2(lineBet * w.m))}`).join('<br>')}</span>`;
       }
       this.busy = false; lockBet('slots', false); $('#slot-spin').disabled = false;
-    }, base + 2 * (reducedMotion ? 100 : 550) + 80);
+    }, base + 2 * 550 + 80);
   }
 };
 
@@ -2555,7 +2591,7 @@ function spinWheel(svg, state, i, N, dur) {
   const seg = 360 / N, jitter = (RNG.float() - 0.5) * seg * 0.7;
   const want = (360 - (i + 0.5) * seg + jitter + 360) % 360;
   const cur = ((state.rot % 360) + 360) % 360;
-  state.rot += 360 * (reducedMotion ? 1 : 3) + ((want - cur + 360) % 360);
+  state.rot += 360 * 3 + ((want - cur + 360) % 360);
   svg.style.transition = `transform ${dur}ms cubic-bezier(.2,.55,.1,1)`;
   svg.style.transform = `rotate(${state.rot}deg)`;
 }
@@ -2599,7 +2635,7 @@ const WheelF = {
     const pid = instantPending('Roue de la fortune', bet, pay, m);
     Net.emit('place_bet', { game: 'Roue de la fortune', amount: bet, win: false, payout: 0 });
     setResult($('#wf-msg'), 'La roue tourne…', '');
-    const dur = reducedMotion ? 400 : 7500;
+    const dur = 7500;
     spinWheel($('#wf-svg'), this.state, i, 30, dur);
     setTimeout(() => {
       if (m >= 29 && counts(bet)) S.c.wheelTop++;
@@ -3711,7 +3747,7 @@ function renderStats() {
     : '<li class="muted-sm">Aucun pari pour l’instant : lancez une partie pour remplir l’historique.</li>';
 }
 function renderAll() {
-  renderWallet(); renderUser(); renderBoard(); renderShop(); renderStats(); renderOnline();
+  renderWallet(); renderUser(); renderBoard(); renderShop(); renderStats(); renderOnline(); Plinko.renderBig();
   Clicker.render(); Goals.render(); Boost.tick(); Malus.render();
   $('#bj-pname').textContent = user || 'Vous';
   Mines.preview();
