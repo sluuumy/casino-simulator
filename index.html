@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Émeraude Club : casino en argent virtuel</title>
+<title>Carat : jeux en argent virtuel entre amis</title>
 <meta name="description" content="Aviateur, Mines, roulette, blackjack et pile ou face en argent virtuel, avec tchat et classement en direct.">
 <meta name="theme-color" content="#08070B">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18.5' fill='%2312261F' stroke='%23E3B04B' stroke-width='2'/%3E%3Cpath d='M13 9h14l6 7-13 16L7 16z' fill='%232FAE78' stroke='%23E9F9F0' stroke-width='.8'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18.5' fill='%230F0E14' stroke='%23E6BE62' stroke-width='2'/%3E%3Cpath d='M12.5 13h15l5 6-12.5 13.5L7.5 19z' fill='%23DDF1FF'/%3E%3Cpath d='M7.5 19h25M16.3 19 20 32.5 23.7 19M12.5 13l3.8 6 3.7-6 3.7 6 3.8-6' fill='none' stroke='%237FB8E0' stroke-width='.9'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
@@ -239,22 +239,30 @@ main{min-width:0}
 /* ---------- Caisse de secours ---------- */
 .clicker{display:grid;grid-template-columns:auto minmax(0,1fr);gap:40px;align-items:center;padding:28px}
 .chip-area{position:relative}
-.coin-btn{width:min(250px,64vw);aspect-ratio:1;border-radius:50%;border:0;padding:0;cursor:pointer;position:relative;display:block;
-  background:repeating-conic-gradient(#9E7020 0 2.5deg,#F1D27E 2.5deg 5deg);
-  box-shadow:0 0 0 2px #6E4C10,0 18px 36px rgba(0,0,0,.6),0 0 60px -14px rgba(230,190,98,.55);transition:transform .07s}
-.coin-btn::before{content:"";position:absolute;inset:4.5%;border-radius:50%;
-  background:radial-gradient(circle at 34% 28%,#FFF4C9 0%,#F3D27B 20%,#DDAE48 48%,#B6842A 78%,#8C6114 100%);
-  box-shadow:inset 0 0 0 2px rgba(110,76,16,.65),inset 0 8px 14px rgba(255,246,205,.45),inset 0 -10px 18px rgba(80,52,8,.55)}
-.coin-face{position:absolute;inset:15%;border-radius:50%;display:grid;place-items:center;
-  background:radial-gradient(circle at 40% 30%,#F9DE8F,#DBA947 58%,#B07D22);
-  box-shadow:inset 0 3px 8px rgba(80,52,8,.6),inset 0 -2px 4px rgba(255,240,190,.5),0 0 0 2px rgba(110,76,16,.45),0 1px 0 3px rgba(255,236,170,.35)}
-.coin-face::before{content:"";position:absolute;inset:7%;border-radius:50%;border:2px dotted rgba(110,76,16,.55)}
-.coin-67{position:relative;font-family:var(--display);font-weight:800;font-size:clamp(66px,16vw,104px);line-height:1;letter-spacing:-.02em;
-  background:linear-gradient(180deg,#FFF7D6 0%,#F5D47A 38%,#C99232 70%,#8C6114 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 2px 0 rgba(80,52,8,.7)) drop-shadow(0 -1px 0 rgba(255,250,225,.6))}
-.coin-btn::after{content:"";position:absolute;inset:4.5%;border-radius:50%;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.45) 48%,transparent 60%);background-size:250% 250%;background-position:120% 0;pointer-events:none}
-.coin-btn:active{transform:scale(.965) rotate(-2deg)}
-.coin-btn:active::after{background-position:-20% 0;transition:background-position .35s}
+.gem-btn{--g1:#FFFFFF;--g2:#E9F6FF;--g3:#C4E5FF;--g4:#93CBF0;--g5:#649FCF;--glow:rgba(170,215,255,.55);--edge:rgba(255,255,255,.75);
+  position:relative;display:grid;place-items:center;width:min(260px,66vw);aspect-ratio:1;border:0;padding:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.gem-btn.skin-argent{--g1:#DCE9FF;--g2:#8FB4F2;--g3:#4F84DE;--g4:#2C5FB8;--g5:#183E85;--glow:rgba(80,140,240,.55);--edge:rgba(210,228,255,.7)}
+.gem-btn.skin-onyx{--g1:#7A7A88;--g2:#4A4A55;--g3:#2E2E37;--g4:#1C1C23;--g5:#0E0E12;--glow:rgba(230,190,98,.4);--edge:rgba(230,190,98,.85)}
+.gem-btn.skin-emeraude{--g1:#D7FBE9;--g2:#7FE3B8;--g3:#2FBF85;--g4:#14905C;--g5:#0A5C3A;--glow:rgba(47,214,155,.5);--edge:rgba(215,251,233,.7)}
+.gem-glow{position:absolute;inset:14%;border-radius:50%;background:radial-gradient(circle,var(--glow),transparent 68%);filter:blur(14px);animation:gemPulse 3.2s ease-in-out infinite}
+.gem-float{position:relative;width:86%;animation:gemFloat 3.2s ease-in-out infinite}
+.gem-svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 16px 22px rgba(0,0,0,.55));transition:transform .12s}
+.gem-svg .f1{fill:var(--g1)} .gem-svg .f2{fill:var(--g2)} .gem-svg .f3{fill:var(--g3)} .gem-svg .f4{fill:var(--g4)} .gem-svg .f5{fill:var(--g5)}
+.gem-svg .edge{fill:none;stroke:var(--edge);stroke-width:1.4;stroke-linejoin:round}
+.gem-svg .shine{fill:#fff;opacity:.85} .gem-svg .shine.soft{opacity:.35}
+.gem-btn:hover .gem-svg{transform:scale(1.03) rotate(-1.5deg)}
+.gem-btn.hit .gem-svg{animation:gemHit .32s cubic-bezier(.3,1.6,.5,1)}
+.gem-btn.hit .gem-glow{animation:gemFlash .4s ease-out}
+.gem-spark{position:absolute;width:16px;height:16px;background:radial-gradient(circle,#fff 0 18%,transparent 20%),linear-gradient(#fff,#fff) center/2px 100% no-repeat,linear-gradient(#fff,#fff) center/100% 2px no-repeat;opacity:0;animation:twinkle 2.6s ease-in-out infinite;pointer-events:none}
+.gem-spark.s1{top:18%;left:22%} .gem-spark.s2{top:30%;right:16%;animation-delay:.7s} .gem-spark.s3{bottom:30%;left:30%;animation-delay:1.4s;transform:scale(.7)} .gem-spark.s4{top:12%;right:34%;animation-delay:2s;transform:scale(.55)}
+.gem-shard{position:absolute;left:50%;top:45%;width:10px;height:12px;margin:-6px 0 0 -5px;background:var(--g2);clip-path:polygon(50% 0,100% 40%,50% 100%,0 40%);pointer-events:none;animation:shard .6s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes gemFloat{50%{transform:translateY(-8px)}}
+@keyframes gemPulse{50%{opacity:.7;transform:scale(.94)}}
+@keyframes gemHit{0%{transform:scale(1)}35%{transform:scale(.88,.9) rotate(2deg);filter:drop-shadow(0 10px 18px rgba(0,0,0,.5)) brightness(1.35)}100%{transform:scale(1)}}
+@keyframes gemFlash{0%{opacity:1;transform:scale(1.25);filter:blur(10px) brightness(1.8)}}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.3) rotate(0)}50%{opacity:1;transform:scale(1) rotate(45deg)}}
+@keyframes shard{to{transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(.4);opacity:0}}
+@media (prefers-reduced-motion:reduce){ .gem-float,.gem-glow,.gem-spark{animation:none} .gem-spark{opacity:.6} }
 .coin-value{text-align:center;color:var(--muted);margin-top:14px;font-size:14px}
 .coin-value strong{font-family:var(--display);font-size:22px;color:var(--brass)}
 .floater{position:absolute;pointer-events:none;font-weight:850;color:var(--brass);font-stretch:120%;animation:float .8s ease-out forwards;z-index:3;white-space:nowrap}
@@ -401,11 +409,11 @@ main{min-width:0}
 .live li.me .who{color:var(--brass)}
 @media (max-width:900px){ .loto-hero{grid-template-columns:minmax(0,1fr)} }
 
-/* ---------- Finitions « grand casino » ---------- */
+/* ---------- Finitions ---------- */
 .topbar{border-bottom:1px solid rgba(230,190,98,.14)}
 .topbar::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(230,190,98,.55) 50%,transparent)}
 .brand-word{gap:8px}
-.bw-main{font-family:var(--display);font-stretch:normal;font-weight:700;font-size:23px;letter-spacing:.01em;background:linear-gradient(180deg,#FBEFC9,#E6BE62 55%,#B9892F);-webkit-background-clip:text;background-clip:text;color:transparent}
+.bw-main{font-family:var(--display);font-stretch:normal;font-weight:800;font-size:26px;letter-spacing:.04em;letter-spacing:.01em;background:linear-gradient(180deg,#FBEFC9,#E6BE62 55%,#B9892F);-webkit-background-clip:text;background-clip:text;color:transparent}
 .bw-sub{font-size:10px;font-weight:700;letter-spacing:.42em;color:var(--brass);opacity:.8}
 .view-head h2,.auth-card h2{font-family:var(--display);font-stretch:normal;font-weight:700;letter-spacing:.005em}
 .view-head h2{font-size:34px}
@@ -436,6 +444,85 @@ main{min-width:0}
 .result-line[data-kind="win"],.result-line[data-kind="lose"]{text-shadow:none}
 .toast{box-shadow:0 14px 34px rgba(0,0,0,.6)}
 .medal.m1{box-shadow:none}
+
+/* ---------- Saisons ---------- */
+.season-banner{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:22px;align-items:center;padding:22px 24px;
+  background:radial-gradient(ellipse at 0% 0%,rgba(230,190,98,.16),transparent 60%),var(--panel);border-color:rgba(230,190,98,.3)}
+.sb-emblem{width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5))}
+.sb-emblem svg{width:100%;height:100%}
+.sb-num{text-transform:uppercase;letter-spacing:.2em;font-size:12px;font-weight:800;color:var(--brass)}
+.sb-name{font-family:var(--display);font-size:30px;font-weight:800;line-height:1.1;margin:2px 0 4px}
+.sb-tag{color:var(--muted);font-size:14px}
+.sb-rules{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.sb-rules li{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(230,190,98,.1);color:var(--brass-hi);border:1px solid rgba(230,190,98,.25)}
+.sb-side{display:flex;flex-direction:column;align-items:flex-end;gap:10px;text-align:right}
+.sb-time{font-weight:800;color:var(--ink)}
+.season-banner.ending{border-color:var(--red)}
+.season-banner.ending .sb-time{color:var(--red)}
+.lobby-card.featured{border-color:rgba(230,190,98,.6)}
+.lobby-card.featured .lobby-body::before{content:"À l’honneur cette saison";align-self:flex-start;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--brass-ink);background:var(--brass);border-radius:4px;padding:2px 7px}
+.lobby-art svg{filter:var(--art-filter,none)}
+.lvl-chip{display:flex;flex-direction:column;gap:4px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;padding:5px 10px;cursor:pointer;min-width:74px}
+.lvl-chip span{font-size:12px;font-weight:700;color:var(--muted);text-align:left}
+.lvl-chip b{color:var(--brass);font-size:14px}
+.lvl-bar{display:block;height:3px;border-radius:2px;background:var(--line-soft);overflow:hidden}
+.lvl-bar i{display:block;height:100%;background:var(--brass);width:0}
+.pass-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:24px;align-items:center}
+.pass-level{font-family:var(--display);font-size:22px;font-weight:700}
+.pass-level b{font-size:40px;color:var(--brass)}
+.bar.big{height:10px;margin:0 0 6px}
+.pt-row{display:grid;grid-template-columns:44px minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:stretch;padding:5px 0;border-top:1px solid var(--line-soft)}
+.pt-row:first-child,.pt-header+div .pt-row:first-child{border-top:0}
+.pt-header{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-top:0;padding-bottom:10px}
+.pt-header span:last-child{color:var(--brass)}
+.pt-lvl{display:grid;place-items:center;font-weight:800;color:var(--faint);font-size:14px}
+.pt-row.reached .pt-lvl{color:var(--ink)}
+.pt-row.current .pt-lvl{color:var(--brass);font-size:16px}
+.pt-cell{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;background:var(--bg);border:1px solid var(--line-soft);min-height:46px}
+.pt-cell.empty{background:transparent;border-color:transparent}
+.pt-cell.prestige{background:linear-gradient(90deg,rgba(230,190,98,.07),transparent);border-color:rgba(230,190,98,.2)}
+.pt-cell.locked{opacity:.45}
+.pt-cell.ready{border-color:var(--brass)}
+.pt-cell.claimed{opacity:.6}
+.pt-ic{width:28px;height:28px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:12px;background:var(--panel-2);color:var(--brass)}
+.kind-boost .pt-ic{color:var(--jade)} .kind-title .pt-ic,.kind-theme .pt-ic,.kind-coin .pt-ic{background:var(--brass);color:var(--brass-ink)}
+.pt-label{flex:1;min-width:0;font-weight:700;font-size:14px}
+.pt-state{font-size:12px;color:var(--jade);font-weight:700}
+.pt-cell .btn{padding:6px 12px;font-size:13px}
+.heritage{display:flex;flex-wrap:wrap;gap:10px}
+.heritage-item{display:flex;flex-direction:column;gap:3px;padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid rgba(230,190,98,.25)}
+.heritage-item small{color:var(--faint);font-size:12px}
+.hall-title{font-family:var(--display);font-size:20px;font-weight:700}
+.hall-top{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px}
+.hall-top li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 10px;border-radius:9px;background:var(--bg)}
+.hall-top li.me{box-shadow:inset 0 0 0 1px var(--brass)}
+.hall-top .who{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hall-top .who small{display:block;font-weight:500;color:var(--faint);font-size:12px}
+.hall-top .amt{color:var(--brass);font-weight:800}
+.sc-stage{display:flex;flex-direction:column;align-items:center;gap:14px}
+.sc-card{width:min(380px,100%);padding:16px;border-radius:14px;background:linear-gradient(160deg,#1E2A22,#0F1712);border:2px solid var(--brass);box-shadow:0 18px 36px rgba(0,0,0,.5)}
+.sc-brand{font-family:var(--display);font-weight:800;font-size:18px;color:var(--brass);display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.sc-brand span{font-family:var(--font);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.sc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sc-cell{position:relative;aspect-ratio:1;border:0;border-radius:10px;background:#F5EEDC;padding:0;cursor:pointer;overflow:hidden;touch-action:none}
+.sc-cell:disabled{cursor:default}
+.sc-sym{position:absolute;inset:0;display:grid;place-items:center}
+.sc-sym svg{width:62%;height:62%}
+.sc-foil{position:absolute;inset:0;background:repeating-linear-gradient(135deg,#C8A24E 0 6px,#E2C27A 6px 12px);display:grid;place-items:center;transition:opacity .25s,transform .25s}
+.sc-foil::after{content:"?";font-family:var(--display);font-weight:800;font-size:28px;color:rgba(70,48,8,.55)}
+.sc-cell.idle .sc-foil{filter:grayscale(.6) brightness(.7)}
+.sc-cell.open .sc-foil{opacity:0;transform:scale(1.15);pointer-events:none}
+.sc-cell.win{box-shadow:inset 0 0 0 3px var(--jade);background:#E9F7EF}
+.coin-skins{display:flex;gap:8px;justify-content:center;margin-top:10px}
+.coin-skins button{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
+.coin-skins button.on{border-color:var(--ink)}
+@media (max-width:760px){
+  .season-banner{grid-template-columns:auto minmax(0,1fr)}
+  .sb-side{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center;text-align:left}
+  .pass-head{grid-template-columns:minmax(0,1fr)}
+  .hall-top{grid-template-columns:minmax(0,1fr)}
+  .lvl-chip{min-width:0;padding:4px 8px}
+}
 
 /* ---------- Clicker ---------- */
 .rates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--line-soft);border-radius:var(--r-ctl);overflow:hidden;margin:18px 0 0}
@@ -538,6 +625,9 @@ main{min-width:0}
 .seg{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border:1px solid var(--line-soft);border-radius:11px;padding:4px}
 .seg button{border:0;background:none;padding:8px;border-radius:8px;font-weight:700;color:var(--muted);cursor:pointer}
 .seg button[aria-selected="true"]{background:var(--panel-2);color:var(--ink)}
+.pw-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:620px){ .pw-grid{grid-template-columns:minmax(0,1fr)} }
+.auth-status{background:rgba(230,190,98,.1);border:1px solid rgba(230,190,98,.35);color:var(--brass-hi);border-radius:var(--r-ctl);padding:9px 12px;font-size:14px;font-weight:600}
 .auth-error{background:rgba(232,71,95,.12);border:1px solid rgba(232,71,95,.4);color:#F4A19C;border-radius:var(--r-ctl);padding:9px 12px;font-size:14px;font-weight:600}
 .link-btn{background:none;border:0;color:var(--muted);text-decoration:underline;text-underline-offset:4px;cursor:pointer;font-size:14px;padding:4px}
 .link-btn:hover{color:var(--ink)}
@@ -592,22 +682,233 @@ main{min-width:0}
 @media (prefers-reduced-motion:reduce){
   .floater,.toast,.tile.gem,.tile.bomb,.sym.win,.card.deal,.card.flip{animation:none!important}
 }
+/* =====================================================================
+   NOUVELLE STRUCTURE : navigation par rubriques, accueil, animations
+   ===================================================================== */
+.shell{display:block;max-width:1240px;margin:0 auto;padding:22px 20px 40px}
+.topbar-in{gap:14px;padding:8px 20px;min-height:64px}
+.brand{flex:none}
+.topnav{position:relative;display:flex;align-items:center;gap:2px;margin:0 auto;padding:4px;border-radius:12px;background:rgba(255,255,255,.025);border:1px solid var(--line-soft)}
+.tn-btn{position:relative;z-index:1;display:flex;align-items:center;gap:7px;border:0;background:none;color:var(--muted);font-weight:700;font-size:14px;padding:8px 13px;border-radius:9px;cursor:pointer;transition:color .2s}
+.tn-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tn-btn:hover{color:var(--ink)}
+.tn-btn[aria-current="page"]{color:var(--brass-ink)}
+.tn-ind{position:absolute;left:0;top:4px;bottom:4px;border-radius:9px;background:linear-gradient(180deg,#F1D181,#D9AC4E);box-shadow:0 4px 14px -6px rgba(230,190,98,.7);transition:transform .35s cubic-bezier(.3,.8,.25,1),width .35s cubic-bezier(.3,.8,.25,1),opacity .2s;pointer-events:none}
+.tn-btn .nav-count,.bn-btn .nav-count{margin-left:2px;font-size:10px;padding:0 6px}
+.top-chips{margin-left:0}
+.wallet{margin-left:0}
+.fast-toggle{padding:7px 10px}
+.me{position:relative;flex:none}
+.me-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--panel-2);cursor:pointer;padding:0;display:grid;place-items:center;transition:border-color .2s,transform .15s}
+.me-btn:hover{border-color:var(--brass)}
+.me-btn:active{transform:scale(.95)}
+.me-av{font-family:var(--display);font-weight:800;font-size:17px;color:var(--brass)}
+.me-av.big{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--panel-2);border:1px solid var(--line);font-size:20px;flex:none}
+.me-menu{position:absolute;right:0;top:calc(100% + 10px);width:270px;padding:8px;border-radius:14px;background:var(--panel);border:1px solid var(--line);box-shadow:0 22px 50px rgba(0,0,0,.65);z-index:60;transform-origin:top right;animation:menuIn .18s cubic-bezier(.2,.8,.2,1)}
+@keyframes menuIn{from{opacity:0;transform:translateY(-6px) scale(.97)}}
+.me-head{display:flex;gap:12px;align-items:center;padding:8px 8px 12px;border-bottom:1px solid var(--line-soft);margin-bottom:6px}
+.me-head .user-name{font-weight:800;font-size:15px;display:flex;gap:6px;align-items:center}
+.me-head .user-kind{display:block;font-size:12px;color:var(--faint)}
+.me-menu > button{display:block;width:100%;text-align:left;border:0;background:none;color:var(--ink);font-weight:600;font-size:14px;padding:10px 10px;border-radius:9px;cursor:pointer}
+.me-menu > button:hover{background:var(--panel-2)}
+.me-menu .net{padding:8px 10px;margin:4px 0;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);font-size:12px}
+.me-logout{color:var(--red)!important}
+.me-claim{color:var(--brass)!important;font-weight:800!important;background:rgba(230,190,98,.08)!important;margin-bottom:4px}
+.user-chip{display:none}
+.subtabs{position:relative;display:flex;gap:4px;margin:0 0 22px;border-bottom:1px solid var(--line-soft)}
+.st-btn{position:relative;border:0;background:none;color:var(--muted);font-weight:700;font-size:15px;padding:10px 14px 12px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:color .2s}
+.st-btn:hover{color:var(--ink)}
+.st-btn[aria-current="page"]{color:var(--ink)}
+.st-ind{position:absolute;left:0;bottom:-1px;height:2px;background:var(--brass);border-radius:2px;transition:transform .35s cubic-bezier(.3,.8,.25,1),width .35s cubic-bezier(.3,.8,.25,1);box-shadow:0 0 10px rgba(230,190,98,.6)}
+.bottomnav{display:none}
+/* pages : apparition en douceur */
+.view.active{animation:viewIn .34s cubic-bezier(.2,.75,.2,1)}
+html[data-nav-dir="next"] .view.active{animation-name:viewInNext}
+html[data-nav-dir="prev"] .view.active{animation-name:viewInPrev}
+html.vt .view.active{animation:none}
+@keyframes viewIn{from{opacity:0;transform:translateY(12px) scale(.995)}}
+@keyframes viewInNext{from{opacity:0;transform:translateX(34px)}}
+@keyframes viewInPrev{from{opacity:0;transform:translateX(-34px)}}
+/* navigateurs récents : vraie transition entre deux pages (l'ancienne glisse et s'efface, la nouvelle arrive) */
+@supports (view-transition-name:none){
+  #main{view-transition-name:page}
+  .topbar{view-transition-name:topbar}
+  .bottomnav{view-transition-name:bottomnav}
+  .lb{view-transition-name:classement}
+  ::view-transition-group(page){animation-duration:.38s}
+  ::view-transition-old(page){animation:vtOut .22s ease-in both}
+  ::view-transition-new(page){animation:vtIn .38s cubic-bezier(.2,.75,.2,1) both}
+  html[data-nav-dir="next"]::view-transition-old(page){animation-name:vtOutLeft}
+  html[data-nav-dir="next"]::view-transition-new(page){animation-name:vtInRight}
+  html[data-nav-dir="prev"]::view-transition-old(page){animation-name:vtOutRight}
+  html[data-nav-dir="prev"]::view-transition-new(page){animation-name:vtInLeft}
+}
+@keyframes vtOut{to{opacity:0;transform:scale(.985)}}
+@keyframes vtIn{from{opacity:0;transform:translateY(14px) scale(.99)}}
+@keyframes vtOutLeft{to{opacity:0;transform:translateX(-48px)}}
+@keyframes vtInRight{from{opacity:0;transform:translateX(56px)}}
+@keyframes vtOutRight{to{opacity:0;transform:translateX(48px)}}
+@keyframes vtInLeft{from{opacity:0;transform:translateX(-56px)}}
+#bg-fx{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.shell,.foot{position:relative;z-index:1}
+/* connexion : la fenêtre s'efface en douceur à l'entrée dans le site */
+.auth.leaving{animation:authOut .4s ease-in forwards}
+@keyframes authOut{to{opacity:0;transform:scale(1.03)}}
+.back-link{display:inline-flex;align-items:center;gap:6px;margin-bottom:10px;padding:5px 10px 5px 8px;border-radius:999px;border:1px solid var(--line-soft);transition:border-color .2s,color .2s}
+.back-link:hover{border-color:var(--brass)}
+/* boutons plus soignés */
+.btn{position:relative;overflow:hidden;transition:transform .15s,box-shadow .2s,filter .2s,background-color .2s}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.btn:active:not(:disabled){transform:translateY(0) scale(.98)}
+.btn-brass::after,.btn-go::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-120%);transition:transform .6s}
+.btn-brass:hover:not(:disabled)::after,.btn-go:hover:not(:disabled)::after{transform:translateX(120%)}
+.btn-ghost{border:1px solid var(--line);box-shadow:none}
+.btn-ghost:hover:not(:disabled){border-color:var(--muted)}
+.btn-cta{padding:13px 22px;font-size:15px;border-radius:10px}
+/* accueil */
+.home-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.hh-kicker{text-transform:uppercase;letter-spacing:.18em;font-size:12px;font-weight:800;color:var(--brass);margin-bottom:6px}
+.home-hero h2{font-family:var(--display);font-size:40px;font-weight:800;line-height:1.05}
+.hh-sub{color:var(--muted);margin-top:6px}
+.home-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.tile-card{display:flex;flex-direction:column;gap:4px;text-align:left;padding:16px 18px;border-radius:var(--r-panel);border:1px solid var(--line-soft);background:var(--panel);color:var(--ink);cursor:pointer;transition:border-color .2s,transform .2s,box-shadow .2s;animation:rise .45s cubic-bezier(.2,.75,.2,1) both}
+.tile-card:nth-child(2){animation-delay:.05s} .tile-card:nth-child(3){animation-delay:.1s} .tile-card:nth-child(4){animation-delay:.15s}
+.tile-card:hover{border-color:rgba(230,190,98,.5);transform:translateY(-2px);box-shadow:0 18px 30px -22px rgba(0,0,0,.9)}
+.tile-card.hot{border-color:var(--brass)}
+.tc-label{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:800}
+.tc-value{font-family:var(--display);font-size:24px;font-weight:800;color:var(--brass);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-sub{font-size:12px;color:var(--faint)}
+.tc-bar{display:block;height:4px;border-radius:2px;background:var(--line-soft);overflow:hidden;margin-top:6px}
+.tc-bar i{display:block;height:100%;background:var(--brass)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+.home-split{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px;align-items:start}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.link-more{border:0;background:none;color:var(--brass);font-weight:700;cursor:pointer;font-size:14px}
+.link-more:hover{text-decoration:underline}
+.lobby.compact{grid-template-columns:repeat(2,minmax(0,1fr))}
+.lobby.compact .lobby-body{padding:12px 14px}
+.lobby.compact .lobby-name{font-size:18px}
+.top-hour .top-list{grid-template-columns:minmax(0,1fr)}
+/* page des jeux */
+.games-bar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.games-bar .filters{margin:0}
+.search{display:flex;align-items:center;gap:8px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg);min-width:240px}
+.search:focus-within{border-color:var(--brass)}
+.search svg{width:16px;height:16px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round}
+.search input{flex:1;border:0;background:none;padding:9px 0;outline:none;color:var(--ink)}
+.lobby .lobby-card{animation:rise .45s cubic-bezier(.2,.75,.2,1) both;animation-delay:calc(var(--i,0) * 40ms)}
+.lobby-card[hidden]{display:none}
+/* connexion plein écran */
+.auth{padding:0;background:radial-gradient(900px 600px at 20% 10%,rgba(230,190,98,.08),transparent 60%),rgba(5,4,7,.96)}
+.auth-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);width:min(980px,100%);min-height:min(620px,100vh);margin:auto;border-radius:22px;overflow:hidden;border:1px solid var(--line);box-shadow:0 40px 80px rgba(0,0,0,.6);animation:rise .5s cubic-bezier(.2,.75,.2,1)}
+.auth-brand{position:relative;padding:44px 40px;display:flex;flex-direction:column;gap:14px;justify-content:center;background:radial-gradient(ellipse at 0% 100%,rgba(47,214,155,.12),transparent 60%),radial-gradient(ellipse at 100% 0%,rgba(230,190,98,.16),transparent 55%),#0D0C12;border-right:1px solid var(--line-soft)}
+.ab-logo{width:76px;height:76px}
+.ab-logo svg{width:100%;height:100%}
+.ab-name{font-family:var(--display);font-weight:800;font-size:40px;line-height:1;background:linear-gradient(180deg,#FBEFC9,#E6BE62 55%,#B9892F);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ab-name span{font-family:var(--font);font-size:13px;letter-spacing:.4em;text-transform:uppercase;-webkit-text-fill-color:var(--brass);margin-left:6px}
+.ab-pitch{font-size:18px;color:var(--ink)}
+.ab-list{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.ab-list li{position:relative;padding-left:26px;color:var(--muted)}
+.ab-list li::before{content:"";position:absolute;left:0;top:7px;width:14px;height:8px;border-left:2px solid var(--brass);border-bottom:2px solid var(--brass);transform:rotate(-45deg)}
+.ab-season{margin-top:auto;font-size:13px;font-weight:700;color:var(--brass)}
+.auth-card{max-width:none;border:0;border-radius:0;padding:40px 36px;justify-content:center;background:var(--panel)}
+/* écran de chargement */
+.splash{position:fixed;inset:0;z-index:150;display:grid;place-items:center;background:radial-gradient(700px 400px at 50% 40%,rgba(230,190,98,.1),transparent 70%),var(--bg);transition:opacity .35s}
+.splash.out{opacity:0}
+.splash-in{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding:20px}
+.splash-logo{width:88px;height:88px;animation:pulse 1.8s ease-in-out infinite}
+.splash-logo svg{width:100%;height:100%}
+@keyframes pulse{50%{transform:scale(1.06);filter:drop-shadow(0 0 18px rgba(191,227,255,.55))}}
+.splash-name{font-family:var(--display);font-weight:800;font-size:30px;color:var(--brass)}
+.splash-name span{font-family:var(--font);font-size:12px;letter-spacing:.4em;text-transform:uppercase;margin-left:4px}
+.splash-text{color:var(--muted);max-width:320px}
+.splash-bar{width:180px;height:3px;border-radius:2px;background:var(--line);overflow:hidden}
+.splash-bar i{display:block;width:40%;height:100%;background:var(--brass);animation:load 1.2s ease-in-out infinite}
+@keyframes load{from{transform:translateX(-100%)}to{transform:translateX(250%)}}
+/* notifications */
+.toast{animation:toastIn .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes toastIn{from{opacity:0;transform:translateX(24px)}}
+/* en-tête plus compact sur les écrans moyens */
+@media (max-width:1980px){
+  .tn-btn svg{display:none}
+  .tn-btn{padding:8px 12px}
+  .ft-label,.wallet-label,.bw-sub{display:none}
+  .topbar-in{gap:10px}
+  .wallet-amount{font-size:22px}
+}
+.topbar-in{overflow:visible}
+.topnav{flex:none}
+.topbar-in{position:relative}
+.top-chips{position:absolute;right:20px;top:calc(100% + 8px);display:flex;gap:8px;z-index:41;pointer-events:none;margin:0}
+.top-chips > *{pointer-events:auto;box-shadow:0 8px 20px rgba(0,0,0,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.malus-chip{max-width:260px;background:#2A1219;border:1px solid rgba(232,71,95,.4)}
+.boost-chip{background:#0E2A20;border:1px solid rgba(47,214,155,.4)}
+@media (max-width:620px){ .top-chips{right:12px;left:12px;justify-content:flex-end} .malus-chip{max-width:60vw} }
+@media (max-width:420px){ .fast-toggle{display:none} }
+.top-chips:empty{display:none}
+/* écrans moyens et mobiles : barre d'onglets en bas */
+@media (max-width:1320px){
+  .topnav{display:none}
+  .bottomnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:45;background:color-mix(in srgb,var(--panel) 94%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+  .bn-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;color:var(--faint);font-size:11px;font-weight:700;padding:6px 2px;border-radius:10px;cursor:pointer;position:relative}
+  .bn-btn svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .bn-btn[aria-current="page"]{color:var(--brass);background:rgba(230,190,98,.08)}
+  .bn-btn .nav-count{position:absolute;top:2px;right:calc(50% - 22px)}
+  body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+  .toasts{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+  .wallet{margin-left:auto}
+}
+@media (max-width:900px){
+  .home-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .home-split{grid-template-columns:minmax(0,1fr)}
+  .auth-wrap{grid-template-columns:minmax(0,1fr);border-radius:0;min-height:100vh;border:0}
+  .auth-brand{padding:28px 24px 18px;border-right:0;border-bottom:1px solid var(--line-soft)}
+  .ab-list,.ab-season{display:none}
+  .ab-logo{width:52px;height:52px}
+  .ab-name{font-size:30px}
+  .auth-card{padding:24px}
+}
+@media (max-width:620px){
+  .topbar-in{padding:8px 12px;gap:8px}
+  .lvl-chip{display:none}
+  .home-hero h2{font-size:30px}
+  .lobby.compact{grid-template-columns:minmax(0,1fr)}
+  .search{min-width:0;flex:1}
+  .subtabs{overflow-x:auto;scrollbar-width:none}
+  .st-btn{white-space:nowrap}
+  .me-menu{position:fixed;left:12px;right:12px;top:calc(var(--tb) + 6px);width:auto}
+}
+@media (prefers-reduced-motion:reduce){
+  .view.active,.tile-card,.lobby .lobby-card,.auth-wrap,.me-menu,.toast{animation:none}
+  .splash-logo,.splash-bar i{animation:none}
+}
+
 </style>
 </head>
 <body>
+<canvas id="bg-fx" aria-hidden="true"></canvas>
 <a class="skip" href="#main">Aller au contenu</a>
 
 <!-- ===== Connexion ===== -->
 <div class="auth" id="auth" role="dialog" aria-modal="true" aria-labelledby="auth-title" hidden>
+  <div class="auth-wrap">
+  <aside class="auth-brand">
+    <span class="ab-logo" id="ab-logo"></span>
+    <p class="ab-name">Carat</p>
+    <p class="ab-pitch">La salle de jeux en argent virtuel, entre amis.</p>
+    <ul class="ab-list"><li>9 jeux, des duels et un loto quotidien</li><li>Une saison par mois, avec son pass et ses titres</li><li>Votre compte vous suit sur tous vos appareils</li></ul>
+    <p class="ab-season" id="ab-season"></p>
+  </aside>
   <div class="auth-card">
     <div>
-      <h2 id="auth-title">Bienvenue à l’Émeraude Club</h2>
-      <p class="lead">Chaque nouveau compte reçoit 150,00 $ d’argent virtuel.</p>
+      <h2 id="auth-title">Bienvenue chez Carat</h2>
+      <p class="lead">Connectez-vous ou créez un compte : votre partie est enregistrée sur nos serveurs et vous suit partout.</p>
     </div>
     <div class="seg" role="tablist">
       <button type="button" role="tab" data-tab="login" aria-selected="true">Connexion</button>
       <button type="button" role="tab" data-tab="register" aria-selected="false">Créer un compte</button>
     </div>
+    <p class="auth-status" id="auth-status" role="status" hidden></p>
     <p class="auth-error" id="auth-error" role="alert" hidden></p>
     <form id="form-login" class="stack" autocomplete="on">
       <div class="field"><label for="login-name">Pseudo</label><input class="input" id="login-name" autocomplete="username" required maxlength="16"></div>
@@ -620,38 +921,47 @@ main{min-width:0}
       <button class="btn btn-go btn-lg" type="submit">Créer mon compte</button>
     </form>
     <div class="auth-foot">
-      <button type="button" class="link-btn" id="guest-btn">Jouer en invité (sauvegarde sur cet appareil)</button>
+      <button type="button" class="link-btn" id="guest-btn">Essayer en invité, sans créer de compte</button>
     </div>
+  </div>
   </div>
 </div>
 
 <!-- ===== En-tête ===== -->
 <header class="topbar" id="topbar">
   <div class="topbar-in">
-    <a class="brand" href="#salle" aria-label="Émeraude Club, accueil">
+    <a class="brand" href="#salle" aria-label="Carat, accueil">
       <span class="brand-mark" id="brand-mark"></span>
-      <span class="brand-word"><span class="bw-main">Émeraude</span><span class="bw-sub">Club</span></span>
+      <span class="brand-word"><span class="bw-main">Carat</span></span>
     </a>
+    <nav class="topnav" id="topnav" aria-label="Navigation principale"></nav>
     <div class="top-chips">
-      <button class="fast-toggle" id="fast-toggle" type="button" aria-pressed="false" title="Mode rapide : accélère les animations des jeux solo"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M13.5 2 5 13.5h6L10 22l8.5-11.5h-6z"/></svg><span class="ft-label">Mode rapide</span></button>
       <span class="malus-chip" id="malus-chip" hidden></span>
       <button class="boost-chip" id="boost-chip" type="button" hidden onclick="go('clicker')"></button>
     </div>
+    <button class="fast-toggle" id="fast-toggle" type="button" aria-pressed="false" title="Mode rapide : accélère les animations des jeux solo"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M13.5 2 5 13.5h6L10 22l8.5-11.5h-6z"/></svg><span class="ft-label">Rapide</span></button>
     <div class="wallet">
       <span class="wallet-label">Solde</span>
       <span class="wallet-amount" id="wallet" aria-live="polite">—</span>
     </div>
-    <div class="user-chip">
-      <div class="user-meta">
-        <span class="user-name" id="user-name">—</span>
-        <span class="user-kind" id="user-kind"></span>
+    <button class="lvl-chip" id="lvl-chip" type="button" hidden onclick="go('pass')"><span>Niv. <b id="lvl-num">1</b></span><i class="lvl-bar"><i id="lvl-fill"></i></i></button>
+    <div class="me">
+      <button class="me-btn" id="me-btn" type="button" aria-expanded="false" aria-controls="me-menu" aria-label="Mon profil"><span class="me-av" id="me-av">?</span></button>
+      <div class="me-menu" id="me-menu" hidden>
+        <div class="me-head"><span class="me-av big" id="me-av2">?</span><div><span class="user-name" id="user-name">—</span><span class="user-kind" id="user-kind"></span></div></div>
+        <button type="button" class="me-claim" id="me-claim" hidden>Créer un compte et garder ma partie</button>
+        <button type="button" id="me-fast">Mode rapide : désactivé</button>
+        <button type="button" data-me-go="stats">Statistiques</button>
+        <button type="button" data-me-go="boutique">Boutique</button>
+        <button type="button" data-me-go="pass">Pass de saison</button>
+        <p class="net" id="net-side" data-state="connecting"><span class="dot"></span><span class="net-text">Connexion au serveur…</span></p>
+        <button type="button" class="me-logout" id="logout-btn">Se déconnecter</button>
       </div>
-      <button class="icon-btn" id="logout-btn" title="Changer de compte" aria-label="Se déconnecter">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg>
-      </button>
     </div>
   </div>
 </header>
+<nav class="bottomnav" id="bottomnav" aria-label="Navigation"></nav>
+<div class="splash" id="splash" hidden><div class="splash-in"><span class="splash-logo" id="splash-logo"></span><p class="splash-name">Carat</p><p class="splash-text" id="splash-text">Ouverture du club…</p><span class="splash-bar"><i></i></span></div></div>
 
 <aside class="lb" id="lb" aria-label="Classement des joueurs">
   <button class="lb-tab" id="lb-tab" type="button" aria-expanded="false" aria-controls="lb-panel" title="Afficher le classement">
@@ -664,25 +974,45 @@ main{min-width:0}
   </div>
 </aside>
 <div class="shell">
-  <aside class="side" aria-label="Navigation principale">
-    <nav class="nav" id="nav"></nav>
-    <p class="net" id="net-side" data-state="connecting"><span class="dot"></span><span class="net-text">Connexion au serveur…</span></p>
-  </aside>
 
   <main id="main">
+    <div class="subtabs" id="subtabs" role="tablist" hidden><span class="st-ind" id="st-ind"></span></div>
     <!-- ===== Salle de jeux ===== -->
     <section class="view" id="view-salle" aria-labelledby="h-salle">
-      <header class="view-head">
-        <h2 id="h-salle">Bienvenue à l’Émeraude Club</h2>
-        <p id="home-hello">9 jeux en argent virtuel, des duels entre joueurs et un loto tiré chaque soir. Choisissez un jeu pour commencer.</p>
+      <header class="home-hero">
+        <div><p class="hh-kicker" id="hh-kicker">Carat</p><h2 id="h-salle">Bonsoir</h2><p class="hh-sub" id="home-hello">9 jeux, des duels entre joueurs et un loto tiré chaque soir.</p></div>
+        <button class="btn btn-brass btn-cta" type="button" id="home-resume" hidden></button>
       </header>
-      <div class="panel top-hour">
-        <div class="panel-head"><h3 class="panel-title">Les 10 plus gros gains de la dernière heure</h3><span class="muted-sm">Tous les jeux, tous les joueurs</span></div>
-        <ol class="top-list" id="top-hour"></ol>
+      <div class="home-tiles" id="home-tiles"></div>
+      <div class="panel season-banner" id="season-banner" hidden>
+        <span class="sb-emblem" id="sb-emblem"></span>
+        <div><p class="sb-num" id="sb-num"></p><p class="sb-name" id="sb-name"></p><p class="sb-tag" id="sb-tag"></p><ul class="sb-rules" id="sb-rules"></ul></div>
+        <div class="sb-side"><p class="sb-time" id="sb-time"></p><div class="btn-row"><button class="btn btn-brass" type="button" onclick="go('pass')">Pass de saison</button><button class="btn btn-ghost" type="button" onclick="go('pantheon')">Panthéon</button></div></div>
       </div>
-      <h3 class="section-title">Les jeux</h3>
+      <div class="home-split">
+        <div>
+          <div class="section-head"><h3 class="section-title">À l’honneur</h3><button class="link-more" type="button" onclick="go('jeux')">Tous les jeux →</button></div>
+          <div class="lobby compact" id="home-games"></div>
+        </div>
+        <div class="panel top-hour">
+          <div class="panel-head"><h3 class="panel-title">Plus gros gains de l’heure</h3></div>
+          <ol class="top-list" id="top-hour"></ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Tous les jeux ===== -->
+    <section class="view" id="view-jeux" aria-labelledby="h-jeux">
+      <header class="view-head">
+        <h2 id="h-jeux">Les jeux</h2>
+        <p>Choisissez une table. Le taux de retour indique la part des mises rendue en moyenne aux joueurs : plus il est proche de 100 %, moins la maison garde.</p>
+      </header>
+      <div class="games-bar">
+        <div class="filters" id="game-filters" role="tablist"></div>
+        <label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><input id="game-search" type="search" placeholder="Rechercher un jeu" aria-label="Rechercher un jeu"></label>
+      </div>
       <div class="lobby" id="lobby"></div>
-      <p class="muted-sm">Le taux de retour indique la part des mises rendue en moyenne aux joueurs sur le long terme : plus il est proche de 100 %, moins la maison garde.</p>
+      <p class="muted-sm" id="games-empty" hidden>Aucun jeu ne correspond à votre recherche.</p>
     </section>
 
     <!-- ===== Machine à sous ===== -->
@@ -729,6 +1059,54 @@ main{min-width:0}
             <h3 class="panel-title">Paris des joueurs</h3>
             <ul class="live" id="race-bets"><li class="empty">Aucun pari sur cette course.</li></ul>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Pass de saison ===== -->
+    <section class="view" id="view-pass" aria-labelledby="h-pass">
+      <header class="view-head">
+        <h2 id="h-pass">Pass de saison</h2>
+        <p>Gagnez de l’XP en jouant : 1 XP par tranche de 10 $ misés (25 au maximum par partie), plus de l’XP pour chaque objectif récupéré. Chaque niveau débloque une récompense, et la piste Prestige s’ouvre au niveau 20.</p>
+      </header>
+      <div class="panel pass-head">
+        <div><p class="muted-sm" id="pass-season"></p><p class="pass-level">Niveau <b id="pass-level">1</b></p></div>
+        <div class="pass-progress"><div class="bar big"><i id="pass-bar"></i></div><p class="muted-sm" id="pass-xp"></p><p class="muted-sm" id="pass-prestige"></p></div>
+        <button class="btn btn-brass" type="button" id="pass-claim-all" hidden>Tout récupérer</button>
+      </div>
+      <div class="panel">
+        <div class="pt-row pt-header"><span class="pt-lvl">Niv.</span><span>Piste gratuite</span><span>Piste Prestige</span></div>
+        <div id="pass-grid"></div>
+      </div>
+    </section>
+
+    <!-- ===== Panthéon ===== -->
+    <section class="view" id="view-pantheon" aria-labelledby="h-pantheon">
+      <header class="view-head">
+        <h2 id="h-pantheon">Panthéon</h2>
+        <p>Les meilleurs joueurs de chaque saison, et les titres d’Héritage que vous avez gagnés. Ces titres ne disparaissent jamais : portez-les depuis la boutique, quelle que soit la saison.</p>
+      </header>
+      <div class="panel"><h3 class="panel-title">Votre Héritage</h3><div class="heritage" id="heritage-list"></div></div>
+      <div id="hall-list" class="stack"></div>
+    </section>
+
+    <!-- ===== Grattage ===== -->
+    <section class="view" id="view-grattage" aria-labelledby="h-grattage">
+      <header class="view-head">
+        <h2 id="h-grattage">Grattage</h2>
+        <p>Jeu de saison. Achetez une carte, grattez les 9 cases : trois symboles identiques et vous gagnez le multiplicateur de ce symbole, jusqu’à ×500 pour trois couronnes.</p>
+      </header>
+      <div class="game-grid">
+        <div class="panel sc-stage">
+          <div class="sc-card"><p class="sc-brand">Carat <span>Carte à gratter</span></p><div class="sc-grid" id="sc-grid"></div></div>
+          <p class="result-line center" id="sc-msg">Achetez une carte pour commencer.</p>
+          <div class="slot-pay" id="sc-table"></div>
+        </div>
+        <div class="panel stack">
+          <div class="field"><span>Prix de la carte</span><div data-bet="grattage" data-min="1" data-value="10.00"></div></div>
+          <button class="btn btn-brass btn-lg" id="sc-buy" type="button">Acheter une carte</button>
+          <button class="btn btn-ghost" id="sc-all" type="button" disabled>Tout gratter</button>
+          <p class="hint">Grattez case par case en cliquant ou en glissant le doigt. Taux de retour : 95 %.</p>
         </div>
       </div>
     </section>
@@ -985,7 +1363,7 @@ main{min-width:0}
       </div>
       <div class="panel">
         <h3 class="panel-title">Règles</h3>
-        <p class="muted-sm">La cagnotte réunit 90 % du prix des tickets et 1 000 $ offerts par le casino à chaque tirage. Trois tickets différents sont tirés : un même joueur peut donc remporter plusieurs lots. S’il y a moins de trois tickets, les parts non gagnées sont reportées sur le tirage suivant. Si vous êtes absent au moment du tirage, vos gains vous sont versés à votre prochaine visite.</p>
+        <p class="muted-sm">La cagnotte réunit 90 % du prix des tickets et 1 000 $ offerts par Carat à chaque tirage. Trois tickets différents sont tirés : un même joueur peut donc remporter plusieurs lots. S’il y a moins de trois tickets, les parts non gagnées sont reportées sur le tirage suivant. Si vous êtes absent au moment du tirage, vos gains vous sont versés à votre prochaine visite.</p>
       </div>
     </section>
 
@@ -997,10 +1375,19 @@ main{min-width:0}
       </header>
       <div class="panel clicker">
         <div class="chip-area" id="chip-area">
-          <button class="coin-btn" id="chip-btn" type="button" aria-label="Cliquer sur la pièce pour gagner de l’argent">
-            <span class="coin-face"><span class="coin-67">67</span></span>
+          <button class="gem-btn" id="chip-btn" type="button" aria-label="Cliquer sur le diamant pour gagner de l’argent">
+            <span class="gem-glow" aria-hidden="true"></span>
+            <span class="gem-float"><svg class="gem-svg" viewBox="0 0 200 172" aria-hidden="true">
+              <polygon class="f3" points="10,62 60,20 55,62"/><polygon class="f2" points="55,62 60,20 100,62"/><polygon class="f1" points="60,20 140,20 100,62"/>
+              <polygon class="f2" points="100,62 140,20 145,62"/><polygon class="f3" points="145,62 140,20 190,62"/>
+              <polygon class="f4" points="10,62 55,62 100,164"/><polygon class="f3" points="55,62 100,62 100,164"/><polygon class="f5" points="100,62 145,62 100,164"/><polygon class="f4" points="145,62 190,62 100,164"/>
+              <polyline class="edge" points="10,62 60,20 140,20 190,62 100,164 10,62 190,62"/><polyline class="edge" points="55,62 60,20 100,62 140,20 145,62"/><polyline class="edge" points="55,62 100,164 145,62"/><line class="edge" x1="100" y1="62" x2="100" y2="164"/>
+              <polygon class="shine" points="70,26 92,26 80,46"/><polygon class="shine soft" points="24,60 44,40 46,56"/>
+            </svg></span>
+            <span class="gem-spark s1" aria-hidden="true"></span><span class="gem-spark s2" aria-hidden="true"></span><span class="gem-spark s3" aria-hidden="true"></span><span class="gem-spark s4" aria-hidden="true"></span>
           </button>
           <p class="coin-value"><strong id="chip-value">+0,10 $</strong> par clic</p>
+          <div class="coin-skins" id="coin-skins" aria-label="Habillage de la pièce"></div>
         </div>
         <div>
           <p class="big-num" id="clicks-count">0</p>
@@ -1050,7 +1437,7 @@ main{min-width:0}
     <section class="view" id="view-boutique" aria-labelledby="h-shop">
       <header class="view-head">
         <h2 id="h-shop">Boutique</h2>
-        <p>Des boosts pour accélérer vos gains, des handicaps pour ralentir les autres joueurs, des thèmes pour changer l’ambiance du casino et des titres affichés à côté de votre pseudo.</p>
+        <p>Des boosts pour accélérer vos gains, des handicaps pour ralentir les autres joueurs, des thèmes pour changer l’ambiance du site et des titres affichés à côté de votre pseudo.</p>
       </header>
       <div class="panel">
         <h3 class="panel-title">Boosts du clicker</h3>
@@ -1068,6 +1455,10 @@ main{min-width:0}
         <div id="shop-themes"></div>
       </div>
       <div class="panel">
+        <h3 class="panel-title">Vos titres d’Héritage et de saison</h3>
+        <div id="shop-heritage"></div>
+      </div>
+      <div class="panel">
         <h3 class="panel-title">Titres</h3>
         <div id="shop-list"></div>
       </div>
@@ -1079,6 +1470,16 @@ main{min-width:0}
       <dl class="panel figures" id="figures"></dl>
       <div class="panel"><h3 class="panel-title">Succès</h3><ul class="ach-list" id="ach-list"></ul></div>
       <div class="panel"><h3 class="panel-title">Historique des paris</h3><ul class="hist" id="hist"></ul></div>
+      <form class="panel stack account-panel" id="pw-form">
+        <h3 class="panel-title" style="margin:0">Mon compte</h3>
+        <p class="muted-sm" id="account-info"></p>
+        <div class="pw-grid">
+          <div class="field"><label for="pw-old">Mot de passe actuel</label><input class="input" id="pw-old" type="password" autocomplete="current-password" required></div>
+          <div class="field"><label for="pw-new">Nouveau mot de passe</label><input class="input" id="pw-new" type="password" autocomplete="new-password" minlength="6" required></div>
+        </div>
+        <button class="btn btn-ghost" type="submit" style="align-self:flex-start">Changer le mot de passe</button>
+        <p class="hint">Les autres appareils connectés à ce compte devront se reconnecter avec le nouveau mot de passe.</p>
+      </form>
     </section>
 
     <!-- ===== Social ===== -->
@@ -1119,7 +1520,7 @@ main{min-width:0}
 
 <footer class="foot">Argent virtuel uniquement : les soldes n’ont aucune valeur réelle et ne peuvent être ni achetés ni retirés. <span class="version">Version du 3 novembre 2026</span></footer>
 <div class="toasts" id="toasts" aria-live="polite"></div>
-<noscript><p style="padding:20px">Le casino a besoin de JavaScript pour fonctionner.</p></noscript>
+<noscript><p style="padding:20px">Carat a besoin de JavaScript pour fonctionner.</p></noscript>
 
 <script>
 'use strict';
@@ -1128,6 +1529,9 @@ main{min-width:0}
    ===================================================================== */
 const SERVER_URL = 'https://casino-server-7b6q.onrender.com';
 const START_BALANCE = 150;
+var SEASON_INFO = null; // saison en cours, envoyée par le serveur (copie gardée sur l'appareil)
+try { SEASON_INFO = JSON.parse(localStorage.getItem('emeraude_season') || 'null'); } catch {}
+function seasonStartBalance() { return (SEASON_INFO && SEASON_INFO.config && SEASON_INFO.config.rules && SEASON_INFO.config.rules.startBalance) || START_BALANCE; }
 const GOAL_MIN_BET = 10; // mise minimale pour faire avancer les objectifs de jeux
 const COIN_PAYOUT = 1.95; // pile ou face : 2,5 % d'avantage maison
 const HOUSE = 0.97; // 3 % d'avantage maison (Aviateur et Mines)
@@ -1136,6 +1540,9 @@ const KEYS = {
   active: 'cyber_casino_active_user',
   guestSave: 'cyber_casino_guest_save',
   guestName: 'cyber_casino_guest_name',
+  token: 'emeraude_token',
+  season2: 'emeraude_season',
+  tokenUser: 'emeraude_user',
   season: 'cyber_casino_season'
 };
 
@@ -1187,7 +1594,8 @@ const RNG = {
    ÉTAT DU JOUEUR
    ===================================================================== */
 const DEFAULT_STATE = () => ({
-  balance: START_BALANCE, totalClicks: 0, totalWon: 0, totalLost: 0,
+  balance: seasonStartBalance(), totalClicks: 0, totalWon: 0, totalLost: 0,
+  season: SEASON_INFO ? SEASON_INFO.num : 0, xp: 0, passClaimed: {}, passTitles: [], coinSkin: 'or',
   biggestMult: 1, bestCrash: 0, gamesPlayed: 0, gamesWon: 0,
   achievements: {}, inventory: {}, equippedBadge: '', history: [], pending: {},
   clicker: { up: {}, bought: 0, boosts: 0, clickEarned: 0, autoEarned: 0 },
@@ -1238,15 +1646,20 @@ function normalize(raw) {
   s.daily = { day: typeof dl.day === 'string' ? dl.day : '', ids: Array.isArray(dl.ids) ? dl.ids.filter(i => DAILY_POOL.some(x => x.id === i)) : [], prog: obj(dl.prog), claimed: obj(dl.claimed) };
   s.theme = THEMES.some(t => t.id === s.theme) ? s.theme : 'tapis';
   s.lastSeen = num(s.lastSeen);
+  s.savedAt = num(s.savedAt);
+  s.season = Math.floor(num(s.season));
+  s.xp = Math.floor(num(s.xp));
+  s.passClaimed = obj(raw && raw.passClaimed);
+  s.passTitles = Array.isArray(raw && raw.passTitles) ? raw.passTitles.filter(t => typeof t === 'string').slice(0, 30) : [];
+  s.coinSkin = typeof s.coinSkin === 'string' ? s.coinSkin : 'or';
   return s;
 }
 
 /* ----- Sauvegarde ----- */
-function saveNow() {
+function saveNow() { // la partie n'est enregistrée que sur le serveur
   if (!user) return;
-  const snap = JSON.parse(JSON.stringify(S));
-  if (isGuest) store.set(KEYS.guestSave, JSON.stringify(snap));
-  else Auth.saveState(user, snap);
+  S.savedAt = Date.now();
+  Cloud.push(false);
 }
 let saveTimer = 0;
 function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 800); }
@@ -1310,6 +1723,9 @@ function settle(game, bet, payout, mult, opts = {}) {
     payout = r2(payout + bonus);
   }
   // Handicap « Gains divisés par 2 » : consommé par chaque partie d'au moins 10 $
+  // Règle de saison : bonus sur les gains d'un jeu (parfois seulement le week-end)
+  const gb = Season.rules().gameBonus;
+  if (!opts.raw && gb && gb.game === game && payout > bet && (!gb.weekend || isWeekend())) payout = r2(payout + r2((payout - bet) * gb.pct / 100));
   if (!opts.raw && malusOn('halve') && bet >= 10) {
     if (payout > bet) payout = r2(bet + (payout - bet) / 2);
     S.malus.halve.games--;
@@ -1343,6 +1759,7 @@ function settle(game, bet, payout, mult, opts = {}) {
   checkAchievements();
   markDirty();
   scheduleSave();
+  XP.fromGame(game, bet);
   if (net > 0 && (mult >= 5 || bm >= 10)) celebrate();
   if (net >= 500 && (mult >= 5 || net >= 5000)) Net.emit('big_win', { game, amount: net, mult });
   if (net > 0) TopHour.send(game, net, mult);
@@ -1441,8 +1858,14 @@ const Auth = {
 function startSession(name, state, guest) {
   user = name; isGuest = guest;
   S = normalize(state);
-  store.set(KEYS.active, name);
-  $('#auth').hidden = true;
+  const authEl = $('#auth');
+  if (!authEl.hidden && !reducedMotion) { authEl.classList.add('leaving'); setTimeout(() => { authEl.hidden = true; authEl.classList.remove('leaving'); }, 400); }
+  if (Season.num() && S.season !== Season.num()) { // partie d'une saison terminée : on repart de zéro
+    const had = state && (Number(state.gamesPlayed) > 0 || Number(state.totalClicks) > 0);
+    S = normalize(null); S.season = Season.num();
+    if (had) setTimeout(() => toast(`Saison ${Season.num()} : votre progression repart de zéro. Vos titres d’Héritage restent à vous.`, 'info'), 600);
+  }
+  if (!authEl.classList.contains('leaving')) authEl.hidden = true;
   resolvePending();
   Goals.ensureDay();
   Clicker.offline();
@@ -1457,22 +1880,19 @@ function startSession(name, state, guest) {
   Loto.claimAll();
   Duel.resume();
   Duel.render();
+  renderSeasonUI(); Pass.render(); Clicker.renderSkin(); renderHome();
+  Splash.hide();
 }
-function startGuest() {
-  let name = store.get(KEYS.guestName);
-  if (!name) { name = 'Invité_' + (1000 + RNG.int(9000)); store.set(KEYS.guestName, name); }
-  let saved = null;
-  try { saved = JSON.parse(store.get(KEYS.guestSave) || 'null'); } catch {}
-  startSession(name, saved, true);
+async function startGuest() { // compte invité créé sur le serveur
+  if (user && isGuest) { $('#auth').hidden = true; return; }
+  if (!await Cloud.waitServer()) return authError('Serveur injoignable : réessayez dans un instant.');
+  const res = await Net.request('account_guest', {}, 20000);
+  if (!res.ok) return authError(res.msg || 'Impossible de créer une partie invité.');
+  Cloud.adopt(res);
+  startSession(res.username, res.state, true);
+  toast('Partie invité : elle est enregistrée sur le serveur. Créez un compte pour la retrouver sur vos autres appareils.', 'info');
 }
-function logout() {
-  if (!user) return showAuth();
-  if (Mines.active || BJ.active || Crash.active || S.pending.crash || Coin.busy || Hilo.active ||
-      Plinko.balls.length || WheelF.busy || Slots.busy || Race.myBet || S.pending.race || Duel.anim) {
-    toast('Terminez la partie en cours avant de changer de compte.', 'error');
-    return;
-  }
-  saveNow();
+function endSession() {
   user = null; isGuest = false; S = DEFAULT_STATE();
   store.del(KEYS.active);
   applyTheme('tapis');
@@ -1481,6 +1901,22 @@ function logout() {
   Goals.badge(0);
   Net.leave();
   renderAll();
+}
+async function logout() {
+  if (!user) return showAuth();
+  if (isGuest && !confirm('Vous jouez en invité : si vous vous déconnectez sans créer de compte, cette partie sera perdue. Se déconnecter quand même ?')) {
+    showAuth(); authTab('register');
+    authStatus('Créez un compte pour garder votre partie : votre progression d’invité y sera transférée.');
+    return;
+  }
+  if (Mines.active || BJ.active || Crash.active || S.pending.crash || Coin.busy || Hilo.active ||
+      Plinko.balls.length || WheelF.busy || Slots.busy || Race.myBet || S.pending.race || Duel.anim || (Scratch.card && Scratch.card.open.size < 9)) {
+    toast('Terminez la partie en cours avant de changer de compte.', 'error');
+    return;
+  }
+  saveNow();
+  Cloud.push(true); await Cloud.logout();
+  endSession();
   showAuth();
 }
 function showAuth() {
@@ -1499,26 +1935,41 @@ function initAuthUI() {
   $$('#auth [role=tab]').forEach(t => t.addEventListener('click', () => authTab(t.dataset.tab)));
   $('#form-login').addEventListener('submit', async e => {
     e.preventDefault();
-    const btn = e.submitter || $('#form-login button'); btn.disabled = true;
-    const res = await Auth.login($('#login-name').value.trim(), $('#login-pass').value);
+    const btn = e.submitter || $('#form-login button'); btn.disabled = true; authError('');
+    const res = await Cloud.login($('#login-name').value.trim(), $('#login-pass').value);
     btn.disabled = false;
     if (!res.ok) return authError(res.msg);
     $('#login-pass').value = '';
-    startSession(res.name, res.state, false);
-    toast(`Bon retour, ${res.name}.`, 'success');
+    Cloud.adopt(res);
+    startSession(res.username, res.state, false);
+    toast(res.imported ? `Compte ${res.username} transféré en ligne avec toute sa progression : vous pouvez maintenant vous connecter depuis n’importe quel appareil.` : `Bon retour, ${res.username}.`, 'success');
   });
   $('#form-register').addEventListener('submit', async e => {
     e.preventDefault();
-    const btn = e.submitter || $('#form-register button'); btn.disabled = true;
-    const res = await Auth.register($('#reg-name').value.trim(), $('#reg-pass').value);
+    const btn = e.submitter || $('#form-register button'); btn.disabled = true; authError('');
+    const fromGuest = !!(user && isGuest);
+    if (fromGuest) { S.savedAt = Date.now(); await Net.request('account_save', { state: S }, 15000); } // dernière sauvegarde avant le transfert
+    const res = fromGuest
+      ? await Net.request('account_claim', { username: $('#reg-name').value.trim(), password: $('#reg-pass').value }, 20000)
+      : await Cloud.register($('#reg-name').value.trim(), $('#reg-pass').value, null);
     btn.disabled = false;
     if (!res.ok) return authError(res.msg);
     $('#reg-pass').value = '';
-    startSession(res.name, null, false);
-    toast('Compte créé : 150,00 $ ont été crédités.', 'success');
+    Cloud.adopt(res);
+    startSession(res.username, res.state, false);
+    Net.join();
+    toast(fromGuest ? 'Compte créé : votre partie invité y a été transférée.' : 'Compte créé : 150,00 $ ont été crédités.', 'success');
   });
-  $('#guest-btn').addEventListener('click', () => { startGuest(); toast('Mode invité : votre partie est sauvegardée sur cet appareil.', 'info'); });
+  $('#guest-btn').addEventListener('click', () => { authStatus(''); startGuest(); });
   $('#logout-btn').addEventListener('click', logout);
+  $('#pw-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!user || isGuest) return toast('Créez un compte pour avoir un mot de passe.', 'error');
+    const res = await Cloud.changePassword($('#pw-old').value, $('#pw-new').value);
+    if (!res.ok) return toast(res.msg || 'Changement refusé.', 'error');
+    $('#pw-old').value = ''; $('#pw-new').value = '';
+    toast('Mot de passe changé.', 'success');
+  });
 }
 
 /* Nouvelle saison : la première fois que cette version s'ouvre sur un appareil, la
@@ -1537,16 +1988,136 @@ function applySeason() {
   seasonReset = had;
 }
 function autoLogin() {
-  const active = store.get(KEYS.active);
-  if (!active) return showAuth();
-  if (active === store.get(KEYS.guestName) || /^invit/i.test(active)) {
-    if (!store.get(KEYS.guestName)) store.set(KEYS.guestName, active);
-    return startGuest();
+  // anciennes copies locales : supprimées (la partie n'est plus gardée sur l'appareil)
+  Object.keys(localStorage).filter(k => k.startsWith('emeraude_cache:')).forEach(k => store.del(k));
+  store.del(KEYS.guestSave); store.del(KEYS.guestName); store.del(KEYS.season);
+  if (!Object.keys(Auth.all()).length) { store.del(KEYS.users); store.del(KEYS.active); } // anciens comptes locaux : gardés seulement jusqu'à leur transfert
+  if (Cloud.token && Cloud.username) { // session enregistrée : on attend le serveur, qui renvoie la partie
+    Splash.show('Connexion à votre compte…');
+    return;
   }
-  const users = Auth.all();
-  const key = Auth.find(active, users);
-  if (key) startSession(key, users[key].state, false); else showAuth();
+  Splash.hide();
+  const active = store.get(KEYS.active);
+  if (!active || /^invit/i.test(active)) return showAuth();
+  // ancien compte enregistré seulement sur cet appareil : mot de passe demandé une fois pour le transférer en ligne
+  const key = Auth.find(active);
+  showAuth();
+  if (key) {
+    $('#login-name').value = key;
+    authStatus(`Votre compte ${key} n’a pas encore été transféré sur le serveur. Entrez votre mot de passe une fois : il sera transféré, puis effacé de cet appareil.`);
+  }
 }
+
+/* =====================================================================
+   COMPTES EN LIGNE : connexion depuis n'importe quel appareil
+   La progression est enregistrée sur le serveur (et gardée en copie locale
+   pour démarrer vite). Les anciens comptes locaux sont transférés
+   automatiquement à la première connexion.
+   ===================================================================== */
+const Cloud = {
+  token: store.get(KEYS.token), username: store.get(KEYS.tokenUser),
+  active: false, replaced: false, pushTimer: 0, resuming: false,
+  cacheKey(u) { return 'emeraude_cache:' + String(u).toLowerCase(); },
+  writeCache() {}, // plus aucune copie de la partie sur l'appareil
+  heritage: [],
+  adopt(res) {
+    this.token = res.token; this.username = res.username; this.guest = !!res.guest;
+    this.heritage = Array.isArray(res.heritage) ? res.heritage : [];
+    store.set(KEYS.token, res.token); store.set(KEYS.tokenUser, res.username);
+    this.active = true; this.replaced = false;
+  },
+  clear() {
+    this.token = null; this.username = null; this.active = false;
+    store.del(KEYS.token); store.del(KEYS.tokenUser);
+  },
+  waitServer(ms = 75000) { // le serveur gratuit peut mettre une minute à se réveiller
+    if (Net.ready()) return Promise.resolve(true);
+    authStatus('Connexion au serveur… S’il était en veille, cela peut prendre jusqu’à une minute.');
+    return new Promise(res => {
+      const t0 = Date.now();
+      const iv = setInterval(() => {
+        if (Net.ready()) { clearInterval(iv); authStatus(''); res(true); }
+        else if (Date.now() - t0 > ms) { clearInterval(iv); authStatus(''); res(false); }
+      }, 300);
+    });
+  },
+  async login(name, pw) {
+    if (!await this.waitServer()) return { ok: false, msg: 'Serveur injoignable : réessayez dans un instant.' };
+    const res = await Net.request('account_login', { username: name, password: pw }, 20000);
+    if (res.ok || res.code !== 'not_found') return res;
+    // Pas encore de compte en ligne : on transfère le compte enregistré sur cet appareil, s'il existe
+    const local = await Auth.login(name, pw);
+    if (!local.ok) return { ok: false, msg: 'Pseudo ou mot de passe incorrect.' };
+    const state = local.state || DEFAULT_STATE();
+    state.savedAt = Date.now();
+    const r = await Net.request('account_register', { username: local.name, password: pw, state, imported: true }, 20000);
+    if (r.ok) { r.imported = true; const users = Auth.all(); delete users[local.name]; Auth.write(users); store.del(KEYS.active); }
+    return r;
+  },
+  async register(name, pw, state) {
+    if (!await this.waitServer()) return { ok: false, msg: 'Serveur injoignable : réessayez dans un instant.' };
+    if (state) state.savedAt = Date.now();
+    return Net.request('account_register', { username: name, password: pw, state }, 20000);
+  },
+  async resume() { // reconnexion automatique avec le jeton enregistré sur l'appareil
+    if (!this.token || !this.username || !Net.ready() || this.resuming || this.replaced) return false;
+    this.resuming = true;
+    const res = await Net.request('account_resume', { username: this.username, token: this.token }, 20000);
+    this.resuming = false;
+    if (!res.ok) {
+      if (res.code === 'invalid') {
+        const name = this.username;
+        Splash.hide();
+        this.clear();
+        endSession();
+        showAuth(); $('#login-name').value = name;
+        authError('Votre session a expiré : reconnectez-vous avec votre mot de passe.');
+      }
+      return false;
+    }
+    this.active = true; this.replaced = false;
+    this.heritage = Array.isArray(res.heritage) ? res.heritage : [];
+    const same = user && user.toLowerCase() === res.username.toLowerCase();
+    if (!same || (res.state && (res.savedAt || 0) > (S.savedAt || 0) + 1000)) {
+      // la version du serveur est plus récente (partie jouée sur un autre appareil)
+      startSession(res.username, res.state, !!res.guest);
+      if (same) toast('Votre progression a été mise à jour depuis un autre appareil.', 'info');
+    } else this.push(true); // la copie de cet appareil est la plus récente
+    authStatus('');
+    Splash.hide();
+    return true;
+  },
+  push(now) { // envoie la progression au serveur (au plus toutes les 1,5 s)
+    if (!user || !this.active || this.replaced) return;
+    clearTimeout(this.pushTimer);
+    const send = () => Net.request('account_save', { state: S }, 15000).then(r => {
+      if (r.code === 'replaced') this.onReplaced();
+      else if (r.code === 'season') { toast('Nouvelle saison : rechargement du club…', 'info'); setTimeout(() => location.reload(), 1500); }
+      else if (r.code === 'auth') { this.active = false; this.resume(); }
+    });
+    if (now) send(); else this.pushTimer = setTimeout(send, 1500);
+  },
+  onReplaced() {
+    if (!user) return;
+    this.replaced = true; this.active = false;
+    const name = user;
+    this.writeCache();
+    endSession();
+    showAuth(); $('#login-name').value = name; authTab('login'); $('#login-name').value = name;
+    authError('Votre compte vient d’être ouvert sur un autre appareil. Reconnectez-vous ici pour reprendre la partie (l’autre appareil sera alors déconnecté).');
+  },
+  async logout() {
+    if (this.token && Net.ready()) await Net.request('account_logout', { token: this.token }, 5000);
+    this.clear();
+  },
+  async changePassword(oldPw, newPw) {
+    if (!this.active) return { ok: false, msg: 'Connectez-vous d’abord.' };
+    const res = await Net.request('account_password', { old: oldPw, password: newPw }, 20000);
+    if (res.ok) { this.token = res.token; store.set(KEYS.token, res.token); }
+    return res;
+  }
+};
+function authStatus(msg) { const e = $('#auth-status'); if (e) { e.textContent = msg; e.hidden = !msg; } }
 
 /* =====================================================================
    SUCCÈS ET BOUTIQUE
@@ -1556,7 +2127,7 @@ const ACH = [
   { id: 'clicks_2000', title: 'Doigts d’acier', desc: '2 000 clics dans le clicker', goal: 2000, val: () => S.totalClicks },
   { id: 'profit_1000', title: 'Parieur averti', desc: '1 000 $ de gains cumulés', goal: 1000, val: () => S.totalWon },
   { id: 'profit_50000', title: 'Gros bonnet', desc: '50 000 $ de gains cumulés', goal: 50000, val: () => S.totalWon },
-  { id: 'profit_1000000', title: 'Millionnaire du casino', desc: '1 000 000 $ de gains cumulés', goal: 1000000, val: () => S.totalWon },
+  { id: 'profit_1000000', title: 'Millionnaire de Carat', desc: '1 000 000 $ de gains cumulés', goal: 1000000, val: () => S.totalWon },
   { id: 'mult_15', title: 'Pilote suprême', desc: 'Encaisser à 15× ou plus à l’Aviateur', goal: 15, val: () => S.bestCrash },
   { id: 'mult_50', title: 'Cosmique', desc: 'Encaisser à 50× ou plus à l’Aviateur', goal: 50, val: () => S.bestCrash },
   { id: 'mult_200', title: 'Hors norme', desc: 'Encaisser à 200× ou plus à l’Aviateur', goal: 200, val: () => S.bestCrash }
@@ -1599,7 +2170,7 @@ function renderShop() {
     const est = `Bénéfice des parties gagnées ×${b.mult}, jusqu’à ${money(b.price * GAME_BONUS_SHARE)} de bonus.` + (rate > 0 ? ` Avec vos machines actuelles : environ +${money(r2(rate * 300 * (b.mult - 1)))} de revenus en plus.` : '');
     return { key: 'b' + b.mult, html: `<div class="shop-row"><span><span class="boost-tag">×${b.mult}</span></span>
       <div><p class="shop-name">Boost ×${b.mult} pendant 5 minutes${on ? `<span class="owned-mark">Actif, encore ${Boost.left()}</span>` : ''}</p><p class="muted-sm">${est}</p></div>
-      ${priceButton(b.price, `data-boost="${b.mult}"`, on ? 'Prolonger' : 'Activer')}</div>` };
+      ${priceButton(seasonPrice('boostPrice', b.price), `data-boost="${b.mult}"`, on ? 'Prolonger' : 'Activer')}</div>` };
   }));
   patchList($('#shop-sabotage'), SABOTAGES.map(t => ({
     key: t.id,
@@ -1607,7 +2178,7 @@ function renderShop() {
       <div><p class="shop-name">${esc(t.name)}</p><p class="muted-sm">${esc(t.desc)}</p></div>
       ${priceButton(t.price, `data-sab="${t.id}"`, 'Envoyer')}</div>`
   })));
-  patchList($('#shop-themes'), THEMES.map(t => {
+  patchList($('#shop-themes'), THEMES.filter(t => !t.pass || S.inventory['theme_' + t.id]).map(t => {
     const owned = t.price === 0 || !!S.inventory['theme_' + t.id], used = (S.theme || 'tapis') === t.id;
     const v = { ...THEMES[0].vars, ...t.vars };
     const sw = [v['--bg'] || '#0D1C18', v['--panel'] || '#162D27', v['--brass'] || '#E6BE62', '#2FD69B', '#E8475F'];
@@ -1617,13 +2188,21 @@ function renderShop() {
     return { key: t.id, html: `<div class="shop-row"><span class="swatches">${sw.map(c => `<i style="background:${c}"></i>`).join('')}</span>
       <div><p class="shop-name">${esc(t.name)}${owned && t.price ? '<span class="owned-mark">Possédé</span>' : ''}</p><p class="muted-sm">${esc(t.desc)}</p></div>${action}</div>` };
   }));
-  patchList($('#shop-list'), SHOP.map(it => {
+  const extra = [
+    ...((user && !isGuest && Cloud.heritage) || []).map(h => ({ key: 'h_' + h.id, tag: h.tag, name: h.label, desc: 'Titre d’Héritage, conservé d’une saison à l’autre.' })),
+    ...S.passTitles.map(t => ({ key: 'p_' + t, tag: t, name: t.charAt(0) + t.slice(1).toLowerCase(), desc: `Récompense du pass de la saison ${Season.num()}.` }))
+  ];
+  patchList($('#shop-heritage'), extra.length ? extra.map(x => ({ key: x.key, html: `<div class="shop-row"><span><span class="tag">${esc(x.tag)}</span></span>
+      <div><p class="shop-name">${esc(x.name)}</p><p class="muted-sm">${esc(x.desc)}</p></div>
+      ${S.equippedBadge === x.tag ? '<button class="btn btn-ghost" type="button" data-equip-tag="">Retirer</button>' : `<button class="btn btn-brass" type="button" data-equip-tag="${esc(x.tag)}">Porter</button>`}</div>` }))
+    : [{ key: 'none', html: '<p class="muted-sm">Gagnez des titres avec le pass de saison et le Panthéon : ils apparaîtront ici.</p>' }]);
+  patchList($('#shop-list'), SHOP_ALL().map(it => {
     const owned = !!S.inventory[it.id], equipped = S.equippedBadge === it.tag;
     const action = owned
       ? (equipped ? `<button class="btn btn-ghost" type="button" data-unequip="${it.id}">Retirer</button>` : `<button class="btn btn-brass" type="button" data-equip="${it.id}">Équiper</button>`)
       : priceButton(it.price, `data-buy="${it.id}"`, 'Acheter');
     return { key: it.id, html: `<div class="shop-row"><span><span class="tag">${esc(it.tag)}</span></span>
-      <div><p class="shop-name">${esc(it.name)}${owned ? '<span class="owned-mark">Possédé</span>' : ''}</p><p class="muted-sm">${esc(it.desc)}</p></div>${action}</div>` };
+      <div><p class="shop-name">${esc(it.name)}${it.seasonal ? '<span class="owned-mark">Exclusif saison ' + Season.num() + '</span>' : ''}${owned ? '<span class="owned-mark">Possédé</span>' : ''}</p><p class="muted-sm">${esc(it.desc)}</p></div>${action}</div>` };
   }));
 }
 function initShop() {
@@ -1650,7 +2229,7 @@ function initShop() {
       return renderShop();
     }
     if (b.dataset.buy) {
-      const it = SHOP.find(i => i.id === b.dataset.buy);
+      const it = SHOP_ALL().find(i => i.id === b.dataset.buy);
       if (!it || S.inventory[it.id]) return;
       if (!Wallet.debit(it.price)) return toast('Solde insuffisant pour ce titre.', 'error');
       S.inventory[it.id] = true;
@@ -1658,10 +2237,13 @@ function initShop() {
       toast(`Titre ${it.tag} acheté et équipé.`, 'success');
       celebrate();
     } else if (b.dataset.equip) {
-      const it = SHOP.find(i => i.id === b.dataset.equip);
+      const it = SHOP_ALL().find(i => i.id === b.dataset.equip);
       if (!it || !S.inventory[it.id]) return;
       S.equippedBadge = it.tag;
       toast(`Titre ${it.tag} équipé.`, 'info');
+    } else if ('equipTag' in b.dataset) {
+      S.equippedBadge = b.dataset.equipTag;
+      toast(S.equippedBadge ? `Titre ${S.equippedBadge} porté.` : 'Titre retiré.', 'info');
     } else if (b.dataset.unequip) {
       S.equippedBadge = '';
       toast('Titre retiré.', 'info');
@@ -2834,6 +3416,7 @@ const Loto = {
     const cur = S.loto[res.drawId] || { n: 0, paid: 0 };
     S.loto[res.drawId] = { n: res.total, paid: r2(cur.paid + res.cost) };
     S.c.lotoTickets += n;
+    XP.add(5 * n);
     saveNow();
     Goals.check();
     toast(`${n} ticket${n > 1 ? 's' : ''} acheté${n > 1 ? 's' : ''} : vous en avez ${res.total} pour le tirage de ce soir.`, 'success');
@@ -2875,12 +3458,12 @@ const Loto = {
     return 1 - Math.max(0, lose);
   },
   renderTime() {
-    const st = this.state, el = $('#loto-when'), live = $('[data-live="loto"]');
-    if (!st) { if (el) el.textContent = 'Connexion au serveur…'; if (live) live.textContent = 'Hors ligne'; return; }
+    const st = this.state, el = $('#loto-when'), lives = $$('[data-live="loto"]');
+    if (!st) { if (el) el.textContent = 'Connexion au serveur…'; lives.forEach(l => { l.textContent = 'Hors ligne'; }); return; }
     const left = st.drawAt - Crash.now();
     const txt = left > 0 ? `Tirage ce soir à 21 h, dans ${durText(left)}` : 'Tirage en cours…';
     if (el) el.textContent = txt;
-    if (live) live.textContent = `Cagnotte ${money(st.pot)}, tirage dans ${durText(Math.max(0, left))}`;
+    lives.forEach(l => { l.textContent = `Cagnotte ${money(st.pot)}, tirage dans ${durText(Math.max(0, left))}`; });
   },
   render() {
     const st = this.state;
@@ -2984,16 +3567,22 @@ const ART = {
       <text x="16" y="34" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="22" font-stretch="125%" fill="#2B1F06">LOTO</text><text x="16" y="58" font-family="Archivo, Arial, sans-serif" font-weight="700" font-size="12" fill="#5A3E0C">Tirage à 21 h</text>
       <text x="190" y="50" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="17" fill="#2B1F06">100 $</text></g>
     ${[['#2FD69B', 60, 128, 7], ['#E8475F', 112, 132, 23], ['#5BA4E6', 164, 128, 41], ['#F2E6C8', 216, 132, 12]].map(([c, x, y, n]) => `<circle cx="${x}" cy="${y}" r="15" fill="${c}"/><circle cx="${x}" cy="${y}" r="8" fill="#fff" opacity=".9"/><text x="${x}" y="${y + 4}" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="10" fill="#1b1b1b">${n}</text>`).join('')}</svg>`,
+  grattage: `<svg viewBox="0 0 320 150" aria-hidden="true"><rect width="320" height="150" fill="#0E1712"/><g transform="translate(96 16) rotate(-5)"><rect width="136" height="118" rx="10" fill="#1E2A22" stroke="#E6BE62" stroke-width="3"/>
+    ${[0, 1, 2].map(r => [0, 1, 2].map(c => `<rect x="${12 + c * 40}" y="${14 + r * 34}" width="34" height="28" rx="5" fill="${(r + c) % 3 === 0 ? '#F5EEDC' : '#D6B25E'}"/>`).join('')).join('')}
+    <text x="29" y="34" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-weight="800" font-size="20" fill="#C81E38">7</text><text x="109" y="68" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-weight="800" font-size="20" fill="#C81E38">7</text><text x="69" y="102" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-weight="800" font-size="20" fill="#C81E38">7</text></g>
+    <path d="M250 40l30-18M256 58l34-6" stroke="#E6BE62" stroke-width="3" stroke-linecap="round" opacity=".7"/></svg>`,
   duel: `<svg viewBox="0 0 320 150" aria-hidden="true"><defs><radialGradient id="a-du-g" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FFF1C2"/><stop offset=".55" stop-color="#E6BE62"/><stop offset="1" stop-color="#8C6114"/></radialGradient><radialGradient id="a-du-s" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".55" stop-color="#C9CDD6"/><stop offset="1" stop-color="#6E737D"/></radialGradient></defs>
     <rect width="320" height="150" fill="#0B0A10"/><path d="M0 150 320 0" stroke="rgba(230,190,98,.18)" stroke-width="1"/><path d="M0 0 320 150" stroke="rgba(230,190,98,.1)" stroke-width="1"/>
     <g transform="translate(96 75)"><circle r="44" fill="url(#a-du-g)" stroke="#6E4C10" stroke-width="2"/><circle r="34" fill="none" stroke="#6E4C10" stroke-width="1.5" stroke-dasharray="2 3"/><text y="12" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-weight="800" font-size="34" fill="#5A3E0C">A</text></g>
     <g transform="translate(224 75)"><circle r="44" fill="url(#a-du-s)" stroke="#4D525C" stroke-width="2"/><circle r="34" fill="none" stroke="#4D525C" stroke-width="1.5" stroke-dasharray="2 3"/><text y="12" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-weight="800" font-size="34" fill="#2A2D33">B</text></g>
     <text x="160" y="86" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-weight="800" font-style="italic" font-size="30" fill="#E6BE62">vs</text></svg>`
 };
-const LOGO_SVG = `<svg viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="logo-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7FE3B8"/><stop offset=".5" stop-color="#2FAE78"/><stop offset="1" stop-color="#0E6B45"/></linearGradient></defs>
-  <circle cx="20" cy="20" r="18.5" fill="#0E0B19" stroke="#E6BE62" stroke-width="2"/>
-  <path d="M13 9h14l6 7-13 16L7 16z" fill="url(#logo-g)" stroke="#E9F9F0" stroke-width=".8" stroke-linejoin="round"/>
-  <path d="M7 16h26M13 9l4 7 3-7 3 7 4-7M17 16l3 16 3-16" fill="none" stroke="#E9F9F0" stroke-width=".8" stroke-linejoin="round" opacity=".75"/></svg>`;
+const LOGO_SVG = `<svg viewBox="0 0 40 40" aria-hidden="true">
+  <circle cx="20" cy="20" r="18.5" fill="#0F0E14" stroke="#E6BE62" stroke-width="2"/>
+  <path d="M12.5 13h15l5 6-12.5 13.5L7.5 19z" fill="#DDF1FF" stroke="#FFFFFF" stroke-width=".8" stroke-linejoin="round"/>
+  <path d="M12.5 13l3.8 6 3.7-6 3.7 6 3.8-6" fill="#BFE3FF" stroke="#7FB8E0" stroke-width=".7" stroke-linejoin="round"/>
+  <path d="M7.5 19h25M16.3 19 20 32.5 23.7 19" fill="none" stroke="#7FB8E0" stroke-width=".8" stroke-linejoin="round"/>
+  <path d="M20 19 13 19 20 32.5z" fill="#A9D6F5" opacity=".7"/><path d="M14.5 15.5l1.6-1.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg>`;
 
 /* ---------- Duels entre joueurs (gérés par le serveur) ---------- */
 const Duel = {
@@ -3111,10 +3700,11 @@ const Duel = {
     this.render();
   },
   renderLive() {
-    const el = $('[data-live="duel"]');
-    if (!el) return;
+    const els = $$('[data-live="duel"]');
+    if (!els.length) return;
     const n = this.list.filter(d => !d.to || this.isMe(d.to)).length;
-    el.textContent = !Net.ready() ? 'Hors ligne' : n ? `En direct : ${n} défi${n > 1 ? 's' : ''} ouvert${n > 1 ? 's' : ''}` : 'En direct : aucun défi ouvert, lancez le premier';
+    const txt = !Net.ready() ? 'Hors ligne' : n ? `En direct : ${n} défi${n > 1 ? 's' : ''} ouvert${n > 1 ? 's' : ''}` : 'En direct : aucun défi ouvert, lancez le premier';
+    els.forEach(el => { el.textContent = txt; });
   },
   render() {
     const open = this.list.filter(d => !this.isMe(d.from) && (!d.to || this.isMe(d.to)));
@@ -3128,6 +3718,364 @@ const Duel = {
     $('#duel-hist').innerHTML = hist.length ? hist.map(h => `<li><span class="who">${h.win > 0 ? 'Victoire' : 'Défaite'}</span><span class="g">${new Date(h.t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span><span class="amt ${h.win > 0 ? 'pos' : 'neg'}">${h.win > 0 ? '+' : '−'}${money(h.bet)}</span></li>`).join('') : '<li class="empty">Aucun duel joué pour l’instant.</li>';
     $('#duel-create').disabled = this.busy;
     this.renderLive();
+  }
+};
+
+/* =====================================================================
+   SAISONS : niveaux, XP, pass, Héritage et Panthéon
+   La configuration de la saison vient du serveur (fichier saisons.js).
+   ===================================================================== */
+const MAX_LEVEL = 50;
+const xpForLevel = L => (L <= 1 ? 0 : Math.round(25 * Math.pow(L, 1.65))); // même formule que le serveur
+const EMBLEMS = {
+  couronne: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 34 5 14l11 9 8-14 8 14 11-9-3 20z" fill="var(--brass)" stroke="#5A3E0C" stroke-width="1.5" stroke-linejoin="round"/><rect x="8" y="35" width="32" height="5" rx="1.5" fill="var(--brass)" stroke="#5A3E0C" stroke-width="1.5"/><circle cx="24" cy="25" r="2.5" fill="#C81E38"/></svg>',
+  flocon: '<svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="var(--brass)" stroke-width="2.4" stroke-linecap="round"><path d="M24 4v40M6.7 14l34.6 20M6.7 34l34.6-20"/><path d="M24 4l-4 4m4-4 4 4M24 44l-4-4m4 4 4-4M6.7 14l1.4 5.5M6.7 14l5.5-1.4M41.3 34l-1.4-5.5M41.3 34l-5.5 1.4M6.7 34l5.5 1.4M6.7 34l1.4-5.5M41.3 14l-5.5-1.4M41.3 14l-1.4 5.5"/></svg>',
+  flamme: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4c3 9 13 13 13 25a13 13 0 0 1-26 0c0-7 4-10 6-14 1 5 4 7 4 7 0-7 1-12 3-18z" fill="var(--brass)" stroke="#5A1E0C" stroke-width="1.5" stroke-linejoin="round"/><path d="M24 26c2 4 6 6 6 10a6 6 0 0 1-12 0c0-3 3-5 6-10z" fill="#FFE2A8"/></svg>',
+  etoile: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4l6 13 14 1.6-10.5 9.4 3 13.9L24 35l-12.5 6.9 3-13.9L4 18.6 18 17z" fill="var(--brass)" stroke="#5A3E0C" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+  lune: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M30 6a18 18 0 1 0 12 30A15 15 0 0 1 30 6z" fill="var(--brass)" stroke="#5A3E0C" stroke-width="1.5"/></svg>'
+};
+const Season = {
+  get info() { return SEASON_INFO; },
+  cfg() { return SEASON_INFO && SEASON_INFO.config; },
+  num() { return SEASON_INFO ? SEASON_INFO.num : 0; },
+  rules() { return (this.cfg() && this.cfg().rules) || {}; },
+  prestigeLevel() { return (this.cfg() && this.cfg().prestigeLevel) || 20; },
+  has(gameId) { const c = this.cfg(); return !!(c && (c.seasonGames || []).includes(gameId)); },
+  set(info, changed) {
+    if (!info || !info.num) return;
+    const prev = SEASON_INFO && SEASON_INFO.num;
+    if (info.serverNow) Net.offset = Net.offset || (info.serverNow - Date.now());
+    SEASON_INFO = info;
+    store.set(KEYS.season2, JSON.stringify(info));
+    if (changed || (prev && prev !== info.num)) {
+      toast(`La saison ${prev || ''} est terminée ! Bienvenue dans la saison ${info.num} : ${info.config.name}. Vos titres d’Héritage sont conservés.`, 'success');
+      setTimeout(() => location.reload(), 3500);
+      return;
+    }
+    applyTheme(S.theme || 'tapis');
+    this.enforce();
+    renderSeasonUI();
+  },
+  /* La progression appartient à une saison : une partie d'une saison terminée repart de zéro */
+  enforce() {
+    if (!user || !this.num() || S.season === this.num()) return;
+    const had = S.gamesPlayed > 0 || S.totalClicks > 0;
+    S = normalize(null);
+    S.season = this.num();
+    if (had) toast(`Saison ${this.num()} : votre progression repart de zéro. Vos titres d’Héritage restent à vous.`, 'info');
+    saveNow(); renderAll();
+  },
+  timeLeft() { return SEASON_INFO ? SEASON_INFO.endAt - (Date.now() + (Net.offset || 0)) : 0; },
+  rulesText() {
+    const r = this.rules(), c = this.cfg(), out = [];
+    if (!c) return out;
+    (c.seasonGames || []).forEach(g => { const l = LOBBY.find(x => x.id === g); if (l) out.push(`Jeu de saison : ${l.name}`); });
+    Object.entries(r.xpGames || {}).forEach(([g, m]) => out.push(`XP ×${String(m).replace('.', ',')} ${gameAt(g)}`));
+    if (r.gameBonus) out.push(`${r.gameBonus.game} : +${r.gameBonus.pct} % sur les gains${r.gameBonus.weekend ? ' le week-end' : ''}`);
+    if (r.clickMult && r.clickMult !== 1) out.push(`Clicker ×${String(r.clickMult).replace('.', ',')}`);
+    if (r.boostPrice && r.boostPrice !== 1) out.push(`Boosts ${r.boostPrice < 1 ? '' : '+'}${Math.round((r.boostPrice - 1) * 100)} %`);
+    if (r.upgradePrice && r.upgradePrice !== 1) out.push(`Améliorations ${r.upgradePrice < 1 ? '' : '+'}${Math.round((r.upgradePrice - 1) * 100)} %`);
+    if (r.startBalance) out.push(`Départ à ${money(r.startBalance)}`);
+    return out;
+  }
+};
+const seasonPrice = (kind, base) => r2(base * ((Season.rules()[kind]) || 1));
+const isWeekend = () => { const d = new Date().getDay(); return d === 0 || d === 6; };
+
+const XP = {
+  level(xp = S.xp) { let L = 1; while (L < MAX_LEVEL && xp >= xpForLevel(L + 1)) L++; return L; },
+  add(n) {
+    if (!user || !(n > 0)) return;
+    const before = this.level();
+    S.xp = Math.round((S.xp || 0) + n);
+    const after = this.level();
+    if (after > before) {
+      const pl = Season.prestigeLevel();
+      toast(`Niveau ${after} atteint !${after >= pl && before < pl ? ' La piste Prestige du pass est débloquée.' : ''} Récupérez votre récompense dans le pass.`, 'success');
+      celebrate();
+    }
+    this.render(); Pass.badge();
+  },
+  fromGame(game, bet) { // 1 XP par tranche de 10 $ misés, 25 au maximum par partie
+    if (!(bet >= 1)) return;
+    const m = (Season.rules().xpGames || {})[game] || 1;
+    this.add(Math.round(Math.min(25, Math.floor(bet / 10) + 1) * m));
+  },
+  render() {
+    const L = this.level(), lo = xpForLevel(L), hi = xpForLevel(L + 1);
+    const pct = L >= MAX_LEVEL ? 100 : ((S.xp - lo) / (hi - lo)) * 100;
+    const chip = $('#lvl-chip');
+    if (chip) { chip.hidden = !user; $('#lvl-num').textContent = L; $('#lvl-fill').style.width = pct.toFixed(1) + '%'; chip.title = L >= MAX_LEVEL ? 'Niveau maximum atteint' : `${S.xp} XP, niveau ${L + 1} à ${hi} XP`; }
+  }
+};
+
+const REWARD_TEXT = r => !r ? '' : r.t === 'money' ? money(r.v) : r.t === 'boost' ? `Boost ×${r.mult} (5 min)` : r.label || '';
+const Pass = {
+  tiers() { return (Season.cfg() && Season.cfg().pass) || []; },
+  key(track, level) { return track + level; },
+  ready() {
+    const L = XP.level(), pl = Season.prestigeLevel(), out = [];
+    this.tiers().forEach(t => {
+      if (t.level > L) return;
+      if (t.free && !S.passClaimed[this.key('f', t.level)]) out.push(['f', t.level]);
+      if (t.prestige && L >= pl && !S.passClaimed[this.key('p', t.level)]) out.push(['p', t.level]);
+    });
+    return out;
+  },
+  badge() { const n = user ? this.ready().length : 0; $$('[data-count="pass"]').forEach(el => { el.textContent = n || ''; el.hidden = !n; }); },
+  give(r) {
+    if (r.t === 'money') Wallet.credit(r.v);
+    else if (r.t === 'boost') {
+      const b = BOOSTS.find(x => x.mult === r.mult) || BOOSTS[0], now = Date.now(), same = boostActive() && S.boost.mult === r.mult;
+      S.boost = { mult: r.mult, until: (same ? S.boost.until : now) + BOOST_MS, pool: r2(b.price * GAME_BONUS_SHARE + (same ? S.boost.pool || 0 : 0)) };
+      Boost.endedNotice = false;
+    } else if (r.t === 'title') { if (!S.passTitles.includes(r.tag)) S.passTitles.push(r.tag); }
+    else if (r.t === 'theme') S.inventory['theme_' + r.id] = true;
+    else if (r.t === 'coin') { S.inventory['coin_' + r.id] = true; S.coinSkin = r.id; Clicker.renderSkin(); }
+  },
+  claim(track, level, quiet) {
+    const t = this.tiers().find(x => x.level === level), r = t && (track === 'f' ? t.free : t.prestige);
+    if (!r || S.passClaimed[this.key(track, level)] || level > XP.level()) return false;
+    if (track === 'p' && XP.level() < Season.prestigeLevel()) return false;
+    S.passClaimed[this.key(track, level)] = true;
+    this.give(r);
+    if (!quiet) { toast(`Pass, niveau ${level} : ${REWARD_TEXT(r)}`, 'success'); saveNow(); this.render(); markDirty(); }
+    return true;
+  },
+  claimAll() {
+    const list = this.ready();
+    list.forEach(([tr, l]) => this.claim(tr, l, true));
+    if (list.length) { toast(`${list.length} récompense${list.length > 1 ? 's' : ''} du pass récupérée${list.length > 1 ? 's' : ''}.`, 'success'); celebrate(); saveNow(); this.render(); markDirty(); }
+  },
+  cell(track, t, L) {
+    const r = track === 'f' ? t.free : t.prestige;
+    if (!r) return '<div class="pt-cell empty"></div>';
+    const claimed = S.passClaimed[this.key(track, t.level)];
+    const locked = t.level > L || (track === 'p' && L < Season.prestigeLevel());
+    const icon = r.t === 'money' ? '$' : r.t === 'boost' ? `×${r.mult}` : r.t === 'title' ? 'T' : r.t === 'theme' ? '◐' : '●';
+    return `<div class="pt-cell ${track === 'p' ? 'prestige' : ''} ${claimed ? 'claimed' : locked ? 'locked' : 'ready'} kind-${r.t}">
+      <span class="pt-ic">${icon}</span><span class="pt-label">${esc(REWARD_TEXT(r))}</span>
+      ${claimed ? '<span class="pt-state">Récupéré</span>' : locked ? '' : `<button class="btn btn-brass" type="button" data-pass-claim="${track}:${t.level}">Récupérer</button>`}</div>`;
+  },
+  render() {
+    if (!$('#pass-grid')) return;
+    const L = XP.level(), pl = Season.prestigeLevel(), c = Season.cfg();
+    $('#pass-season').textContent = c ? `Saison ${Season.num()} : ${c.name}` : 'Pass de saison';
+    $('#pass-level').textContent = L;
+    const lo = xpForLevel(L), hi = xpForLevel(L + 1);
+    $('#pass-xp').textContent = L >= MAX_LEVEL ? `${S.xp} XP, niveau maximum atteint` : `${S.xp} XP sur ${hi}, encore ${hi - S.xp} XP pour le niveau ${L + 1}`;
+    $('#pass-bar').style.width = (L >= MAX_LEVEL ? 100 : ((S.xp - lo) / (hi - lo)) * 100).toFixed(1) + '%';
+    $('#pass-prestige').innerHTML = L >= pl ? '<span class="pos">Piste Prestige débloquée</span>' : `Piste Prestige débloquée au niveau ${pl} (encore ${xpForLevel(pl) - S.xp} XP)`;
+    const ready = this.ready().length;
+    $('#pass-claim-all').hidden = ready < 2;
+    $('#pass-claim-all').textContent = `Tout récupérer (${ready})`;
+    setHTML($('#pass-grid'), this.tiers().map(t => `<div class="pt-row${t.level === L ? ' current' : ''}${t.level <= L ? ' reached' : ''}">
+      <span class="pt-lvl">${t.level}</span>${this.cell('f', t, L)}${this.cell('p', t, L)}</div>`).join(''));
+    this.badge();
+  }
+};
+
+function renderSeasonUI() {
+  const c = Season.cfg(), box = $('#season-banner');
+  XP.render(); Pass.badge();
+  if (!box) return;
+  if (!c) { box.hidden = true; return; }
+  box.hidden = false;
+  const left = Season.timeLeft(), days = Math.floor(left / 86400000), hours = Math.floor((left % 86400000) / 3600000);
+  box.classList.toggle('ending', left < 48 * 3600000);
+  setHTML($('#sb-emblem'), EMBLEMS[c.emblem] || EMBLEMS.etoile);
+  $('#sb-num').textContent = `Saison ${Season.num()}`;
+  $('#sb-name').textContent = c.name;
+  $('#sb-tag').textContent = c.tagline || '';
+  $('#sb-time').textContent = left <= 0 ? 'Fin de saison en cours…' : left < 48 * 3600000 ? `Dernières heures : fin dans ${days ? `${days} j ` : ''}${hours} h ${Math.floor((left % 3600000) / 60000)} min` : `Fin dans ${days} j ${hours} h`;
+  setHTML($('#sb-rules'), Season.rulesText().map(t => `<li>${esc(t)}</li>`).join(''));
+  document.documentElement.style.setProperty('--art-filter', c.artFilter || 'none');
+  $$('.lobby-card').forEach(card => {
+    const id = card.dataset.goView, seasonal = LOBBY.find(g => g.id === id && g.seasonal);
+    if (card.closest('#lobby')) card.hidden = !!seasonal && !Season.has(id);
+    card.classList.toggle('featured', c.featured === id);
+  });
+}
+
+const Pantheon = {
+  render() {
+    const box = $('#hall-list');
+    if (!box) return;
+    const hall = (SEASON_INFO && SEASON_INFO.hall) || [];
+    box.innerHTML = hall.length ? hall.map(h => `<div class="panel hall-season"><div class="panel-head"><h3 class="hall-title">${h.num === 0 ? 'Bêta' : `Saison ${h.num} : ${esc(h.name)}`}</h3>
+      <span class="muted-sm">${h.players} joueur${h.players > 1 ? 's' : ''}, terminée le ${new Date(h.endedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span></div>
+      ${h.top.length ? `<ol class="hall-top">${h.top.map((p, i) => `<li class="${user && p.username.toLowerCase() === user.toLowerCase() ? 'me' : ''}"><span class="${i < 3 ? `medal m${i + 1}` : 'top-rank'}">${i + 1}</span><span class="who">${esc(p.username)}<small>Niveau ${p.level}</small></span><span class="amt">${money(p.balance)}</span></li>`).join('')}</ol>` : '<p class="muted-sm">Aucun joueur classé.</p>'}</div>`).join('')
+      : '<div class="panel"><p class="muted-sm">Le Panthéon se remplira à la fin de la première saison.</p></div>';
+    const her = Cloud.heritage || [];
+    $('#heritage-list').innerHTML = !user ? '<p class="muted-sm">Connectez-vous pour voir vos titres.</p>' : isGuest ? '<p class="muted-sm">Les titres d’Héritage sont réservés aux comptes en ligne.</p>'
+      : her.length ? her.map(h => `<span class="heritage-item"><span class="tag">${esc(h.tag)}</span><small>${esc(h.label)}</small></span>`).join('') : '<p class="muted-sm">Aucun titre pour l’instant. Terminez une saison dans le top 10, atteignez le niveau 20 ou 50 pour en gagner.</p>';
+  }
+};
+
+/* ---------- Grattage (jeu de saison) ---------- */
+const SCRATCH_TIERS = [ // multiplicateur, probabilité : 95 % de taux de retour
+  { m: 500, p: 0.0001, sym: 'couronne' }, { m: 50, p: 0.002, sym: 'diamant' }, { m: 10, p: 0.015, sym: 'sept' },
+  { m: 5, p: 0.04, sym: 'cloche' }, { m: 2, p: 0.1, sym: 'etoile' }, { m: 1, p: 0.25, sym: 'cerise' }
+];
+const CROWN_SVG = '<svg viewBox="0 0 40 40"><path d="M7 29 5 12l9 7 6-11 6 11 9-7-2 17z" fill="#E6BE62" stroke="#8C6114" stroke-width="1.4" stroke-linejoin="round"/><rect x="7" y="30" width="26" height="4" rx="1" fill="#E6BE62" stroke="#8C6114" stroke-width="1.2"/><circle cx="20" cy="21" r="2.2" fill="#C81E38"/></svg>';
+const scratchSym = s => (s === 'couronne' ? CROWN_SVG : SLOT_SYMBOLS[s]);
+const Scratch = {
+  card: null, busy: false,
+  init() {
+    $('#sc-buy').addEventListener('click', () => this.buy());
+    $('#sc-all').addEventListener('click', () => this.revealAll());
+    const grid = $('#sc-grid');
+    let down = false;
+    grid.addEventListener('pointerdown', e => { down = true; const c = e.target.closest('[data-sc]'); if (c) this.reveal(Number(c.dataset.sc)); });
+    grid.addEventListener('pointerover', e => { if (!down) return; const c = e.target.closest('[data-sc]'); if (c) this.reveal(Number(c.dataset.sc)); });
+    window.addEventListener('pointerup', () => { down = false; });
+    $('#sc-table').innerHTML = SCRATCH_TIERS.map(t => `<span>${scratchSym(t.sym).repeat(3)} <b>×${t.m}</b></span>`).join('');
+    this.renderGrid();
+  },
+  make() { // on tire d'abord le résultat, puis on remplit la carte en conséquence
+    let x = RNG.float(), tier = null;
+    for (const t of SCRATCH_TIERS) { if (x < t.p) { tier = t; break; } x -= t.p; }
+    const syms = SCRATCH_TIERS.map(t => t.sym), cells = [], count = {};
+    if (tier) { for (let i = 0; i < 3; i++) cells.push(tier.sym); count[tier.sym] = 3; }
+    while (cells.length < 9) {
+      const s = syms[RNG.int(syms.length)];
+      if ((count[s] || 0) >= 2 && !(tier && s === tier.sym && false)) continue;
+      if (tier && s === tier.sym) continue;
+      count[s] = (count[s] || 0) + 1; cells.push(s);
+    }
+    return { cells: RNG.shuffle(cells), tier, open: new Set() };
+  },
+  buy() {
+    if (this.busy || (this.card && this.card.open.size < 9)) return toast('Grattez d’abord votre carte en cours.', 'error');
+    const bet = readBet('grattage');
+    if (bet == null || !Wallet.debit(bet)) return;
+    this.card = this.make(); this.card.bet = bet;
+    const m = this.card.tier ? this.card.tier.m : 0;
+    this.card.pid = instantPending('Grattage', bet, r2(bet * m), m);
+    Net.emit('place_bet', { game: 'Grattage', amount: bet, win: false, payout: 0 });
+    setResult($('#sc-msg'), 'Grattez les 9 cases, ou cliquez sur « Tout gratter ».', '');
+    lockBet('grattage', true);
+    this.renderGrid();
+  },
+  reveal(i) {
+    const c = this.card;
+    if (!c || c.open.has(i) || c.open.size >= 9) return;
+    c.open.add(i);
+    const el = $(`#sc-grid [data-sc="${i}"]`);
+    if (el) { el.classList.add('open'); el.querySelector('.sc-sym').innerHTML = scratchSym(c.cells[i]); }
+    if (c.open.size === 9) this.finish();
+  },
+  revealAll() { if (this.card) for (let i = 0; i < 9; i++) this.reveal(i); },
+  finish() {
+    const c = this.card, m = c.tier ? c.tier.m : 0;
+    const got = settle('Grattage', c.bet, r2(c.bet * m), m);
+    setPending(c.pid, null);
+    if (c.tier) $$('#sc-grid [data-sc]').forEach(el => { if (c.cells[Number(el.dataset.sc)] === c.tier.sym) el.classList.add('win'); });
+    setResult($('#sc-msg'), !c.tier ? 'Pas de trio cette fois : carte perdante.' : got > c.bet ? `Trio ×${m} : vous gagnez ${money(r2(got - c.bet))} !` : `Trio ×1 : votre mise vous est rendue.`, !c.tier ? 'lose' : got > c.bet ? 'win' : 'push');
+    lockBet('grattage', false);
+  },
+  renderGrid() {
+    const c = this.card;
+    $('#sc-grid').innerHTML = Array.from({ length: 9 }, (_, i) => {
+      const open = c && c.open.has(i);
+      return `<button type="button" class="sc-cell${open ? ' open' : ''}${!c ? ' idle' : ''}" data-sc="${i}" ${c ? '' : 'disabled'} aria-label="Case ${i + 1}"><span class="sc-sym">${open ? scratchSym(c.cells[i]) : ''}</span><span class="sc-foil" aria-hidden="true"></span></button>`;
+    }).join('');
+    $('#sc-all').disabled = !c || c.open.size >= 9;
+  }
+};
+
+/* ---------- Accueil : tableau de bord ---------- */
+function renderHome() {
+  if (!$('#home-tiles')) return;
+  const h = new Date().getHours();
+  $('#h-salle').textContent = `${h < 6 || h >= 18 ? 'Bonsoir' : 'Bonjour'}${user ? `, ${user}` : ''}`;
+  $('#hh-kicker').textContent = Season.cfg() ? `Saison ${Season.num()} : ${Season.cfg().name}` : 'Carat';
+  const L = XP.level(), ready = user ? Goals.readyList().length : 0, loto = Loto.state;
+  const tiles = [
+    { go: 'stats', label: 'Solde', value: user ? money(S.balance) : '—', sub: user ? `${S.gamesPlayed} partie${S.gamesPlayed > 1 ? 's' : ''} jouée${S.gamesPlayed > 1 ? 's' : ''}` : '' },
+    { go: 'pass', label: 'Niveau', value: user ? String(L) : '—', sub: user ? (L >= MAX_LEVEL ? 'Niveau maximum' : `${xpForLevel(L + 1) - S.xp} XP avant le niveau ${L + 1}`) : '', bar: user && L < MAX_LEVEL ? ((S.xp - xpForLevel(L)) / (xpForLevel(L + 1) - xpForLevel(L))) * 100 : 100 },
+    { go: 'objectifs', label: 'Objectifs', value: user ? (ready ? `${ready} à récupérer` : 'À jour') : '—', sub: 'Récompenses et XP', hot: ready > 0 },
+    { go: 'loto', label: 'Loto du soir', value: loto ? money(loto.pot) : '—', sub: loto ? `Tirage dans ${durText(Math.max(0, loto.drawAt - Crash.now()))}` : 'Connexion…' }
+  ];
+  setHTML($('#home-tiles'), tiles.map(t => `<button type="button" class="tile-card${t.hot ? ' hot' : ''}" data-go-view="${t.go}"><span class="tc-label">${t.label}</span><span class="tc-value">${esc(t.value)}</span><span class="tc-sub">${esc(t.sub)}</span>${t.bar != null ? `<span class="tc-bar"><i style="width:${t.bar.toFixed(1)}%"></i></span>` : ''}</button>`).join(''));
+  const last = user && S.history.find(x => LOBBY.some(g => g.name === x.g || (x.g === 'Course' && g.id === 'course') || (x.g === 'Duel' && g.id === 'duel')));
+  const lastGame = last && LOBBY.find(g => g.name === last.g || (last.g === 'Course' && g.id === 'course') || (last.g === 'Duel' && g.id === 'duel'));
+  const resume = $('#home-resume');
+  resume.hidden = !lastGame || (lastGame.seasonal && !Season.has(lastGame.id));
+  if (lastGame) { resume.textContent = `Reprendre : ${lastGame.name}`; resume.onclick = () => go(lastGame.id); }
+  const c = Season.cfg(), featured = [c && c.featured, 'crash', 'course', 'duel', 'plinko'].filter((v, i, a) => v && a.indexOf(v) === i && LOBBY.some(g => g.id === v) && !(LOBBY.find(g => g.id === v).seasonal && !Season.has(v))).slice(0, 4);
+  setHTML($('#home-games'), featured.map((id, i) => { const g = LOBBY.find(x => x.id === id); return `<button type="button" class="lobby-card${c && c.featured === id ? ' featured' : ''}" style="--i:${i}" data-go-view="${g.id}"><span class="lobby-art">${ART[g.id] || ''}</span><span class="lobby-body"><span class="lobby-name">${esc(g.name)}</span>${['crash', 'course', 'loto', 'duel'].includes(g.id) ? `<span class="lobby-live" data-live="${g.id}"></span>` : `<span class="lobby-desc">${esc(g.desc)}</span>`}</span></button>`; }).join(''));
+}
+$('#home-tiles') && document.addEventListener('click', e => { const t = e.target.closest('#home-tiles [data-go-view]'); if (t) go(t.dataset.goView); });
+
+/* ---------- Écran de chargement (le serveur peut mettre une minute à se réveiller) ---------- */
+const Splash = {
+  timer: 0,
+  show(text) {
+    $('#splash-text').textContent = text || 'Ouverture du club…';
+    $('#splash').hidden = false;
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => { if (!$('#splash').hidden) $('#splash-text').textContent = 'Le serveur se réveille, cela peut prendre jusqu’à une minute…'; }, 5000);
+  },
+  hide() { clearTimeout(this.timer); const el = $('#splash'); if (el.hidden) return; el.classList.add('out'); setTimeout(() => { el.hidden = true; el.classList.remove('out'); }, 350); }
+};
+
+/* ---------- Fond animé : halos lumineux et éclats qui scintillent ---------- */
+const BgFx = {
+  c: null, ctx: null, w: 0, h: 0, mx: 0, my: 0, px: 0, py: 0, orbs: [], sparks: [], cols: null, colAt: 0,
+  init() {
+    this.c = $('#bg-fx'); this.ctx = this.c.getContext('2d');
+    this.resize(); window.addEventListener('resize', () => this.resize());
+    window.addEventListener('pointermove', e => { this.mx = e.clientX / innerWidth - 0.5; this.my = e.clientY / innerHeight - 0.5; }, { passive: true });
+    this.orbs = Array.from({ length: 6 }, (_, i) => ({ x: Math.random(), y: Math.random(), r: 0.22 + Math.random() * 0.22,
+      vx: (Math.random() - 0.5) * 0.00006, vy: (Math.random() - 0.5) * 0.00006, k: i % 3, depth: 0.4 + Math.random() * 0.8 }));
+    this.sparks = Array.from({ length: 80 }, () => ({ x: Math.random(), y: Math.random(), ph: Math.random() * 6.28, sz: 0.6 + Math.random() * 1.6, sp: 0.4 + Math.random() * 1.1, depth: 0.2 + Math.random() }));
+    if (reducedMotion) { this.draw(0); return; }
+    let last = 0;
+    const loop = t => { if (!document.hidden && t - last > 33) { this.draw(t); last = t; } requestAnimationFrame(loop); }; // 30 images/s, en pause si l'onglet est caché
+    requestAnimationFrame(loop);
+  },
+  resize() {
+    const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+    this.w = innerWidth; this.h = innerHeight;
+    this.c.width = Math.round(this.w * dpr); this.c.height = Math.round(this.h * dpr);
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  },
+  colors(t) { // couleurs du thème (elles changent avec la saison)
+    if (!this.cols || t - this.colAt > 2000) {
+      const cs = getComputedStyle(document.documentElement);
+      this.cols = [cs.getPropertyValue('--brass').trim() || '#E6BE62', cs.getPropertyValue('--jade').trim() || '#2FD69B', '#8FB8FF'];
+      this.colAt = t;
+    }
+    return this.cols;
+  },
+  rgba(hex, a) {
+    const h = hex.replace('#', ''), n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h.slice(0, 6), 16);
+    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+  },
+  draw(t) {
+    const { ctx, w, h } = this, cols = this.colors(t);
+    this.px += (this.mx - this.px) * 0.05; this.py += (this.my - this.py) * 0.05; // la souris décale doucement le décor
+    ctx.clearRect(0, 0, w, h);
+    ctx.globalCompositeOperation = 'lighter';
+    for (const o of this.orbs) {
+      o.x += o.vx * 33; o.y += o.vy * 33;
+      if (o.x < -0.3 || o.x > 1.3) o.vx *= -1;
+      if (o.y < -0.3 || o.y > 1.3) o.vy *= -1;
+      const x = o.x * w - this.px * 40 * o.depth, y = o.y * h - this.py * 40 * o.depth, r = o.r * Math.max(w, h);
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, this.rgba(cols[o.k], o.k === 0 ? 0.075 : 0.05));
+      g.addColorStop(1, this.rgba(cols[o.k], 0));
+      ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+    for (const sp of this.sparks) {
+      const a = Math.max(0, Math.sin(t * 0.001 * sp.sp + sp.ph));
+      if (a < 0.05) continue;
+      const x = sp.x * w - this.px * 18 * sp.depth, y = sp.y * h - this.py * 18 * sp.depth, z = sp.sz * (0.6 + a);
+      ctx.fillStyle = this.rgba(cols[0], 0.35 * a);
+      ctx.beginPath(); ctx.moveTo(x, y - z * 2.2); ctx.lineTo(x + z, y); ctx.lineTo(x, y + z * 2.2); ctx.lineTo(x - z, y); ctx.closePath(); ctx.fill();
+    }
+    ctx.globalCompositeOperation = 'source-over';
   }
 };
 
@@ -3162,7 +4110,7 @@ const TopHour = {
 /* ---------- Grosses victoires (tous les joueurs) ---------- */
 const GAME_AT = {
   'Aviateur': 'à l’Aviateur', 'Machine à sous': 'à la machine à sous', 'Course': 'à la course de chevaux', 'Plinko': 'au Plinko',
-  'Mines': 'aux Mines', 'Blackjack': 'au blackjack', 'Hilo': 'au Hilo', 'Roue de la fortune': 'à la roue de la fortune', 'Pile ou face': 'à pile ou face'
+  'Mines': 'aux Mines', 'Blackjack': 'au blackjack', 'Hilo': 'au Hilo', 'Roue de la fortune': 'à la roue de la fortune', 'Pile ou face': 'à pile ou face', 'Grattage': 'au Grattage', 'Duel': 'en duel'
 };
 const gameAt = g => GAME_AT[g] || `à ${g}`;
 const BigWins = {
@@ -3197,6 +4145,7 @@ const LOBBY = [
   { id: 'blackjack', name: 'Blackjack', icon: 'card', rtp: '99 %', desc: 'Battez le croupier sans dépasser 21.' },
   { id: 'hilo', name: 'Hilo', icon: 'hilo', rtp: '99 %', desc: 'La carte suivante sera-t-elle plus haute ou plus basse ?' },
   { id: 'roue-fortune', name: 'Roue de la fortune', icon: 'wheel2', rtp: '97 à 98 %', desc: 'Trois niveaux de risque, jusqu’à ×29,4.' },
+  { id: 'grattage', name: 'Grattage', icon: 'ticket', rtp: '95 %', seasonal: true, desc: 'Jeu de saison : grattez 9 cases, trois symboles identiques pour gagner, jusqu’à ×500.' },
   { id: 'duel', name: 'Duels', icon: 'duel', rtp: '100 %', desc: 'Défiez un joueur : même mise des deux côtés, le gagnant tiré au sort rafle tout.' },
   { id: 'pile-face', name: 'Pile ou face', icon: 'coin', rtp: '97,5 %', desc: 'Une chance sur deux, gain ×1,95.' },
   { id: 'loto', name: 'Loto du jour', icon: 'ticket', note: 'Tirage chaque soir à 21 h', desc: 'Achetez des tickets : trois gagnants se partagent la cagnotte chaque soir.' }
@@ -3209,19 +4158,39 @@ const FastMode = {
     this.render();
     toast(S.fast ? 'Mode rapide activé : les jeux solo vont plus vite. L’Aviateur et la Course gardent leur rythme, partagé avec les autres joueurs.' : 'Mode rapide désactivé : vitesse normale.', 'info');
   },
-  render() { $('#fast-toggle').setAttribute('aria-pressed', String(!!S.fast)); }
+  render() { $('#fast-toggle').setAttribute('aria-pressed', String(!!S.fast)); const m = $('#me-fast'); if (m) m.textContent = `Mode rapide : ${S.fast ? 'activé' : 'désactivé'}`; }
 };
+const GAME_CATS = [['tous', 'Tous'], ['multi', 'Multijoueur'], ['chance', 'Chance'], ['cartes', 'Cartes'], ['strategie', 'Stratégie']];
+const GAME_CAT = { crash: 'multi', course: 'multi', duel: 'multi', loto: 'multi', slots: 'chance', plinko: 'chance', 'roue-fortune': 'chance', 'pile-face': 'chance', grattage: 'chance', blackjack: 'cartes', hilo: 'cartes', mines: 'strategie' };
+let gameFilter = 'tous';
+function filterGames() {
+  const q = ($('#game-search').value || '').trim().toLowerCase();
+  let shown = 0;
+  $$('#lobby .lobby-card').forEach(c => {
+    const g = LOBBY.find(x => x.id === c.dataset.goView);
+    const seasonOff = g.seasonal && !Season.has(g.id);
+    const ok = !seasonOff && (gameFilter === 'tous' || GAME_CAT[g.id] === gameFilter) && (!q || g.name.toLowerCase().includes(q));
+    c.hidden = !ok; if (ok) shown++;
+  });
+  $('#games-empty').hidden = shown > 0;
+  $$('#game-filters .filter').forEach(b => b.classList.toggle('on', b.dataset.cat === gameFilter));
+}
 function renderLobby() {
-  $('#lobby').innerHTML = LOBBY.map(g => `<button type="button" class="lobby-card" data-go-view="${g.id}">
+  $('#game-filters').innerHTML = GAME_CATS.map(([id, label]) => `<button type="button" class="filter${id === gameFilter ? ' on' : ''}" data-cat="${id}">${label}</button>`).join('');
+  $('#game-filters').addEventListener('click', e => { const b = e.target.closest('[data-cat]'); if (b) { gameFilter = b.dataset.cat; filterGames(); } });
+  $('#game-search').addEventListener('input', filterGames);
+  $('#home-games').addEventListener('click', e => { const b = e.target.closest('[data-go-view]'); if (b) go(b.dataset.goView); });
+  $('#lobby').innerHTML = LOBBY.map((g, i) => `<button style="--i:${i}" type="button" class="lobby-card" data-go-view="${g.id}">
     <span class="lobby-art">${ART[g.id] || ''}</span><span class="lobby-body"><span class="lobby-name">${esc(g.name)}</span>
     <span class="lobby-desc">${esc(g.desc)}</span>${['crash', 'course', 'loto', 'duel'].includes(g.id) ? `<span class="lobby-live" data-live="${g.id}"></span>` : ''}<span class="lobby-rtp">${g.rtp ? `Taux de retour ${g.rtp}` : esc(g.note)}</span></span></button>`).join('');
   setInterval(() => { // état des jeux multijoueurs, en direct
-    if (currentView !== 'salle') return;
-    const c = $('[data-live="crash"]'), r = $('[data-live="course"]'), now = Crash.now();
-    if (c) c.textContent = Crash.phase === 'offline' ? 'Hors ligne' : Crash.phase === 'betting' ? `En direct : décollage dans ${Math.max(0, Math.ceil((Crash.betEndsAt - now) / 1000))} s`
-      : Crash.phase === 'running' ? `En direct : en vol à ${fmtX(Crash.mult)}` : `En direct : crash à ${fmtX(Crash.point)}`;
-    if (r) r.textContent = Race.phase === 'offline' ? 'Hors ligne' : Race.phase === 'betting' ? `En direct : départ dans ${Math.max(0, Math.ceil((Race.betEndsAt - Race.now()) / 1000))} s`
-      : Race.phase === 'running' ? 'En direct : course en cours' : `En direct : victoire de ${HORSES[Race.winner].name}`;
+    if (currentView !== 'salle' && currentView !== 'jeux') return;
+    const now = Crash.now();
+    $$('[data-live="crash"]').forEach(c => c.textContent = Crash.phase === 'offline' ? 'Hors ligne' : Crash.phase === 'betting' ? `En direct : décollage dans ${Math.max(0, Math.ceil((Crash.betEndsAt - now) / 1000))} s`
+      : Crash.phase === 'running' ? `En direct : en vol à ${fmtX(Crash.mult)}` : `En direct : crash à ${fmtX(Crash.point)}`);
+    $$('[data-live="course"]').forEach(r => r.textContent = Race.phase === 'offline' ? 'Hors ligne' : Race.phase === 'betting' ? `En direct : départ dans ${Math.max(0, Math.ceil((Race.betEndsAt - Race.now()) / 1000))} s`
+      : Race.phase === 'running' ? 'En direct : course en cours' : `En direct : victoire de ${HORSES[Race.winner].name}`);
+    Duel.renderLive(); Loto.renderTime();
   }, 500);
   $('#lobby').addEventListener('click', e => { const b = e.target.closest('[data-go-view]'); if (b) go(b.dataset.goView); });
 }
@@ -3256,7 +4225,7 @@ const GAME_BONUS_SHARE = 0.5; // bonus de jeux maximal par boost : la moitié de
 const OFFLINE_CAP_S = 2 * 3600, OFFLINE_RATE = 0.5;
 
 const level = id => (S.clicker.up[id] || 0);
-const upCost = u => r2(u.base * GROWTH ** level(u.id));
+const upCost = u => r2(u.base * GROWTH ** level(u.id) * (Season.rules().upgradePrice || 1));
 const clickValue = () => r2(CLICK_BASE + UPGRADES.filter(u => u.kind === 'click').reduce((s, u) => s + u.value * level(u.id), 0));
 const autoRate = () => Math.round(UPGRADES.filter(u => u.kind === 'auto').reduce((s, u) => s + u.value * level(u.id), 0) * 100) / 100;
 const boostActive = () => !!(S.boost && S.boost.until > Date.now());
@@ -3308,7 +4277,10 @@ const Clicker = {
   times: [], carry: 0, lastTick: Date.now(),
   init() {
     $('#chip-btn').addEventListener('click', e => this.click(e));
-    $('#view-clicker').addEventListener('click', e => { const b = e.target.closest('[data-up]'); if (b) this.buy(b.dataset.up); });
+    $('#view-clicker').addEventListener('click', e => {
+      const b = e.target.closest('[data-up]'); if (b) this.buy(b.dataset.up);
+      const k = e.target.closest('[data-skin]'); if (k) { S.coinSkin = k.dataset.skin; this.renderSkin(); scheduleSave(); }
+    });
     setInterval(() => this.tick(), 1000);
   },
   click(e) {
@@ -3320,13 +4292,24 @@ const Clicker = {
     if (this.times.length >= 12) { warn.textContent = 'Trop rapide : 12 clics par seconde au maximum.'; return; }
     warn.textContent = '';
     this.times.push(now);
-    const gain = r2(clickValue() * boostMult() * clickerFactor());
+    const gain = r2(clickValue() * boostMult() * clickerFactor() * (Season.rules().clickMult || 1));
     S.totalClicks++;
+    if (S.totalClicks % 100 === 0) XP.add(2);
     S.clicker.clickEarned = r2(S.clicker.clickEarned + gain);
     Wallet.credit(gain, true);
     Goals.bump('clicks', 1);
     checkAchievements();
     $('#clicks-count').textContent = S.totalClicks.toLocaleString('fr-FR');
+    const gem = $('#chip-btn');
+    gem.classList.remove('hit'); void gem.offsetWidth; gem.classList.add('hit');
+    if (!reducedMotion) for (let i = 0; i < 6; i++) { // fragments qui jaillissent
+      const sh = document.createElement('span');
+      sh.className = 'gem-shard';
+      const ang = (i / 6) * Math.PI * 2 + Math.random() * .6, dist = 70 + Math.random() * 50;
+      sh.style.setProperty('--dx', `${Math.cos(ang) * dist}px`); sh.style.setProperty('--dy', `${Math.sin(ang) * dist - 20}px`); sh.style.setProperty('--rot', `${Math.random() * 360}deg`);
+      gem.appendChild(sh);
+      setTimeout(() => sh.remove(), 650);
+    }
     const area = $('#chip-area'), rect = area.getBoundingClientRect();
     const f = document.createElement('span');
     f.className = 'floater'; f.textContent = '+' + money(gain);
@@ -3378,6 +4361,14 @@ const Clicker = {
       toast(`Pendant votre absence, vos machines ont rapporté ${money(gain)}.`, 'success');
     }
   },
+  renderSkin() {
+    const SK = { or: ['Diamant', '#DDF1FF'], argent: ['Saphir', '#3D7BDB'], onyx: ['Onyx', '#2A2A33'], emeraude: ['Émeraude', '#2FAE78'] };
+    const owned = Object.keys(SK).filter(k => k === 'or' || S.inventory['coin_' + k]);
+    if (!owned.includes(S.coinSkin)) S.coinSkin = 'or';
+    const btn = $('#chip-btn'); if (!btn) return;
+    btn.className = 'gem-btn skin-' + S.coinSkin;
+    $('#coin-skins').innerHTML = owned.length > 1 ? owned.map(k => `<button type="button" class="${S.coinSkin === k ? 'on' : ''}" style="background:${SK[k][1]}" data-skin="${k}" title="${SK[k][0]}" aria-label="Gemme : ${SK[k][0].toLowerCase()}"></button>`).join('') : '';
+  },
   buy(id) {
     if (!user) return showAuth();
     const u = UPGRADES.find(x => x.id === id);
@@ -3405,8 +4396,9 @@ const Clicker = {
   },
   render() {
     const mult = boostMult(), f = clickerFactor();
-    $('#chip-value').textContent = '+' + money(r2(clickValue() * mult * f));
-    $('#rate-click').textContent = money(r2(clickValue() * mult * f));
+    const cm = Season.rules().clickMult || 1;
+    $('#chip-value').textContent = '+' + money(r2(clickValue() * mult * f * cm));
+    $('#rate-click').textContent = money(r2(clickValue() * mult * f * cm));
     $('#rate-auto').textContent = perSec(autoRate() * mult * f);
     $('#clicks-count').textContent = S.totalClicks.toLocaleString('fr-FR');
     setHTML($('#clicker-boost'), malusOn('noboost') && boostActive()
@@ -3439,7 +4431,8 @@ const Boost = {
     if (active && S.boost.mult === mult && S.boost.until - now + BOOST_MS > BOOST_MAX_MS) {
       return toast('Un boost ne peut pas dépasser 30 minutes d’affilée.', 'error');
     }
-    if (!Wallet.debit(b.price)) return toast(`Il vous manque ${money(r2(b.price - S.balance))} pour ce boost.`, 'error');
+    const price = seasonPrice('boostPrice', b.price);
+    if (!Wallet.debit(price)) return toast(`Il vous manque ${money(r2(price - S.balance))} pour ce boost.`, 'error');
     const extend = active && S.boost.mult === mult;
     const pool = r2(b.price * GAME_BONUS_SHARE + (extend ? S.boost.pool || 0 : 0));
     S.boost = { mult, until: (extend ? S.boost.until : now) + BOOST_MS, pool };
@@ -3538,8 +4531,9 @@ const GOAL_CATS = [
   { id: 'all', label: 'Tout' }, { id: 'ready', label: 'Prêts' }, { id: 'clicker', label: 'Clicker' },
   { id: 'jeux', label: 'Jeux' }, { id: 'richesse', label: 'Richesse' }, { id: 'collection', label: 'Collection' }
 ];
-const titlesOwned = () => SHOP.filter(i => S.inventory[i.id]).length;
-const themesOwned = () => THEMES.filter(t => t.price && S.inventory['theme_' + t.id]).length;
+const SHOP_ALL = () => [...((Season.cfg() && Season.cfg().shopTitles) || []).map(t => ({ ...t, seasonal: true })), ...SHOP];
+const titlesOwned = () => SHOP_ALL().filter(i => S.inventory[i.id]).length;
+const themesOwned = () => THEMES.filter(t => t.price && !t.pass && S.inventory['theme_' + t.id]).length;
 const GOALS = [
   // ----- Clicker -----
   { id: 'c100', cat: 'clicker', title: 'Premiers pas', desc: 'Cliquer 100 fois', goal: 100, val: () => S.totalClicks, reward: 10 },
@@ -3562,7 +4556,7 @@ const GOALS = [
   { id: 'boost50', cat: 'clicker', title: 'Turbo', desc: 'Acheter un boost ×50', goal: 1, val: () => S.c.boost50, reward: 100000 },
   // ----- Jeux -----
   { id: 'g25', cat: 'jeux', title: 'Habitué', desc: 'Jouer 25 parties', goal: 25, val: () => S.c.games10, reward: 60 },
-  { id: 'g100', cat: 'jeux', title: 'Pilier du casino', desc: 'Jouer 100 parties', goal: 100, val: () => S.c.games10, reward: 400 },
+  { id: 'g100', cat: 'jeux', title: 'Pilier de Carat', desc: 'Jouer 100 parties', goal: 100, val: () => S.c.games10, reward: 400 },
   { id: 'g1000', cat: 'jeux', title: 'Résident', desc: 'Jouer 1 000 parties', goal: 1000, val: () => S.c.games10, reward: 8000 },
   { id: 'w10', cat: 'jeux', title: 'Main chaude', desc: 'Gagner 10 parties', goal: 10, val: () => S.c.wins10, reward: 80 },
   { id: 'w50', cat: 'jeux', title: 'En veine', desc: 'Gagner 50 parties', goal: 50, val: () => S.c.wins10, reward: 800 },
@@ -3579,7 +4573,7 @@ const GOALS = [
   { id: 'coin10', cat: 'jeux', title: 'Insolent', desc: 'Gagner 10 lancers de suite à pile ou face', goal: 10, val: () => S.c.coinBest, reward: 10000 },
   { id: 'win10k', cat: 'jeux', title: 'Coup de maître', desc: 'Gagner 10 000 $ de bénéfice en une seule partie', goal: 10000, val: () => S.c.bestWin, reward: 2000, fmt: 'money' },
   { id: 'win1m', cat: 'jeux', title: 'Jackpot', desc: 'Gagner 1 000 000 $ de bénéfice en une seule partie', goal: 1000000, val: () => S.c.bestWin, reward: 40000, fmt: 'money' },
-  { id: 'explore', cat: 'jeux', title: 'Explorateur', desc: 'Jouer aux 9 jeux du casino', goal: 9, val: () => ALL_GAMES.filter(g => S.seen[g]).length, reward: 2000 },
+  { id: 'explore', cat: 'jeux', title: 'Explorateur', desc: 'Jouer aux 9 jeux de Carat', goal: 9, val: () => ALL_GAMES.filter(g => S.seen[g]).length, reward: 2000 },
   { id: 'slot7', cat: 'jeux', title: 'Triple sept', desc: 'Aligner trois 7 à la machine à sous', goal: 1, val: () => S.c.slot7, reward: 5000 },
   { id: 'outsider', cat: 'jeux', title: 'Coup de l’outsider', desc: 'Gagner une course sur un cheval coté ×9 ou plus', goal: 1, val: () => S.c.outsider, reward: 1500 },
   { id: 'duel1', cat: 'jeux', title: 'Premier sang', desc: 'Gagner un duel contre un autre joueur', goal: 1, val: () => S.c.duelWins, reward: 300 },
@@ -3697,6 +4691,7 @@ const Goals = {
     const g = GOALS.find(x => x.id === id);
     if (!g || S.goals[id] || g.val() < g.goal) return;
     S.goals[id] = true;
+    XP.add(100);
     Wallet.credit(g.reward);
     toast(`${g.title} : +${money(g.reward)}`, 'success');
     celebrate(); saveNow(); this.check(); this.render();
@@ -3706,6 +4701,7 @@ const Goals = {
     if (!g || S.daily.claimed[id] || (S.daily.prog[g.key] || 0) < g.goal) return;
     const rew = this.dailyReward(g);
     S.daily.claimed[id] = true;
+    XP.add(150);
     S.c.dailyClaimed++;
     Wallet.credit(rew);
     toast(`${g.title} : +${money(rew)}`, 'success');
@@ -3718,6 +4714,7 @@ const Goals = {
       if (!S.daily.claimed[g.id] && (S.daily.prog[g.key] || 0) >= g.goal) { total += this.dailyReward(g); S.daily.claimed[g.id] = true; S.c.dailyClaimed++; n++; }
     });
     if (!n) return;
+    XP.add(n * 120);
     Wallet.credit(r2(total));
     toast(`${n} objectif${n > 1 ? 's' : ''} récupéré${n > 1 ? 's' : ''} : +${money(r2(total))}`, 'success');
     celebrate(); saveNow(); this.check(); this.render();
@@ -3766,8 +4763,14 @@ const Goals = {
    ===================================================================== */
 const THEME_KEYS = ['--bg', '--felt', '--panel', '--panel-2', '--line', '--line-soft', '--ink', '--muted', '--faint', '--brass', '--brass-hi', '--brass-ink', '--red', '--jade', '--neon-pink', '--neon-cyan', '--glow', '--glow-a', '--glow-b'];
 const THEMES = [
-  { id: 'tapis', name: 'Nuit néon', desc: 'Le thème du club : nuit profonde et néons.', price: 0, vars: {} },
-  { id: 'vert', name: 'Tapis vert', desc: 'L’ancien thème du casino, vert et doré.', price: 0,
+  { id: 'tapis', name: 'Thème de la saison', desc: 'Les couleurs de la saison en cours.', price: 0, vars: {} },
+  { id: 'or_massif', name: 'Or massif', desc: 'Récompense Prestige de la saison Nuit d’or.', price: null, pass: true,
+    vars: { '--bg': '#0C0904', '--felt': '#151006', '--panel': '#1A1408', '--panel-2': '#241C0B', '--line': '#3D3014', '--line-soft': '#2C230F', '--brass': '#F5CF6B', '--brass-hi': '#FBE3A0', '--glow': '#2A1F08', '--glow-a': 'rgba(245,207,107,.12)', '--glow-b': 'rgba(245,207,107,.06)' } },
+  { id: 'banquise', name: 'Banquise', desc: 'Récompense Prestige de la saison Émeraude glacée.', price: null, pass: true,
+    vars: { '--bg': '#061018', '--felt': '#0B1822', '--panel': '#0E1B26', '--panel-2': '#142636', '--line': '#22394D', '--line-soft': '#1A2C3C', '--brass': '#A8E6F5', '--brass-hi': '#D2F4FB', '--brass-ink': '#03212B', '--glow': '#0E2433' } },
+  { id: 'magma', name: 'Magma', desc: 'Récompense Prestige de la saison Rubis ardent.', price: null, pass: true,
+    vars: { '--bg': '#120605', '--felt': '#1A0907', '--panel': '#1D0B09', '--panel-2': '#29100D', '--line': '#4A1D17', '--line-soft': '#351511', '--brass': '#FF8A3D', '--brass-hi': '#FFB27A', '--brass-ink': '#2B0D02', '--glow': '#3A120A' } },
+  { id: 'vert', name: 'Tapis vert', desc: 'Un tapis de jeu vert et doré.', price: 0,
     vars: { '--bg': '#0D1C18', '--felt': '#12261F', '--panel': '#162D27', '--panel-2': '#1C3932', '--line': '#2C4B43', '--line-soft': '#213C35', '--ink': '#EFE7D4', '--muted': '#9DB2A8', '--faint': '#6F877D',
       '--brass': '#E3B04B', '--brass-hi': '#F0C66E', '--brass-ink': '#2B1F06', '--red': '#DE4A43', '--jade': '#3EC58F', '--neon-pink': '#E3B04B', '--neon-cyan': '#3EC58F', '--glow': '#1B3A31', '--glow-a': 'rgba(27,58,49,.6)', '--glow-b': 'rgba(27,58,49,.4)' } },
   { id: 'velours', name: 'Velours rouge', desc: 'L’ambiance des salons privés.', price: 20000,
@@ -3781,9 +4784,10 @@ const THEMES = [
 ];
 function applyTheme(id) {
   const t = THEMES.find(x => x.id === id) || THEMES[0];
+  const vars = t.id === 'tapis' ? ((Season.cfg() && Season.cfg().theme) || {}) : t.vars; // le thème par défaut change à chaque saison
   const st = document.documentElement.style;
   THEME_KEYS.forEach(k => st.removeProperty(k));
-  Object.entries(t.vars).forEach(([k, v]) => st.setProperty(k, v));
+  Object.entries(vars).forEach(([k, v]) => st.setProperty(k, v));
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.content = t.vars['--bg'] || '#08070B';
 }
@@ -3795,12 +4799,13 @@ const Net = {
   socket: null, online: [], state: 'connecting', manual: false, balTimer: 0, balQueued: false, offset: 0,
   init() {
     if (typeof io !== 'function') { this.setStatus('off'); Crash.onDisconnect(); Race.onDisconnect(); return; }
-    this.socket = io(SERVER_URL, { reconnectionDelayMax: 10000, timeout: 20000 });
+    this.socket = io(SERVER_URL, { reconnectionDelayMax: 5000, timeout: 20000 });
     const s = this.socket;
     const slowTimer = setTimeout(() => { if (!s.connected) this.setStatus('slow'); }, 4000);
     s.on('connect', async () => {
       clearTimeout(slowTimer);
       this.setStatus('on');
+      if (Cloud.token && !Cloud.replaced) await Cloud.resume(); // un appareil remplacé attend que son joueur se reconnecte
       this.join();
       Crash.resume();
       Race.resume();
@@ -3840,6 +4845,9 @@ const Net = {
     s.on('big_win', d => BigWins.add(d, true));
     s.on('loto_state', d => Loto.onState(d));
     s.on('top_hour', d => TopHour.set(d));
+    s.on('season_info', d => Season.set(d, false));
+    s.on('season_changed', d => Season.set(d, true));
+    s.on('session_replaced', () => Cloud.onReplaced());
     s.on('duel_list', d => Duel.onList(d));
     s.on('duel_invite', d => Duel.onInvite(d));
     s.on('duel_closed', d => Duel.onClosed(d));
@@ -4032,11 +5040,15 @@ const ICONS = {
   ticket: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></svg>',
   home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V20h-5.5v-5h-5v5H4z"/></svg>',
   duel: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4l10 10M4 4h4M4 4v4M20 4 10 14M20 4h-4M20 4v4M7 17l-3 3M17 17l3 3M8 13l3 3M16 13l-3 3"/></svg>',
+  star: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.6 6.1.7-4.5 4.1 1.3 6-5.5-3.1-5.5 3.1 1.3-6-4.5-4.1 6.1-.7z"/></svg>',
+  columns: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16M12 3 4 7v2h16V7zM6 9v8M10 9v8M14 9v8M18 9v8M3 20h18"/></svg>',
+  user: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>',
   race: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>',
   wheel2: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 13 6.5 7.5M12 13l5.5-5.5M12 13v8M9.5 2.5h5L12 5z"/></svg>'
 };
 const VIEWS = [
   { id: 'salle', label: 'Accueil', group: 'Accueil', icon: 'home' },
+  { id: 'jeux', label: 'Jeux', group: 'Accueil', icon: 'grid' },
   { id: 'crash', label: 'Aviateur', group: 'Jeux', icon: 'crash' },
   { id: 'slots', label: 'Machine à sous', group: 'Jeux', icon: 'slots' },
   { id: 'course', label: 'Course de chevaux', group: 'Jeux', icon: 'race' },
@@ -4050,45 +5062,104 @@ const VIEWS = [
   { id: 'clicker', label: 'Clicker', group: 'Gagner de l’argent', icon: 'plus' },
   { id: 'objectifs', label: 'Objectifs', group: 'Gagner de l’argent', icon: 'target' },
   { id: 'loto', label: 'Loto du jour', group: 'Gagner de l’argent', icon: 'ticket' },
+  { id: 'pass', label: 'Pass de saison', group: 'Saison', icon: 'star' },
+  { id: 'pantheon', label: 'Panthéon', group: 'Saison', icon: 'columns' },
+  { id: 'grattage', label: 'Grattage', group: 'Jeux', icon: 'ticket' },
   { id: 'boutique', label: 'Boutique', group: 'Compte', icon: 'bag' },
   { id: 'stats', label: 'Statistiques', group: 'Compte', icon: 'bars' },
   { id: 'social', label: 'Tchat et transferts', group: 'Communauté', icon: 'chat' }
 ];
-// Les jeux ne sont plus dans le menu : on y accède depuis l'accueil
+// Rubriques du site : chaque rubrique regroupe une ou plusieurs pages (sous-onglets)
+const HUBS = [
+  { id: 'accueil', label: 'Accueil', icon: 'home', views: ['salle'] },
+  { id: 'jeux', label: 'Jeux', icon: 'grid', views: ['jeux'] },
+  { id: 'saison', label: 'Saison', icon: 'star', views: ['pass', 'pantheon'] },
+  { id: 'gagner', label: 'Gagner', icon: 'plus', views: ['clicker', 'objectifs', 'loto'] },
+  { id: 'communaute', label: 'Communauté', icon: 'chat', views: ['social'] },
+  { id: 'profil', label: 'Profil', icon: 'user', views: ['stats', 'boutique'] }
+];
 const GAME_GROUPS = ['Jeux', 'Tables'];
 const isGameView = id => VIEWS.some(v => v.id === id && GAME_GROUPS.includes(v.group));
+const hubOf = id => HUBS.find(h => h.views.includes(id)) || (isGameView(id) ? HUBS[1] : HUBS[0]);
+const HUB_COUNT = { gagner: 'objectifs', saison: 'pass' };
 function buildNav() {
-  const groups = {};
-  VIEWS.filter(v => !GAME_GROUPS.includes(v.group)).forEach(v => { (groups[v.group] = groups[v.group] || []).push(v); });
+  const tab = (h, cls) => `<button type="button" class="${cls}" data-hub="${h.id}">${ICONS[h.icon]}<span>${esc(h.label)}</span>${HUB_COUNT[h.id] ? `<span class="nav-count" data-count="${HUB_COUNT[h.id]}" hidden></span>` : ''}</button>`;
+  $('#topnav').innerHTML = HUBS.map(h => tab(h, 'tn-btn')).join('') + '<span class="tn-ind" id="tn-ind"></span>';
+  $('#bottomnav').innerHTML = HUBS.map(h => tab(h, 'bn-btn')).join('');
+  const onHub = e => { const b = e.target.closest('[data-hub]'); if (b) go(HUBS.find(h => h.id === b.dataset.hub).views[0]); };
+  $('#topnav').addEventListener('click', onHub);
+  $('#bottomnav').addEventListener('click', onHub);
+  $('#subtabs').addEventListener('click', e => { const b = e.target.closest('[data-sub]'); if (b) go(b.dataset.sub); });
   // lien de retour en haut de chaque jeu
   VIEWS.filter(v => GAME_GROUPS.includes(v.group)).forEach(v => {
     const head = $(`#view-${v.id} .view-head`);
-    if (head && !head.querySelector('.back-link')) head.insertAdjacentHTML('afterbegin', '<button type="button" class="back-link" data-back-home>← Accueil</button>');
+    if (head && !head.querySelector('.back-link')) head.insertAdjacentHTML('afterbegin', '<button type="button" class="back-link" data-back-home>← Tous les jeux</button>');
   });
-  $('#main').addEventListener('click', e => { if (e.target.closest('[data-back-home]')) go('salle'); });
-  const nav = $('#nav');
-  nav.innerHTML = Object.entries(groups).map(([g, items]) =>
-    `<div class="nav-group"><p class="nav-group-title">${esc(g)}</p>${items.map(v =>
-      `<button type="button" class="nav-btn" data-view="${v.id}">${ICONS[v.icon]}<span>${esc(v.label)}</span>${v.id === 'objectifs' ? '<span class="nav-count" data-count="objectifs" hidden></span>' : ''}</button>`).join('')}</div>`).join('');
-  nav.addEventListener('click', e => { const b = e.target.closest('.nav-btn'); if (b) go(b.dataset.view); });
+  $('#main').addEventListener('click', e => { if (e.target.closest('[data-back-home]')) go('jeux'); });
+  // menu du profil
+  const menu = $('#me-menu'), btn = $('#me-btn');
+  const setMenu = open => { menu.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
+  btn.addEventListener('click', e => { e.stopPropagation(); setMenu(menu.hidden); });
+  menu.addEventListener('click', e => {
+    const b = e.target.closest('[data-me-go]'); if (b) { setMenu(false); go(b.dataset.meGo); }
+    if (e.target.closest('#logout-btn')) setMenu(false);
+    if (e.target.closest('#me-fast')) FastMode.toggle();
+    if (e.target.closest('#me-claim')) { setMenu(false); showAuth(); authTab('register'); authStatus('Choisissez un pseudo et un mot de passe : votre partie d’invité est transférée sur ce compte.'); }
+  });
+  document.addEventListener('click', e => { if (!menu.hidden && !e.target.closest('.me')) setMenu(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
+  window.addEventListener('resize', () => placeIndicators());
 }
-function go(id) {
+function placeIndicators() { // soulignements qui glissent sous l'onglet actif
+  const pairs = [[$('#topnav .tn-btn[aria-current="page"]'), $('#tn-ind'), $('#topnav')], [$('#subtabs .st-btn[aria-current="page"]'), $('#st-ind'), $('#subtabs')]];
+  pairs.forEach(([b, ind, box]) => {
+    if (!ind) return;
+    if (!b || !box.offsetParent) { ind.style.opacity = '0'; return; }
+    ind.style.opacity = '1';
+    ind.style.width = b.offsetWidth + 'px';
+    ind.style.transform = `translateX(${b.offsetLeft}px)`;
+  });
+}
+const HUB_ORDER = ['accueil', 'jeux', 'saison', 'gagner', 'communaute', 'profil'];
+function go(id) { // transition orientée : vers la droite quand on avance dans les rubriques, vers la gauche quand on revient
+  const from = currentView;
+  const hubA = hubOf(from), hubB = hubOf(VIEWS.some(v => v.id === id) ? id : 'salle');
+  let dir = HUB_ORDER.indexOf(hubB.id) - HUB_ORDER.indexOf(hubA.id);
+  if (!dir && hubA.id === hubB.id) dir = hubB.views.indexOf(id) - hubB.views.indexOf(from);
+  if (!dir && isGameView(id) !== isGameView(from)) dir = isGameView(id) ? 1 : -1;
+  document.documentElement.dataset.navDir = dir > 0 ? 'next' : dir < 0 ? 'prev' : 'same';
+  if (document.startViewTransition && !reducedMotion && from && from !== id && !document.hidden) {
+    currentView = id;
+    document.documentElement.classList.add('vt');
+    document.startViewTransition(() => goNow(id));
+  } else goNow(id);
+}
+function goNow(id) {
   if (id === 'secours') id = 'clicker'; // ancien lien
+  if (LOBBY.some(g => g.id === id && g.seasonal) && SEASON_INFO && !Season.has(id)) { toast('Ce jeu de saison n’est pas disponible ce mois-ci.', 'info'); id = 'salle'; }
   if (!VIEWS.some(v => v.id === id)) id = 'salle';
   currentView = id;
   $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + id));
-  const navId = isGameView(id) ? 'salle' : id; // dans un jeu, « Accueil » reste surligné
-  $$('.nav-btn').forEach(b => {
-    const on = b.dataset.view === navId;
-    b.setAttribute('aria-current', on ? 'page' : 'false');
-    if (on && window.innerWidth <= 900) { const nav = $('#nav'); nav.scrollTo({ left: b.offsetLeft - nav.clientWidth / 2 + b.offsetWidth / 2, behavior: reducedMotion ? 'auto' : 'smooth' }); }
-  });
+  const hub = hubOf(id);
+  $$('[data-hub]').forEach(b => b.setAttribute('aria-current', b.dataset.hub === hub.id ? 'page' : 'false'));
+  const sub = $('#subtabs');
+  if (hub.views.length > 1 && !isGameView(id)) {
+    sub.hidden = false;
+    const html = hub.views.map(v => { const vv = VIEWS.find(x => x.id === v); return `<button type="button" class="st-btn" role="tab" data-sub="${v}" aria-current="${v === id ? 'page' : 'false'}">${esc(vv.label)}${v === 'objectifs' || v === 'pass' ? `<span class="nav-count" data-count="${v}" hidden></span>` : ''}</button>`; }).join('');
+    if (sub.dataset.hub !== hub.id) { sub.innerHTML = html + '<span class="st-ind" id="st-ind"></span>'; sub.dataset.hub = hub.id; }
+    else $$('#subtabs .st-btn').forEach(b => b.setAttribute('aria-current', b.dataset.sub === id ? 'page' : 'false'));
+    Goals.check(); Pass.badge();
+  } else { sub.hidden = true; sub.dataset.hub = ''; }
+  requestAnimationFrame(placeIndicators);
   if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
   if (id === 'crash') Crash.resize();
   if (id === 'boutique') renderShop();
   if (id === 'stats') renderStats();
   if (id === 'clicker') Clicker.render();
   if (id === 'objectifs') Goals.render();
+  if (id === 'pass') Pass.render();
+  if (id === 'pantheon') Pantheon.render();
+  if (id === 'salle') { renderSeasonUI(); renderHome(); }
   if (id === 'plinko') Plinko.resize();
   window.scrollTo(0, 0);
 }
@@ -4131,15 +5202,45 @@ function markDirty() {
     if (currentView === 'stats') renderStats();
     if (currentView === 'clicker') Clicker.render();
     if (currentView === 'objectifs') Goals.render();
+    if (currentView === 'pass') Pass.render();
+    XP.render();
   });
 }
-function renderWallet() { $('#wallet').textContent = user ? money(S.balance) : '—'; }
+let walletShown = null, walletAnim = 0;
+function renderWallet() { // le solde défile jusqu'à sa nouvelle valeur
+  const el = $('#wallet');
+  if (!user) { walletShown = null; el.textContent = '—'; return; }
+  const target = S.balance, from = walletShown == null ? target : walletShown;
+  cancelAnimationFrame(walletAnim);
+  if (reducedMotion || Math.abs(target - from) < 0.01 || Math.abs(target - from) > 1e9) { walletShown = target; el.textContent = money(target); return; }
+  const t0 = performance.now(), dur = 450;
+  const step = now => {
+    const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+    walletShown = from + (target - from) * e;
+    el.textContent = money(r2(walletShown));
+    if (k < 1) walletAnim = requestAnimationFrame(step); else walletShown = target;
+  };
+  walletAnim = requestAnimationFrame(step);
+}
 function renderUser() {
+  const ini = user ? user.replace(/^Invité_/, 'I').charAt(0).toUpperCase() : '?';
+  $('#me-av').textContent = ini; $('#me-av2').textContent = ini;
+  $('#me-claim').hidden = !(user && isGuest);
+  $('#guest-btn').textContent = user && isGuest ? 'Continuer en invité' : 'Essayer en invité, sans créer de compte';
   $('#user-name').innerHTML = user ? `${S.equippedBadge ? `<span class="tag sm">${esc(S.equippedBadge)}</span>` : ''}${esc(user)}` : 'Non connecté';
-  $('#user-kind').textContent = !user ? '' : isGuest ? 'Invité, sauvegarde locale' : 'Compte sur cet appareil';
-  $('#logout-btn').setAttribute('aria-label', user ? 'Se déconnecter' : 'Se connecter');
+  $('#user-kind').textContent = !user ? '' : isGuest ? 'Invité, partie sur cet appareil' : 'Compte en ligne';
+  $('#logout-btn').setAttribute('aria-label', !user ? 'Se connecter' : isGuest ? 'Créer un compte ou se connecter' : 'Se déconnecter');
+  $('#logout-btn').title = !user ? 'Se connecter' : isGuest ? 'Créer un compte ou se connecter' : 'Se déconnecter';
+}
+function renderAccountInfo() {
+  const el = $('#account-info'); if (!el) return;
+  $('#pw-form').hidden = !user;
+  el.textContent = !user ? '' : isGuest ? 'Vous jouez en invité : votre partie n’existe que sur cet appareil. Créez un compte pour la retrouver partout (elle y sera transférée).'
+    : `Compte ${user}, enregistré en ligne : connectez-vous avec le même pseudo et le même mot de passe sur n’importe quel appareil pour retrouver votre progression.`;
+  $$('#pw-form input, #pw-form button').forEach(x => { x.disabled = !user || isGuest; });
 }
 function renderStats() {
+  renderAccountInfo();
   const net = r2(S.totalWon - S.totalLost);
   const rate = S.gamesPlayed ? Math.round((S.gamesWon / S.gamesPlayed) * 100) : 0;
   const figs = [
@@ -4165,7 +5266,7 @@ function renderStats() {
     : '<li class="muted-sm">Aucun pari pour l’instant : lancez une partie pour remplir l’historique.</li>';
 }
 function renderAll() {
-  renderWallet(); renderUser(); renderBoard(); renderShop(); renderStats(); renderOnline(); Plinko.renderBig(); FastMode.render();
+  renderWallet(); renderUser(); renderBoard(); renderShop(); renderStats(); renderOnline(); Plinko.renderBig(); FastMode.render(); renderSeasonUI(); Clicker.renderSkin();
   Clicker.render(); Goals.render(); Boost.tick(); Malus.render();
   $('#bj-pname').textContent = user || 'Vous';
   Mines.preview();
@@ -4200,8 +5301,12 @@ document.addEventListener('DOMContentLoaded', () => {
   BJ.init();
   Coin.init();
   Clicker.init();
-  Plinko.init(); Hilo.init(); WheelF.init(); Slots.init(); Race.init(); Loto.init(); LB.init(); FastMode.init(); TopHour.init(); Duel.init();
-  $('#brand-mark').innerHTML = LOGO_SVG;
+  Plinko.init(); Hilo.init(); WheelF.init(); Slots.init(); Race.init(); Loto.init(); LB.init(); FastMode.init(); TopHour.init(); Duel.init(); Scratch.init();
+  $('#view-pass').addEventListener('click', e => { const b = e.target.closest('[data-pass-claim]'); if (b) { const [tr, l] = b.dataset.passClaim.split(':'); Pass.claim(tr, Number(l)); } if (e.target.closest('#pass-claim-all')) Pass.claimAll(); });
+  setInterval(() => { if (currentView === 'salle') { renderSeasonUI(); renderHome(); } if (currentView === 'jeux') filterGames(); }, 30000);
+  BgFx.init();
+  $('#brand-mark').innerHTML = LOGO_SVG; $('#ab-logo').innerHTML = LOGO_SVG; $('#splash-logo').innerHTML = LOGO_SVG;
+  if (SEASON_INFO) $('#ab-season').textContent = `Saison ${SEASON_INFO.num} en cours : ${SEASON_INFO.config.name}`;
   renderLobby();
   $('#view-objectifs').addEventListener('click', e => {
     const b = e.target.closest('button');
@@ -4214,13 +5319,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   go(location.hash.slice(1));
   window.addEventListener('hashchange', () => go(location.hash.slice(1)));
-  applySeason();
   autoLogin();
   renderAll();
-  if (seasonReset) toast(`Nouvelle saison : tous les comptes repartent de zéro avec ${money(START_BALANCE)}. Bonne chance !`, 'info');
   Net.init();
   document.addEventListener('visibilitychange', () => { if (document.hidden) saveNow(); });
-  window.addEventListener('pagehide', saveNow);
+  window.addEventListener('pagehide', () => { saveNow(); Cloud.push(true); });
 });
 </script>
 </body>
