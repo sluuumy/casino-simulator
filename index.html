@@ -489,6 +489,11 @@ main{min-width:0}
 .pt-label{flex:1;min-width:0;font-weight:700;font-size:14px}
 .pt-state{font-size:12px;color:var(--jade);font-weight:700}
 .pt-cell .btn{padding:6px 12px;font-size:13px}
+.boost-stock{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.boost-stock:empty{display:none}
+.bs-label{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.boost-stock .btn{padding:6px 12px;font-size:13px}
+.boost-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .pass-head{grid-template-columns:auto minmax(0,1fr) minmax(0,240px) auto}
 .pass-ring{position:relative;width:112px;height:112px}
 .pass-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
@@ -1445,6 +1450,7 @@ html.vt .view.active{animation:none}
             <div><dt>Revenus automatiques</dt><dd id="rate-auto">0,00 $/s</dd></div>
           </dl>
           <p class="boost-line" id="clicker-boost"></p>
+          <div class="boost-stock" id="boost-stock"></div>
           <p class="hint" id="click-warn"></p>
         </div>
       </div>
@@ -1577,6 +1583,19 @@ html.vt .view.active{animation:none}
    ===================================================================== */
 const SERVER_URL = 'https://casino-server-7b6q.onrender.com';
 const START_BALANCE = 150;
+// Version du pass : quand elle change, le pass de tous les joueurs repart de zéro (même valeur dans saisons.js)
+const PASS_VERSION = 2;
+const PASS_THEMES = ['or_massif', 'banquise', 'magma'];
+function resetPassState(st) { // XP, paliers récupérés et objets du pass ; l'argent déjà reçu reste acquis
+  const titles = Array.isArray(st.passTitles) ? st.passTitles : [];
+  st.xp = 0; st.xpDay = null; st.passClaimed = {}; st.passTitles = []; st.boostItems = {};
+  if (titles.includes(st.equippedBadge)) st.equippedBadge = '';
+  st.inventory = st.inventory || {};
+  Object.keys(st.inventory).forEach(k => { if (k.startsWith('coin_') || PASS_THEMES.includes(k.replace('theme_', ''))) delete st.inventory[k]; });
+  st.coinSkin = 'or';
+  if (PASS_THEMES.includes(st.theme)) st.theme = 'tapis';
+  st.passVersion = PASS_VERSION;
+}
 var SEASON_INFO = null; // saison en cours, envoyée par le serveur (copie gardée sur l'appareil)
 try { SEASON_INFO = JSON.parse(localStorage.getItem('emeraude_season') || 'null'); } catch {}
 function seasonStartBalance() { return (SEASON_INFO && SEASON_INFO.config && SEASON_INFO.config.rules && SEASON_INFO.config.rules.startBalance) || START_BALANCE; }
@@ -1643,7 +1662,7 @@ const RNG = {
    ===================================================================== */
 const DEFAULT_STATE = () => ({
   balance: seasonStartBalance(), totalClicks: 0, totalWon: 0, totalLost: 0,
-  season: SEASON_INFO ? SEASON_INFO.num : 0, xp: 0, passClaimed: {}, passTitles: [], coinSkin: 'or',
+  season: SEASON_INFO ? SEASON_INFO.num : 0, xp: 0, passClaimed: {}, passTitles: [], coinSkin: 'or', boostItems: {}, passVersion: PASS_VERSION,
   biggestMult: 1, bestCrash: 0, gamesPlayed: 0, gamesWon: 0,
   achievements: {}, inventory: {}, equippedBadge: '', history: [], pending: {},
   clicker: { up: {}, bought: 0, boosts: 0, clickEarned: 0, autoEarned: 0 },
@@ -1701,6 +1720,9 @@ function normalize(raw) {
   s.passClaimed = obj(raw && raw.passClaimed);
   s.passTitles = Array.isArray(raw && raw.passTitles) ? raw.passTitles.filter(t => typeof t === 'string').slice(0, 30) : [];
   s.coinSkin = typeof s.coinSkin === 'string' ? s.coinSkin : 'or';
+  s.boostItems = {};
+  Object.entries(obj(raw && raw.boostItems)).forEach(([k, v]) => { if (BOOSTS.some(b => String(b.mult) === k) && num(v) > 0) s.boostItems[k] = Math.floor(num(v)); });
+  s.passVersion = raw ? Math.floor(num(raw.passVersion)) : PASS_VERSION;
   return s;
 }
 
@@ -1913,6 +1935,11 @@ function startSession(name, state, guest) {
     const had = state && (Number(state.gamesPlayed) > 0 || Number(state.totalClicks) > 0);
     S = normalize(null); S.season = Season.num();
     if (had) setTimeout(() => toast(`Saison ${Season.num()} : votre progression repart de zéro. Vos titres d’Héritage restent à vous.`, 'info'), 600);
+  }
+  if (S.passVersion !== PASS_VERSION) { // nouvelle progression du pass : tout le monde repart du niveau 1
+    const had = S.xp > 0 || Object.keys(S.passClaimed).length > 0;
+    resetPassState(S);
+    if (had) setTimeout(() => toast('Le pass de saison a été remis à zéro pour tous les joueurs, avec une nouvelle progression plus exigeante. L’argent déjà reçu vous reste acquis.', 'info'), 900);
   }
   if (!authEl.classList.contains('leaving')) authEl.hidden = true;
   resolvePending();
@@ -2219,7 +2246,7 @@ function renderShop() {
     const est = `Bénéfice des parties gagnées ×${b.mult}, jusqu’à ${money(b.price * GAME_BONUS_SHARE)} de bonus.` + (rate > 0 ? ` Avec vos machines actuelles : environ +${money(r2(rate * 300 * (b.mult - 1)))} de revenus en plus.` : '');
     return { key: 'b' + b.mult, html: `<div class="shop-row"><span><span class="boost-tag">×${b.mult}</span></span>
       <div><p class="shop-name">Boost ×${b.mult} pendant 5 minutes${on ? `<span class="owned-mark">Actif, encore ${Boost.left()}</span>` : ''}</p><p class="muted-sm">${est}</p></div>
-      ${priceButton(seasonPrice('boostPrice', b.price), `data-boost="${b.mult}"`, on ? 'Prolonger' : 'Activer')}</div>` };
+      <span class="boost-actions">${S.boostItems[b.mult] > 0 ? `<button class="btn btn-go" type="button" data-boost-use="${b.mult}">Utiliser (${S.boostItems[b.mult]} en réserve)</button>` : ''}${priceButton(seasonPrice('boostPrice', b.price), `data-boost="${b.mult}"`, on ? 'Prolonger' : 'Activer')}</span></div>` };
   }));
   patchList($('#shop-sabotage'), SABOTAGES.map(t => ({
     key: t.id,
@@ -2259,6 +2286,7 @@ function initShop() {
     const b = e.target.closest('button');
     if (!b) return;
     if (!user) return showAuth();
+    if (b.dataset.boostUse) return Boost.use(Number(b.dataset.boostUse));
     if (b.dataset.boost) return Boost.buy(Number(b.dataset.boost));
     if (b.dataset.sab) return Malus.send(b.dataset.sab);
     if (b.dataset.themeBuy) {
@@ -3894,7 +3922,7 @@ const XP = {
 };
 
 const fmtXp = n => Math.floor(n).toLocaleString('fr-FR');
-const REWARD_TEXT = r => !r ? '' : r.t === 'money' ? money(r.v) : r.t === 'boost' ? `Boost ×${r.mult} (5 min)` : r.label || '';
+const REWARD_TEXT = r => !r ? '' : r.t === 'money' ? money(r.v) : r.t === 'boost' ? `Boost ×${r.mult} en réserve` : r.label || '';
 const Pass = {
   tiers() { return (Season.cfg() && Season.cfg().pass) || []; },
   key(track, level) { return track + level; },
@@ -3910,10 +3938,8 @@ const Pass = {
   badge() { const n = user ? this.ready().length : 0; $$('[data-count="pass"]').forEach(el => { el.textContent = n || ''; el.hidden = !n; }); },
   give(r) {
     if (r.t === 'money') Wallet.credit(r.v);
-    else if (r.t === 'boost') {
-      const b = BOOSTS.find(x => x.mult === r.mult) || BOOSTS[0], now = Date.now(), same = boostActive() && S.boost.mult === r.mult;
-      S.boost = { mult: r.mult, until: (same ? S.boost.until : now) + BOOST_MS, pool: r2(b.price * GAME_BONUS_SHARE + (same ? S.boost.pool || 0 : 0)) };
-      Boost.endedNotice = false;
+    else if (r.t === 'boost') { // gardé en réserve : le joueur l'active quand il veut, sans écraser un boost en cours
+      S.boostItems[r.mult] = (S.boostItems[r.mult] || 0) + 1;
     } else if (r.t === 'title') { if (!S.passTitles.includes(r.tag)) S.passTitles.push(r.tag); }
     else if (r.t === 'theme') S.inventory['theme_' + r.id] = true;
     else if (r.t === 'coin') { S.inventory['coin_' + r.id] = true; S.coinSkin = r.id; Clicker.renderSkin(); }
@@ -3924,7 +3950,7 @@ const Pass = {
     if (track === 'p' && XP.level() < Season.prestigeLevel()) return false;
     S.passClaimed[this.key(track, level)] = true;
     this.give(r);
-    if (!quiet) { toast(`Pass, niveau ${level} : ${REWARD_TEXT(r)}`, 'success'); saveNow(); this.render(); markDirty(); const c = $(`#pass-grid [data-level="${level}"] .pt-cell${track === 'p' ? '.prestige' : ':not(.prestige)'}`); if (c) c.classList.add('just'); }
+    if (!quiet) { toast(`Pass, niveau ${level} : ${REWARD_TEXT(r)}${r.t === 'boost' ? '. Activez-le quand vous voulez depuis le clicker ou la boutique.' : ''}`, 'success'); saveNow(); this.render(); markDirty(); const c = $(`#pass-grid [data-level="${level}"] .pt-cell${track === 'p' ? '.prestige' : ':not(.prestige)'}`); if (c) c.classList.add('just'); }
     return true;
   },
   claimAll() {
@@ -4391,6 +4417,7 @@ const Clicker = {
     $('#view-clicker').addEventListener('click', e => {
       const b = e.target.closest('[data-up]'); if (b) this.buy(b.dataset.up);
       const k = e.target.closest('[data-skin]'); if (k) { S.coinSkin = k.dataset.skin; this.renderSkin(); scheduleSave(); }
+      const u = e.target.closest('[data-boost-use]'); if (u) Boost.use(Number(u.dataset.boostUse));
     });
     setInterval(() => this.tick(), 1000);
   },
@@ -4517,6 +4544,8 @@ const Clicker = {
       : mult > 1
       ? `<span class="boost-on">Boost ×${mult} actif</span> encore ${Boost.left()} sur vos clics et vos revenus automatiques. Bonus restant pour les jeux : ${money(S.boost.pool || 0)}.`
       : `<a href="#boutique" class="text-link">Acheter un boost</a> pour multiplier vos gains du clicker et des jeux pendant 5 minutes.`);
+    const stock = BOOSTS.filter(b => S.boostItems[b.mult] > 0);
+    setHTML($('#boost-stock'), stock.length ? `<span class="bs-label">Boosts en réserve</span>${stock.map(b => `<button class="btn btn-go" type="button" data-boost-use="${b.mult}">×${b.mult}${S.boostItems[b.mult] > 1 ? ` (${S.boostItems[b.mult]})` : ''}</button>`).join('')}` : '');
     for (const kind of ['click', 'auto']) {
       const { rows, hidden } = this.listFor(kind);
       patchList($('#up-' + kind), rows);
@@ -4532,25 +4561,42 @@ const Boost = {
     const s = Math.ceil(ms / 1000);
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   },
+  canStart(mult) { // mêmes règles pour un boost acheté ou sorti de la réserve
+    const now = Date.now(), active = boostActive();
+    if (active && S.boost.mult !== mult &&
+        !confirm(`Un boost ×${S.boost.mult} est encore actif (${this.left()}). Le remplacer par le boost ×${mult} ? Le temps restant sera perdu.`)) return false;
+    if (active && S.boost.mult === mult && S.boost.until - now + BOOST_MS > BOOST_MAX_MS) { toast('Un boost ne peut pas dépasser 30 minutes d’affilée.', 'error'); return false; }
+    return true;
+  },
+  start(mult) {
+    const b = BOOSTS.find(x => x.mult === mult), now = Date.now();
+    const extend = boostActive() && S.boost.mult === mult;
+    const pool = r2(b.price * GAME_BONUS_SHARE + (extend ? S.boost.pool || 0 : 0));
+    S.boost = { mult, until: (extend ? S.boost.until : now) + BOOST_MS, pool };
+    this.endedNotice = false;
+    return extend;
+  },
+  use(mult) { // active un boost gardé en réserve (récompense du pass)
+    if (!user) return showAuth();
+    if (!(S.boostItems[mult] > 0) || !BOOSTS.some(x => x.mult === mult)) return toast('Aucun boost de ce type en réserve.', 'error');
+    if (!this.canStart(mult)) return;
+    S.boostItems[mult]--;
+    if (!S.boostItems[mult]) delete S.boostItems[mult];
+    const extend = this.start(mult);
+    toast(extend ? `Boost ×${mult} de votre réserve : prolongé de 5 minutes.` : `Boost ×${mult} de votre réserve activé pour 5 minutes.`, 'success');
+    celebrate(); saveNow(); markDirty(); renderShop();
+  },
   buy(mult) {
     if (!user) return showAuth();
     const b = BOOSTS.find(x => x.mult === mult);
     if (!b) return;
-    const now = Date.now(), active = boostActive();
-    if (active && S.boost.mult !== mult &&
-        !confirm(`Un boost ×${S.boost.mult} est encore actif (${this.left()}). Le remplacer par le boost ×${mult} ? Le temps restant sera perdu.`)) return;
-    if (active && S.boost.mult === mult && S.boost.until - now + BOOST_MS > BOOST_MAX_MS) {
-      return toast('Un boost ne peut pas dépasser 30 minutes d’affilée.', 'error');
-    }
+    if (!this.canStart(mult)) return;
     const price = seasonPrice('boostPrice', b.price);
     if (!Wallet.debit(price)) return toast(`Il vous manque ${money(r2(price - S.balance))} pour ce boost.`, 'error');
-    const extend = active && S.boost.mult === mult;
-    const pool = r2(b.price * GAME_BONUS_SHARE + (extend ? S.boost.pool || 0 : 0));
-    S.boost = { mult, until: (extend ? S.boost.until : now) + BOOST_MS, pool };
+    const extend = this.start(mult);
     S.clicker.boosts++;
     if (mult === 50) S.c.boost50++;
     Goals.bump('boosts', 1);
-    this.endedNotice = false;
     toast(extend ? `Boost ×${mult} prolongé de 5 minutes.` : `Boost ×${mult} activé pour 5 minutes.`, 'success');
     celebrate();
     saveNow();
