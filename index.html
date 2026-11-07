@@ -489,6 +489,36 @@ main{min-width:0}
 .pt-label{flex:1;min-width:0;font-weight:700;font-size:14px}
 .pt-state{font-size:12px;color:var(--jade);font-weight:700}
 .pt-cell .btn{padding:6px 12px;font-size:13px}
+.pass-head{grid-template-columns:auto minmax(0,1fr) minmax(0,240px) auto}
+.pass-ring{position:relative;width:112px;height:112px}
+.pass-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.pass-ring circle{fill:none;stroke-width:9}
+.pr-bg{stroke:var(--line-soft)}
+.pr-fg{stroke:var(--brass);stroke-linecap:round;stroke-dasharray:326.7;stroke-dashoffset:326.7;transition:stroke-dashoffset .8s cubic-bezier(.2,.75,.2,1);filter:drop-shadow(0 0 6px rgba(230,190,98,.45))}
+.pass-ring span{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.pass-ring small{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.pass-ring b{font-family:var(--display);font-size:40px;color:var(--brass)}
+.pass-xp{font-size:15px;margin:2px 0 8px} .pass-xp b{font-family:var(--display);font-size:22px;color:var(--ink)}
+.pass-next{display:flex;flex-direction:column;gap:4px;padding:12px 14px;border-radius:10px;border:1px dashed rgba(230,190,98,.4);background:rgba(230,190,98,.05)}
+.pass-next small{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.pass-next b{color:var(--brass-hi);font-size:14px}
+.pass-next .pn-big{margin-top:6px}
+.pass-info{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px}
+.xp-sources{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.xp-sources li{display:grid;grid-template-columns:130px minmax(0,1fr);gap:12px;font-size:14px}
+.xp-sources b{color:var(--ink)} .xp-sources span{color:var(--muted)}
+.xp-today{margin-bottom:8px} .xp-today b{font-family:var(--display);font-size:26px;color:var(--brass)}
+#xp-today-bar{background:var(--jade)}
+.pt-row.milestone .pt-lvl{color:var(--brass)}
+.pt-row.milestone .pt-cell:not(.empty){border-color:rgba(230,190,98,.3)}
+.pt-row.prestige-gate{border-top:1px solid var(--brass);margin-top:6px;padding-top:11px;position:relative}
+.pt-row.prestige-gate::before{content:"Piste Prestige";position:absolute;right:0;top:-10px;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;background:var(--panel);color:var(--brass);padding:0 8px}
+.pt-row.current{background:linear-gradient(90deg,rgba(230,190,98,.08),transparent);border-radius:10px}
+.pt-cell.just{animation:claimPop .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes claimPop{40%{transform:scale(1.04);box-shadow:0 0 0 3px rgba(47,214,155,.45)}}
+.xp-pop{position:fixed;z-index:70;transform:translateX(-50%);font-weight:800;font-size:13px;color:var(--brass);pointer-events:none;text-shadow:0 2px 8px rgba(0,0,0,.8);animation:xpPop 1.3s ease-out forwards}
+@keyframes xpPop{0%{opacity:0;transform:translate(-50%,-4px)}15%{opacity:1}100%{opacity:0;transform:translate(-50%,18px)}}
+@media (max-width:900px){ .pass-head{grid-template-columns:auto minmax(0,1fr)} .pass-next,#pass-claim-all{grid-column:1/-1} .pass-info{grid-template-columns:minmax(0,1fr)} .xp-sources li{grid-template-columns:minmax(0,1fr);gap:2px} }
 .heritage{display:flex;flex-wrap:wrap;gap:10px}
 .heritage-item{display:flex;flex-direction:column;gap:3px;padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid rgba(230,190,98,.25)}
 .heritage-item small{color:var(--faint);font-size:12px}
@@ -1067,12 +1097,30 @@ html.vt .view.active{animation:none}
     <section class="view" id="view-pass" aria-labelledby="h-pass">
       <header class="view-head">
         <h2 id="h-pass">Pass de saison</h2>
-        <p>Gagnez de l’XP en jouant : 1 XP par tranche de 10 $ misés (25 au maximum par partie), plus de l’XP pour chaque objectif récupéré. Chaque niveau débloque une récompense, et la piste Prestige s’ouvre au niveau 20.</p>
+        <p>50 niveaux, de plus en plus longs à franchir. Chaque niveau débloque une récompense, et la piste Prestige s’ouvre au niveau 20.</p>
       </header>
       <div class="panel pass-head">
-        <div><p class="muted-sm" id="pass-season"></p><p class="pass-level">Niveau <b id="pass-level">1</b></p></div>
-        <div class="pass-progress"><div class="bar big"><i id="pass-bar"></i></div><p class="muted-sm" id="pass-xp"></p><p class="muted-sm" id="pass-prestige"></p></div>
+        <div class="pass-ring" id="pass-ring"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" class="pr-bg"/><circle cx="60" cy="60" r="52" class="pr-fg" id="pass-arc"/></svg><span><small>Niveau</small><b id="pass-level">1</b></span></div>
+        <div class="pass-progress">
+          <p class="muted-sm" id="pass-season"></p>
+          <p class="pass-xp" id="pass-xp"></p>
+          <div class="bar big"><i id="pass-bar"></i></div>
+          <p class="muted-sm" id="pass-prestige"></p>
+        </div>
+        <div class="pass-next" id="pass-next"></div>
         <button class="btn btn-brass" type="button" id="pass-claim-all" hidden>Tout récupérer</button>
+      </div>
+      <div class="pass-info">
+        <div class="panel">
+          <h3 class="panel-title">Gagner de l’XP</h3>
+          <ul class="xp-sources" id="xp-sources"></ul>
+        </div>
+        <div class="panel">
+          <h3 class="panel-title">Aujourd’hui</h3>
+          <p class="xp-today" id="xp-today"></p>
+          <div class="bar"><i id="xp-today-bar"></i></div>
+          <p class="muted-sm" id="xp-today-note"></p>
+        </div>
       </div>
       <div class="panel">
         <div class="pt-row pt-header"><span class="pt-lvl">Niv.</span><span>Piste gratuite</span><span>Piste Prestige</span></div>
@@ -1648,7 +1696,8 @@ function normalize(raw) {
   s.lastSeen = num(s.lastSeen);
   s.savedAt = num(s.savedAt);
   s.season = Math.floor(num(s.season));
-  s.xp = Math.floor(num(s.xp));
+  s.xp = num(s.xp);
+  s.xpDay = raw && raw.xpDay && typeof raw.xpDay.day === 'string' ? { day: raw.xpDay.day, games: num(raw.xpDay.games) } : null;
   s.passClaimed = obj(raw && raw.passClaimed);
   s.passTitles = Array.isArray(raw && raw.passTitles) ? raw.passTitles.filter(t => typeof t === 'string').slice(0, 30) : [];
   s.coinSkin = typeof s.coinSkin === 'string' ? s.coinSkin : 'or';
@@ -3416,7 +3465,7 @@ const Loto = {
     const cur = S.loto[res.drawId] || { n: 0, paid: 0 };
     S.loto[res.drawId] = { n: res.total, paid: r2(cur.paid + res.cost) };
     S.c.lotoTickets += n;
-    XP.add(5 * n);
+    XP.add(XP_TICKET * n);
     saveNow();
     Goals.check();
     toast(`${n} ticket${n > 1 ? 's' : ''} acheté${n > 1 ? 's' : ''} : vous en avez ${res.total} pour le tirage de ce soir.`, 'success');
@@ -3726,7 +3775,16 @@ const Duel = {
    La configuration de la saison vient du serveur (fichier saisons.js).
    ===================================================================== */
 const MAX_LEVEL = 50;
-const xpForLevel = L => (L <= 1 ? 0 : Math.round(25 * Math.pow(L, 1.65))); // même formule que le serveur
+// Chaque niveau coûte plus cher que le précédent : 150 XP pour le niveau 2, ~750 vers le niveau 10, ~3 800 vers le 30, ~9 000 pour le 50
+// (même formule que le serveur, dans saisons.js)
+const levelCost = L => { const k = L - 1; return 150 + 40 * k + 3 * k * k; }; // XP pour passer du niveau L au niveau L + 1
+const xpForLevel = L => { if (L <= 1) return 0; const n = L - 1; return 150 * n + 20 * n * (n - 1) + (n - 1) * n * (2 * n - 1) / 2; };
+// XP d'une partie selon le jeu : les jeux très courts (une bille, un lancer) rapportent moins qu'une vraie manche
+const XP_WEIGHT = { 'Plinko': 0.3, 'Pile ou face': 0.5, 'Machine à sous': 0.6, 'Roue de la fortune': 0.7, 'Grattage': 0.8, 'Mines': 1, 'Hilo': 1, 'Duel': 1, 'Blackjack': 1.2, 'Aviateur': 1.5, 'Course': 1.5 };
+const XP_DAILY_CAP = 4000;     // XP des parties par jour à taux plein, ensuite réduite
+const XP_OVER_CAP = 0.25;      // au-delà du plafond, l'XP des parties est divisée par 4
+const XP_DAILY_MAX = 6000;     // et elle s'arrête à 6 000 XP de parties par jour (les objectifs comptent toujours)
+const XP_GOAL = 250, XP_DAILY_GOAL = 400, XP_TICKET = 10;
 const EMBLEMS = {
   couronne: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 34 5 14l11 9 8-14 8 14 11-9-3 20z" fill="var(--brass)" stroke="#5A3E0C" stroke-width="1.5" stroke-linejoin="round"/><rect x="8" y="35" width="32" height="5" rx="1.5" fill="var(--brass)" stroke="#5A3E0C" stroke-width="1.5"/><circle cx="24" cy="25" r="2.5" fill="#C81E38"/></svg>',
   flocon: '<svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="var(--brass)" stroke-width="2.4" stroke-linecap="round"><path d="M24 4v40M6.7 14l34.6 20M6.7 34l34.6-20"/><path d="M24 4l-4 4m4-4 4 4M24 44l-4-4m4 4 4-4M6.7 14l1.4 5.5M6.7 14l5.5-1.4M41.3 34l-1.4-5.5M41.3 34l-5.5 1.4M6.7 34l5.5 1.4M6.7 34l1.4-5.5M41.3 14l-5.5-1.4M41.3 14l-1.4 5.5"/></svg>',
@@ -3784,10 +3842,12 @@ const isWeekend = () => { const d = new Date().getDay(); return d === 0 || d ===
 
 const XP = {
   level(xp = S.xp) { let L = 1; while (L < MAX_LEVEL && xp >= xpForLevel(L + 1)) L++; return L; },
+  pops: 0, popTimer: 0,
   add(n) {
     if (!user || !(n > 0)) return;
     const before = this.level();
-    S.xp = Math.round((S.xp || 0) + n);
+    S.xp = (S.xp || 0) + n; // valeur exacte, arrondie seulement à l'affichage
+    this.pop(n);
     const after = this.level();
     if (after > before) {
       const pl = Season.prestigeLevel();
@@ -3796,19 +3856,44 @@ const XP = {
     }
     this.render(); Pass.badge();
   },
-  fromGame(game, bet) { // 1 XP par tranche de 10 $ misés, 25 au maximum par partie
-    if (!(bet >= 1)) return;
-    const m = (Season.rules().xpGames || {})[game] || 1;
-    this.add(Math.round(Math.min(25, Math.floor(bet / 10) + 1) * m));
+  today() { // XP des parties gagnée aujourd'hui (pour le plafond quotidien)
+    const day = new Date().toDateString();
+    if (!S.xpDay || S.xpDay.day !== day) S.xpDay = { day, games: 0 };
+    return S.xpDay;
+  },
+  fromGame(game, bet) { // mise de 10 $ minimum ; 1 XP par tranche de 10 $, 25 au maximum, pondéré par la durée du jeu
+    if (!(bet >= 10)) return;
+    const season = (Season.rules().xpGames || {})[game] || 1;
+    let xp = Math.min(25, Math.floor(bet / 10) + 1) * (XP_WEIGHT[game] || 1) * season;
+    const d = this.today();
+    const full = Math.max(0, Math.min(xp, XP_DAILY_CAP - d.games));
+    const reduced = Math.max(0, Math.min((xp - full) * XP_OVER_CAP, XP_DAILY_MAX - Math.max(d.games + full, XP_DAILY_CAP)));
+    d.games += full + reduced;
+    if (full + reduced > 0) this.add(full + reduced);
+  },
+  pop(n) { // petit « +12 XP » près du niveau, regroupé si les gains s'enchaînent
+    const chip = $('#lvl-chip');
+    if (!chip || chip.hidden || reducedMotion) return;
+    this.pops += n;
+    clearTimeout(this.popTimer);
+    this.popTimer = setTimeout(() => {
+      const v = Math.round(this.pops * 10) / 10; this.pops = 0;
+      if (v < 1) return;
+      const r = chip.getBoundingClientRect(), el = document.createElement('span');
+      el.className = 'xp-pop'; el.textContent = `+${String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '\u202f')} XP`;
+      el.style.left = `${r.left + r.width / 2}px`; el.style.top = `${r.bottom + 4}px`;
+      document.body.appendChild(el); setTimeout(() => el.remove(), 1300);
+    }, 250);
   },
   render() {
     const L = this.level(), lo = xpForLevel(L), hi = xpForLevel(L + 1);
-    const pct = L >= MAX_LEVEL ? 100 : ((S.xp - lo) / (hi - lo)) * 100;
+    const pct = L >= MAX_LEVEL ? 100 : Math.max(0, Math.min(100, ((S.xp - lo) / (hi - lo)) * 100));
     const chip = $('#lvl-chip');
-    if (chip) { chip.hidden = !user; $('#lvl-num').textContent = L; $('#lvl-fill').style.width = pct.toFixed(1) + '%'; chip.title = L >= MAX_LEVEL ? 'Niveau maximum atteint' : `${S.xp} XP, niveau ${L + 1} à ${hi} XP`; }
+    if (chip) { chip.hidden = !user; $('#lvl-num').textContent = L; $('#lvl-fill').style.width = pct.toFixed(1) + '%'; chip.title = L >= MAX_LEVEL ? 'Niveau maximum atteint' : `${fmtXp(S.xp - lo)} / ${fmtXp(hi - lo)} XP vers le niveau ${L + 1}`; }
   }
 };
 
+const fmtXp = n => Math.floor(n).toLocaleString('fr-FR');
 const REWARD_TEXT = r => !r ? '' : r.t === 'money' ? money(r.v) : r.t === 'boost' ? `Boost ×${r.mult} (5 min)` : r.label || '';
 const Pass = {
   tiers() { return (Season.cfg() && Season.cfg().pass) || []; },
@@ -3839,7 +3924,7 @@ const Pass = {
     if (track === 'p' && XP.level() < Season.prestigeLevel()) return false;
     S.passClaimed[this.key(track, level)] = true;
     this.give(r);
-    if (!quiet) { toast(`Pass, niveau ${level} : ${REWARD_TEXT(r)}`, 'success'); saveNow(); this.render(); markDirty(); }
+    if (!quiet) { toast(`Pass, niveau ${level} : ${REWARD_TEXT(r)}`, 'success'); saveNow(); this.render(); markDirty(); const c = $(`#pass-grid [data-level="${level}"] .pt-cell${track === 'p' ? '.prestige' : ':not(.prestige)'}`); if (c) c.classList.add('just'); }
     return true;
   },
   claimAll() {
@@ -3862,15 +3947,41 @@ const Pass = {
     const L = XP.level(), pl = Season.prestigeLevel(), c = Season.cfg();
     $('#pass-season').textContent = c ? `Saison ${Season.num()} : ${c.name}` : 'Pass de saison';
     $('#pass-level').textContent = L;
-    const lo = xpForLevel(L), hi = xpForLevel(L + 1);
-    $('#pass-xp').textContent = L >= MAX_LEVEL ? `${S.xp} XP, niveau maximum atteint` : `${S.xp} XP sur ${hi}, encore ${hi - S.xp} XP pour le niveau ${L + 1}`;
-    $('#pass-bar').style.width = (L >= MAX_LEVEL ? 100 : ((S.xp - lo) / (hi - lo)) * 100).toFixed(1) + '%';
-    $('#pass-prestige').innerHTML = L >= pl ? '<span class="pos">Piste Prestige débloquée</span>' : `Piste Prestige débloquée au niveau ${pl} (encore ${xpForLevel(pl) - S.xp} XP)`;
+    const lo = xpForLevel(L), hi = xpForLevel(L + 1), pct = L >= MAX_LEVEL ? 100 : Math.max(0, Math.min(100, ((S.xp - lo) / (hi - lo)) * 100));
+    $('#pass-xp').innerHTML = L >= MAX_LEVEL ? `<b>${fmtXp(S.xp)} XP</b> : niveau maximum atteint` : `<b>${fmtXp(S.xp - lo)}</b> / ${fmtXp(hi - lo)} XP vers le niveau ${L + 1}`;
+    $('#pass-bar').style.width = pct.toFixed(1) + '%';
+    $('#pass-arc').style.strokeDashoffset = (326.7 * (1 - pct / 100)).toFixed(1);
+    $('#pass-prestige').innerHTML = L >= pl ? '<span class="pos">Piste Prestige débloquée</span>' : `Piste Prestige au niveau ${pl} : encore ${fmtXp(xpForLevel(pl) - S.xp)} XP`;
+    // prochaine récompense
+    const nxt = this.tiers().find(t => t.level > L && (t.free || (t.prestige && t.level >= pl)));
+    const special = r => r && r.t !== 'money';
+    const big = this.tiers().find(t => t.level > L && (special(t.free) || special(t.prestige)));
+    const bigTxt = big && [special(big.free) && REWARD_TEXT(big.free), special(big.prestige) && `${REWARD_TEXT(big.prestige)} (Prestige)`].filter(Boolean).join(', ');
+    $('#pass-next').innerHTML = !nxt ? '<p class="muted-sm">Toutes les récompenses sont débloquées.</p>'
+      : `<small>Niveau ${nxt.level}</small><b>${esc([nxt.free && REWARD_TEXT(nxt.free), nxt.prestige && L >= pl - 1 && `${REWARD_TEXT(nxt.prestige)} (Prestige)`].filter(Boolean).join(', '))}</b>`
+        + (big && big.level !== nxt.level ? `<small class="pn-big">Palier spécial, niveau ${big.level}</small><b>${esc(bigTxt)}</b>` : '');
+    // sources d'XP et progression du jour
+    const sm = Season.rules().xpGames || {};
+    $('#xp-sources').innerHTML = [
+      ['Parties', '1 XP par tranche de 10 $ misés, 25 au maximum. Mise de 10 $ minimum.'],
+      ['Jeux longs', 'Aviateur et Course ×1,5, Blackjack ×1,2. Les jeux très rapides rapportent moins : Plinko ×0,3 par bille, Pile ou face ×0,5.'],
+      ...Object.entries(sm).map(([g, m]) => ['Bonus de saison', `XP ×${String(m).replace('.', ',')} ${gameAt(g)}`]),
+      ['Objectifs', `${XP_GOAL} XP par objectif permanent, ${XP_DAILY_GOAL} XP par objectif du jour`],
+      ['Loto', `${XP_TICKET} XP par ticket`]
+    ].map(([a, b]) => `<li><b>${esc(a)}</b><span>${esc(b)}</span></li>`).join('');
+    const d = XP.today();
+    $('#xp-today').innerHTML = `<b>${fmtXp(d.games)}</b> / ${fmtXp(XP_DAILY_MAX)} XP gagnée en jouant`;
+    $('#xp-today-bar').style.width = (Math.min(XP_DAILY_MAX, d.games) / XP_DAILY_MAX * 100).toFixed(1) + '%';
+    $('#xp-today-note').textContent = d.games < XP_DAILY_CAP ? `Taux plein jusqu’à ${fmtXp(XP_DAILY_CAP)} XP, puis XP divisée par 4 jusqu’à ${fmtXp(XP_DAILY_MAX)}. Les objectifs ne sont pas concernés.`
+      : d.games < XP_DAILY_MAX ? `Taux réduit : les parties rapportent 4 fois moins d’XP jusqu’à ${fmtXp(XP_DAILY_MAX)}. Les objectifs comptent toujours à taux plein.`
+      : 'Maximum du jour atteint : les parties ne rapportent plus d’XP jusqu’à demain. Les objectifs comptent toujours.';
     const ready = this.ready().length;
     $('#pass-claim-all').hidden = ready < 2;
     $('#pass-claim-all').textContent = `Tout récupérer (${ready})`;
-    setHTML($('#pass-grid'), this.tiers().map(t => `<div class="pt-row${t.level === L ? ' current' : ''}${t.level <= L ? ' reached' : ''}">
+    const first = !$('#pass-grid').children.length;
+    setHTML($('#pass-grid'), this.tiers().map(t => `<div class="pt-row${t.level === L ? ' current' : ''}${t.level <= L ? ' reached' : ''}${t.level % 5 === 0 ? ' milestone' : ''}${t.level === pl ? ' prestige-gate' : ''}" data-level="${t.level}">
       <span class="pt-lvl">${t.level}</span>${this.cell('f', t, L)}${this.cell('p', t, L)}</div>`).join(''));
+    if (first || this.jump) { this.jump = false; const row = $(`#pass-grid [data-level="${Math.max(1, L - 1)}"]`); if (row) setTimeout(() => row.scrollIntoView({ block: 'start', behavior: reducedMotion ? 'auto' : 'smooth' }), 120); }
     this.badge();
   }
 };
@@ -4691,7 +4802,7 @@ const Goals = {
     const g = GOALS.find(x => x.id === id);
     if (!g || S.goals[id] || g.val() < g.goal) return;
     S.goals[id] = true;
-    XP.add(100);
+    XP.add(XP_GOAL);
     Wallet.credit(g.reward);
     toast(`${g.title} : +${money(g.reward)}`, 'success');
     celebrate(); saveNow(); this.check(); this.render();
@@ -4701,7 +4812,7 @@ const Goals = {
     if (!g || S.daily.claimed[id] || (S.daily.prog[g.key] || 0) < g.goal) return;
     const rew = this.dailyReward(g);
     S.daily.claimed[id] = true;
-    XP.add(150);
+    XP.add(XP_DAILY_GOAL);
     S.c.dailyClaimed++;
     Wallet.credit(rew);
     toast(`${g.title} : +${money(rew)}`, 'success');
@@ -4709,12 +4820,13 @@ const Goals = {
   },
   claimAll() {
     let total = 0, n = 0;
-    GOALS.forEach(g => { if (!S.goals[g.id] && g.val() >= g.goal) { S.goals[g.id] = true; total += g.reward; n++; } });
+    let xp = 0;
+    GOALS.forEach(g => { if (!S.goals[g.id] && g.val() >= g.goal) { S.goals[g.id] = true; total += g.reward; n++; xp += XP_GOAL; } });
     this.dailyItems().forEach(g => {
-      if (!S.daily.claimed[g.id] && (S.daily.prog[g.key] || 0) >= g.goal) { total += this.dailyReward(g); S.daily.claimed[g.id] = true; S.c.dailyClaimed++; n++; }
+      if (!S.daily.claimed[g.id] && (S.daily.prog[g.key] || 0) >= g.goal) { total += this.dailyReward(g); S.daily.claimed[g.id] = true; S.c.dailyClaimed++; n++; xp += XP_DAILY_GOAL; }
     });
     if (!n) return;
-    XP.add(n * 120);
+    XP.add(xp);
     Wallet.credit(r2(total));
     toast(`${n} objectif${n > 1 ? 's' : ''} récupéré${n > 1 ? 's' : ''} : +${money(r2(total))}`, 'success');
     celebrate(); saveNow(); this.check(); this.render();
@@ -5157,7 +5269,7 @@ function goNow(id) {
   if (id === 'stats') renderStats();
   if (id === 'clicker') Clicker.render();
   if (id === 'objectifs') Goals.render();
-  if (id === 'pass') Pass.render();
+  if (id === 'pass') { Pass.jump = true; Pass.render(); }
   if (id === 'pantheon') Pantheon.render();
   if (id === 'salle') { renderSeasonUI(); renderHome(); }
   if (id === 'plinko') Plinko.resize();
