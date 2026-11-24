@@ -9,7 +9,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18.5' fill='%230F0E14' stroke='%23E6BE62' stroke-width='2'/%3E%3Cpath d='M12.5 13h15l5 6-12.5 13.5L7.5 19z' fill='%23DDF1FF'/%3E%3Cpath d='M7.5 19h25M16.3 19 20 32.5 23.7 19M12.5 13l3.8 6 3.7-6 3.7 6 3.8-6' fill='none' stroke='%237FB8E0' stroke-width='.9'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Unbounded:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer></script>
 <style>
@@ -23,7 +23,7 @@
   --glow:#1A1424; --glow-a:rgba(230,190,98,.07); --glow-b:rgba(127,209,199,.045);
   --r-panel:12px; --r-ctl:8px; --tb:62px;
   --font:"Archivo","Helvetica Neue",Arial,system-ui,sans-serif;
-  --display:"Playfair Display",Georgia,"Times New Roman",serif;
+  --display:"Unbounded","Archivo",system-ui,sans-serif;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -998,6 +998,87 @@ html.vt .view.active{animation:none}
   .splash-logo,.splash-bar i{animation:none}
 }
 
+/* =====================================================================
+   VERSION ÉPURÉE : une seule police d'affichage, des surfaces plates,
+   des espacements réguliers et moins d'éléments décoratifs
+   ===================================================================== */
+:root{--r-panel:14px;--gap:18px}
+body{background:radial-gradient(1000px 520px at 50% -200px,rgba(230,190,98,.06),transparent 70%),var(--bg)}
+.shell{padding:28px 22px 48px}
+main{display:flex;flex-direction:column}
+.view.active{display:flex;flex-direction:column;gap:var(--gap)}
+/* titres de page : même forme partout */
+.view-head{display:flex;flex-direction:column;gap:6px;margin:0}
+.view-head h2,.home-hero h2,.auth-card h2{font-family:var(--display);font-weight:600;letter-spacing:-.01em;font-stretch:normal}
+.view-head h2{font-size:26px;line-height:1.15}
+.view-head p{font-size:14px;color:var(--faint);max-width:68ch;line-height:1.5}
+.back-link{align-self:flex-start;margin-bottom:2px}
+/* panneaux plats et réguliers */
+.panel{background:color-mix(in srgb,var(--panel) 88%,transparent);border:1px solid var(--line-soft);box-shadow:none;border-radius:var(--r-panel);padding:20px}
+.panel-title,.section-title{font-family:var(--font);font-size:11px;letter-spacing:.16em;color:var(--faint);font-weight:800}
+.section-title::after{display:none}
+.btn-brass{background:var(--brass);box-shadow:none}
+.btn-brass::after,.btn-go::after{display:none}
+.btn-go,.btn-red{box-shadow:none}
+.btn:hover:not(:disabled){transform:none;filter:brightness(1.06)}
+/* chiffres : la police d'affichage partout */
+.wallet-amount{font-family:var(--display);font-stretch:normal;font-weight:600;font-size:20px;letter-spacing:-.01em;text-shadow:none}
+.wallet-label{font-size:10px}
+.tc-value,.pass-ring b,.pass-xp b,.xp-today b,.tr-score,.tr-gain,.hall-title,.sb-name,.splash-name,.ab-name,.bw-main,.lobby-name,.ac-name,.stat-value,.big-num,.clicks-count,#clicks-count,.coin-value strong,.lvl-chip b,.me-av,.dl-name,.duel-vs{font-family:var(--display);font-stretch:normal;letter-spacing:-.01em}
+.bw-main{font-weight:700;font-size:21px;letter-spacing:.02em;background:none;-webkit-text-fill-color:var(--brass);color:var(--brass)}
+.brand-mark{filter:none}
+/* accueil : un seul bandeau d'informations */
+.home-hero h2{font-size:30px}
+.hh-sub{font-size:14px;color:var(--faint)}
+.home-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:1px solid var(--line-soft);border-radius:var(--r-panel);background:color-mix(in srgb,var(--panel) 88%,transparent);overflow:hidden}
+.tile-card{border:0;border-radius:0;background:transparent;padding:16px 20px;animation:none;gap:6px}
+.tile-card + .tile-card{border-left:1px solid var(--line-soft)}
+.tile-card:hover{transform:none;box-shadow:none;background:rgba(255,255,255,.025)}
+.tile-card.hot .tc-value{color:var(--jade)}
+.tc-label{font-size:10px;letter-spacing:.16em;color:var(--faint)}
+.tc-value{font-size:19px;font-weight:600;color:var(--ink)}
+.tile-card:first-child .tc-value{color:var(--brass)}
+.tc-sub{font-size:12px}
+.tile-card.static{border:1px solid var(--line-soft);border-radius:var(--r-panel);background:color-mix(in srgb,var(--panel) 88%,transparent)}
+.tir-stats{gap:12px}
+.season-banner{padding:18px 22px;background:color-mix(in srgb,var(--panel) 88%,transparent);border-color:var(--line-soft)}
+.sb-emblem{width:52px;height:52px;filter:none}
+.sb-name{font-size:22px;font-weight:600}
+.sb-rules li{background:transparent;border-color:var(--line);color:var(--muted);font-weight:600}
+.home-split{gap:var(--gap)}
+/* cartes de jeux plus sobres */
+.lobby{gap:14px}
+.lobby-card{border-color:var(--line-soft);background:color-mix(in srgb,var(--panel) 88%,transparent)}
+.lobby-card:hover{border-color:var(--line);box-shadow:none;transform:translateY(-2px)}
+.lobby-art{border-bottom:1px solid var(--line-soft)}
+.lobby-name{font-size:17px;font-weight:600}
+.lobby-desc{font-size:13px;color:var(--faint)}
+.lobby-card.featured .lobby-body::before{background:transparent;color:var(--brass);border:1px solid var(--brass);font-size:10px}
+.arcade-card{background:color-mix(in srgb,var(--panel) 88%,transparent)}
+.ac-name{font-size:18px;font-weight:600}
+/* en-tête et onglets plus légers */
+.topbar{background:color-mix(in srgb,var(--bg) 82%,transparent);border-bottom:1px solid var(--line-soft)}
+.topbar::after{display:none}
+.topnav{background:transparent;border-color:transparent}
+.tn-ind{background:var(--brass);box-shadow:none}
+.subtabs{margin:0}
+.lvl-chip{border-color:var(--line-soft)}
+.lvl-chip b{font-weight:600}
+.me-av{font-weight:600;font-size:15px}
+.gem-glow{opacity:.75}
+.tir-overlay .tr-score{font-size:28px;font-weight:600}
+.pass-ring b{font-size:32px;font-weight:600}
+.pass-level b{font-family:var(--display)}
+.pt-row.current{background:rgba(230,190,98,.05)}
+.lb-panel,.lb-tab{background:color-mix(in srgb,var(--panel) 92%,transparent);box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.foot{opacity:.7}
+@media (max-width:900px){
+  .home-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tile-card:nth-child(3){border-left:0}
+  .tile-card:nth-child(n+3){border-top:1px solid var(--line-soft)}
+  .view-head h2{font-size:22px} .home-hero h2{font-size:24px}
+}
+@media (max-width:620px){ .panel{padding:16px} .wallet-amount{font-size:16px} }
 </style>
 </head>
 <body>
@@ -1068,6 +1149,7 @@ html.vt .view.active{animation:none}
         <button type="button" class="me-claim" id="me-claim" hidden>Créer un compte et garder ma partie</button>
         <button type="button" id="me-fast">Mode rapide : désactivé</button>
         <button type="button" data-me-go="stats">Statistiques et compte</button>
+        <button type="button" id="me-bg">Fond animé : activé</button>
         <button type="button" class="me-search" id="me-search">Rechercher une page ou un jeu</button>
         <p class="net" id="net-side" data-state="connecting"><span class="dot"></span><span class="net-text">Connexion au serveur…</span></p>
         <button type="button" class="me-logout" id="logout-btn">Se déconnecter</button>
@@ -1106,11 +1188,6 @@ html.vt .view.active{animation:none}
         <button class="btn btn-brass btn-cta" type="button" id="home-resume" hidden></button>
       </header>
       <div class="home-tiles" id="home-tiles"></div>
-      <div class="home-paths">
-        <button type="button" class="path-card" data-go-view="jeux"><span class="pc-ic">ICON_grid</span><span><b>Jouer au casino</b><small>Aviateur, Plinko, Blackjack, duels… avec une mise.</small></span></button>
-        <button type="button" class="path-card" data-go-view="clicker"><span class="pc-ic">ICON_plus</span><span><b>Gagner sans risque</b><small>Clicker et mini-jeux d’adresse, sans rien miser.</small></span></button>
-        <button type="button" class="path-card" data-go-view="pass"><span class="pc-ic">ICON_star</span><span><b>Progresser</b><small>Pass de saison, objectifs et Panthéon.</small></span></button>
-      </div>
       <div class="panel season-banner" id="season-banner" hidden>
         <span class="sb-emblem" id="sb-emblem"></span>
         <div><p class="sb-num" id="sb-num"></p><p class="sb-name" id="sb-name"></p><p class="sb-tag" id="sb-tag"></p><ul class="sb-rules" id="sb-rules"></ul></div>
@@ -3335,7 +3412,7 @@ const SLOT_SYMBOLS = {
   cloche: '<svg viewBox="0 0 40 40"><path d="M20 6a2 2 0 0 1 2 2v1.3c5 1 8 5 8 10.7v6l3 4H7l3-4v-6c0-5.7 3-9.7 8-10.7V8a2 2 0 0 1 2-2z" fill="#E6BE62" stroke="#9C7224" stroke-width="1.4" stroke-linejoin="round"/><circle cx="20" cy="33" r="3" fill="#9C7224"/><path d="M14 18c0-3 2-5 4-6" stroke="#FFF3C4" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".8"/></svg>',
   etoile: '<svg viewBox="0 0 40 40"><path d="M20 5l4.4 9.6 10.5 1.2-7.8 7.1 2.2 10.3L20 28l-9.3 5.2 2.2-10.3-7.8-7.1 10.5-1.2z" fill="#F2C94C" stroke="#A8801E" stroke-width="1.4" stroke-linejoin="round"/><path d="M20 10l-2.6 6" stroke="#FFF6D6" stroke-width="1.5" stroke-linecap="round" opacity=".8"/></svg>',
   diamant: '<svg viewBox="0 0 40 40"><path d="M11 9h18l7 8-16 16L4 17z" fill="#5BC4E8" stroke="#2A7FA3" stroke-width="1.3" stroke-linejoin="round"/><path d="M4 17h32M11 9l5 8 4-8 4 8 5-8M16 17l4 16 4-16" fill="none" stroke="#E8F8FF" stroke-width="1" stroke-linejoin="round" opacity=".75"/></svg>',
-  sept: '<svg viewBox="0 0 40 40"><text x="20" y="33" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-weight="800" font-size="34" fill="#C81E38" stroke="#E6BE62" stroke-width="1.3" paint-order="stroke">7</text></svg>'
+  sept: '<svg viewBox="0 0 40 40"><text x="20" y="33" text-anchor="middle" font-family="Unbounded, Archivo, sans-serif" font-weight="800" font-size="34" fill="#C81E38" stroke="#E6BE62" stroke-width="1.3" paint-order="stroke">7</text></svg>'
 };
 const SLOT_STRIP = ["raisin","cerise","citron","raisin","citron","citron","cerise","etoile","diamant","citron","cerise","citron","citron","cloche","cerise","cloche","etoile","citron","raisin","cerise","sept","cloche","raisin","etoile","cerise","raisin","cloche","cerise","raisin","cerise","cloche","diamant"];
 const SLOT_PAY = { cerise: 8, citron: 16, raisin: 25, cloche: 40, etoile: 125, diamant: 400, sept: 2000 }; // × mise d'une ligne
@@ -3833,13 +3910,13 @@ const ART = {
     ${[['#2FD69B', 60, 128, 7], ['#E8475F', 112, 132, 23], ['#5BA4E6', 164, 128, 41], ['#F2E6C8', 216, 132, 12]].map(([c, x, y, n]) => `<circle cx="${x}" cy="${y}" r="15" fill="${c}"/><circle cx="${x}" cy="${y}" r="8" fill="#fff" opacity=".9"/><text x="${x}" y="${y + 4}" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="10" fill="#1b1b1b">${n}</text>`).join('')}</svg>`,
   grattage: `<svg viewBox="0 0 320 150" aria-hidden="true"><rect width="320" height="150" fill="#0E1712"/><g transform="translate(96 16) rotate(-5)"><rect width="136" height="118" rx="10" fill="#1E2A22" stroke="#E6BE62" stroke-width="3"/>
     ${[0, 1, 2].map(r => [0, 1, 2].map(c => `<rect x="${12 + c * 40}" y="${14 + r * 34}" width="34" height="28" rx="5" fill="${(r + c) % 3 === 0 ? '#F5EEDC' : '#D6B25E'}"/>`).join('')).join('')}
-    <text x="29" y="34" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-weight="800" font-size="20" fill="#C81E38">7</text><text x="109" y="68" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-weight="800" font-size="20" fill="#C81E38">7</text><text x="69" y="102" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-weight="800" font-size="20" fill="#C81E38">7</text></g>
+    <text x="29" y="34" text-anchor="middle" font-family="Unbounded, Archivo, sans-serif" font-weight="800" font-size="20" fill="#C81E38">7</text><text x="109" y="68" text-anchor="middle" font-family="Unbounded, Archivo, sans-serif" font-weight="800" font-size="20" fill="#C81E38">7</text><text x="69" y="102" text-anchor="middle" font-family="Unbounded, Archivo, sans-serif" font-weight="800" font-size="20" fill="#C81E38">7</text></g>
     <path d="M250 40l30-18M256 58l34-6" stroke="#E6BE62" stroke-width="3" stroke-linecap="round" opacity=".7"/></svg>`,
   duel: `<svg viewBox="0 0 320 150" aria-hidden="true"><defs><radialGradient id="a-du-g" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FFF1C2"/><stop offset=".55" stop-color="#E6BE62"/><stop offset="1" stop-color="#8C6114"/></radialGradient><radialGradient id="a-du-s" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".55" stop-color="#C9CDD6"/><stop offset="1" stop-color="#6E737D"/></radialGradient></defs>
     <rect width="320" height="150" fill="#0B0A10"/><path d="M0 150 320 0" stroke="rgba(230,190,98,.18)" stroke-width="1"/><path d="M0 0 320 150" stroke="rgba(230,190,98,.1)" stroke-width="1"/>
-    <g transform="translate(96 75)"><circle r="44" fill="url(#a-du-g)" stroke="#6E4C10" stroke-width="2"/><circle r="34" fill="none" stroke="#6E4C10" stroke-width="1.5" stroke-dasharray="2 3"/><text y="12" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-weight="800" font-size="34" fill="#5A3E0C">A</text></g>
-    <g transform="translate(224 75)"><circle r="44" fill="url(#a-du-s)" stroke="#4D525C" stroke-width="2"/><circle r="34" fill="none" stroke="#4D525C" stroke-width="1.5" stroke-dasharray="2 3"/><text y="12" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-weight="800" font-size="34" fill="#2A2D33">B</text></g>
-    <text x="160" y="86" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-weight="800" font-style="italic" font-size="30" fill="#E6BE62">vs</text></svg>`
+    <g transform="translate(96 75)"><circle r="44" fill="url(#a-du-g)" stroke="#6E4C10" stroke-width="2"/><circle r="34" fill="none" stroke="#6E4C10" stroke-width="1.5" stroke-dasharray="2 3"/><text y="12" text-anchor="middle" font-family="Unbounded, Archivo, sans-serif" font-weight="800" font-size="34" fill="#5A3E0C">A</text></g>
+    <g transform="translate(224 75)"><circle r="44" fill="url(#a-du-s)" stroke="#4D525C" stroke-width="2"/><circle r="34" fill="none" stroke="#4D525C" stroke-width="1.5" stroke-dasharray="2 3"/><text y="12" text-anchor="middle" font-family="Unbounded, Archivo, sans-serif" font-weight="800" font-size="34" fill="#2A2D33">B</text></g>
+    <text x="160" y="86" text-anchor="middle" font-family="Unbounded, Archivo, sans-serif" font-weight="800" font-style="italic" font-size="30" fill="#E6BE62">vs</text></svg>`
 };
 const LOGO_SVG = `<svg viewBox="0 0 40 40" aria-hidden="true">
   <circle cx="20" cy="20" r="18.5" fill="#0F0E14" stroke="#E6BE62" stroke-width="2"/>
@@ -4392,18 +4469,28 @@ const Splash = {
 
 /* ---------- Fond animé : halos lumineux et éclats qui scintillent ---------- */
 const BgFx = {
-  c: null, ctx: null, w: 0, h: 0, mx: 0, my: 0, px: 0, py: 0, orbs: [], sparks: [], cols: null, colAt: 0,
+  c: null, ctx: null, w: 0, h: 0, mx: 0, px: 0, notes: [], dust: [], on: true, gold: '#E6BE62', colAt: 0,
   init() {
     this.c = $('#bg-fx'); this.ctx = this.c.getContext('2d');
+    this.on = localStorage.getItem('carat_bg') !== 'off';
     this.resize(); window.addEventListener('resize', () => this.resize());
-    window.addEventListener('pointermove', e => { this.mx = e.clientX / innerWidth - 0.5; this.my = e.clientY / innerHeight - 0.5; }, { passive: true });
-    this.orbs = Array.from({ length: 6 }, (_, i) => ({ x: Math.random(), y: Math.random(), r: 0.22 + Math.random() * 0.22,
-      vx: (Math.random() - 0.5) * 0.00006, vy: (Math.random() - 0.5) * 0.00006, k: i % 3, depth: 0.4 + Math.random() * 0.8 }));
-    this.sparks = Array.from({ length: 80 }, () => ({ x: Math.random(), y: Math.random(), ph: Math.random() * 6.28, sz: 0.6 + Math.random() * 1.6, sp: 0.4 + Math.random() * 1.1, depth: 0.2 + Math.random() }));
-    if (reducedMotion) { this.draw(0); return; }
+    window.addEventListener('pointermove', e => { this.mx = e.clientX / innerWidth - 0.5; }, { passive: true });
+    const n = Math.round(Math.min(34, Math.max(14, innerWidth / 50)));
+    this.notes = Array.from({ length: n }, () => this.note(true));
+    this.dust = Array.from({ length: 60 }, () => ({ x: Math.random(), y: Math.random(), sz: 0.6 + Math.random() * 1.4, sp: 6 + Math.random() * 14, ph: Math.random() * 6.28 }));
+    this.renderToggle();
+    if (reducedMotion) { this.draw(0, 0); return; }
     let last = 0;
-    const loop = t => { if (!document.hidden && t - last > 33) { this.draw(t); last = t; } requestAnimationFrame(loop); }; // 30 images/s, en pause si l'onglet est caché
+    const loop = t => {
+      if (!document.hidden && t - last > 33) { this.draw(t, last ? Math.min(0.1, (t - last) / 1000) : 0); last = t; }
+      requestAnimationFrame(loop);
+    };
     requestAnimationFrame(loop);
+  },
+  note(anywhere) { // un billet : plus il est « proche », plus il est grand, rapide et visible
+    const depth = 0.35 + Math.random() * 0.65, w = 22 + depth * 26;
+    return { x: Math.random() * this.w, y: anywhere ? Math.random() * this.h : -40 - Math.random() * 200, w, h: w * 0.5, depth,
+      vy: 14 + depth * 34, sway: 10 + Math.random() * 22, ph: Math.random() * 6.28, rot: (Math.random() - 0.5) * 0.8, vr: (Math.random() - 0.5) * 0.6, flip: Math.random() * 6.28, vf: 0.8 + Math.random() * 1.6 };
   },
   resize() {
     const dpr = Math.min(1.5, window.devicePixelRatio || 1);
@@ -4411,41 +4498,46 @@ const BgFx = {
     this.c.width = Math.round(this.w * dpr); this.c.height = Math.round(this.h * dpr);
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   },
-  colors(t) { // couleurs du thème (elles changent avec la saison)
-    if (!this.cols || t - this.colAt > 2000) {
-      const cs = getComputedStyle(document.documentElement);
-      this.cols = [cs.getPropertyValue('--brass').trim() || '#E6BE62', cs.getPropertyValue('--jade').trim() || '#2FD69B', '#8FB8FF'];
-      this.colAt = t;
-    }
-    return this.cols;
+  toggle() {
+    this.on = !this.on;
+    try { localStorage.setItem('carat_bg', this.on ? 'on' : 'off'); } catch {}
+    if (!this.on) this.ctx.clearRect(0, 0, this.w, this.h); else if (reducedMotion) this.draw(0, 0);
+    this.renderToggle();
   },
-  rgba(hex, a) {
-    const h = hex.replace('#', ''), n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h.slice(0, 6), 16);
-    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
-  },
-  draw(t) {
-    const { ctx, w, h } = this, cols = this.colors(t);
-    this.px += (this.mx - this.px) * 0.05; this.py += (this.my - this.py) * 0.05; // la souris décale doucement le décor
+  renderToggle() { const b = $('#me-bg'); if (b) b.textContent = `Fond animé : ${this.on ? 'activé' : 'désactivé'}`; },
+  draw(t, dt) {
+    if (!this.on) return;
+    const { ctx, w, h } = this;
+    if (t - this.colAt > 2000) { this.gold = getComputedStyle(document.documentElement).getPropertyValue('--brass').trim() || '#E6BE62'; this.colAt = t; }
+    this.px += (this.mx - this.px) * 0.04;
     ctx.clearRect(0, 0, w, h);
-    ctx.globalCompositeOperation = 'lighter';
-    for (const o of this.orbs) {
-      o.x += o.vx * 33; o.y += o.vy * 33;
-      if (o.x < -0.3 || o.x > 1.3) o.vx *= -1;
-      if (o.y < -0.3 || o.y > 1.3) o.vy *= -1;
-      const x = o.x * w - this.px * 40 * o.depth, y = o.y * h - this.py * 40 * o.depth, r = o.r * Math.max(w, h);
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-      g.addColorStop(0, this.rgba(cols[o.k], o.k === 0 ? 0.075 : 0.05));
-      g.addColorStop(1, this.rgba(cols[o.k], 0));
-      ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2);
+    for (const d of this.dust) { // fines particules dorées qui montent
+      d.y -= (d.sp * dt) / h; if (d.y < -0.02) { d.y = 1.02; d.x = Math.random(); }
+      const a = 0.12 + 0.18 * Math.max(0, Math.sin(t * 0.0012 + d.ph));
+      ctx.globalAlpha = a; ctx.fillStyle = this.gold;
+      ctx.beginPath(); ctx.arc(d.x * w - this.px * 10, d.y * h, d.sz, 0, Math.PI * 2); ctx.fill();
     }
-    for (const sp of this.sparks) {
-      const a = Math.max(0, Math.sin(t * 0.001 * sp.sp + sp.ph));
-      if (a < 0.05) continue;
-      const x = sp.x * w - this.px * 18 * sp.depth, y = sp.y * h - this.py * 18 * sp.depth, z = sp.sz * (0.6 + a);
-      ctx.fillStyle = this.rgba(cols[0], 0.35 * a);
-      ctx.beginPath(); ctx.moveTo(x, y - z * 2.2); ctx.lineTo(x + z, y); ctx.lineTo(x, y + z * 2.2); ctx.lineTo(x - z, y); ctx.closePath(); ctx.fill();
+    for (let i = 0; i < this.notes.length; i++) { // billets qui tombent en tournoyant
+      const n = this.notes[i];
+      n.y += n.vy * dt; n.rot += n.vr * dt; n.flip += n.vf * dt;
+      if (n.y > h + 40) { this.notes[i] = this.note(false); continue; }
+      const x = n.x + Math.sin(t * 0.0009 + n.ph) * n.sway - this.px * 30 * n.depth;
+      const fx = Math.cos(n.flip); // le billet se retourne : on le voit de face puis par la tranche
+      ctx.save();
+      ctx.translate(x, n.y); ctx.rotate(n.rot + Math.sin(t * 0.0011 + n.ph) * 0.25); ctx.scale(Math.max(0.08, Math.abs(fx)), 1);
+      ctx.globalAlpha = 0.1 + n.depth * 0.22;
+      const g = ctx.createLinearGradient(-n.w / 2, 0, n.w / 2, 0);
+      g.addColorStop(0, fx > 0 ? '#1D5A3C' : '#174A31'); g.addColorStop(1, fx > 0 ? '#2F7F56' : '#226B47');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.roundRect(-n.w / 2, -n.h / 2, n.w, n.h, 2.5); ctx.fill();
+      ctx.strokeStyle = this.gold; ctx.lineWidth = 0.8; ctx.globalAlpha *= 0.7;
+      ctx.strokeRect(-n.w / 2 + 2.5, -n.h / 2 + 2.5, n.w - 5, n.h - 5);
+      ctx.beginPath(); ctx.arc(0, 0, n.h * 0.28, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = this.gold; ctx.font = `700 ${Math.round(n.h * 0.42)}px Unbounded, Archivo, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('$', 0, 0.5);
+      ctx.restore();
     }
-    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
   }
 };
 
@@ -4801,7 +4893,7 @@ const COFFRE_ART = `<svg viewBox="0 0 320 150" aria-hidden="true"><rect width="3
   <g stroke="#E6BE62" stroke-width="2.5" stroke-linecap="round"><path d="M160 52v8M160 90v8M137 75h8M175 75h8"/></g><circle cx="160" cy="75" r="7" fill="#E6BE62"/>
   ${GEMS6.slice(0, 4).map((g, i) => `<g transform="translate(${36 + i * 0} ${0})"></g>`).join('')}
   <g transform="translate(16 40) scale(1.3)">${gemIcon('#C81E38')}</g><g transform="translate(16 82) scale(1.3)">${gemIcon('#3D7BDB')}</g><g transform="translate(272 40) scale(1.3)">${gemIcon('#2FAE78')}</g><g transform="translate(272 82) scale(1.3)">${gemIcon('#8E5BD8')}</g></svg>`;
-const TAQUIN_ART = `<svg viewBox="0 0 320 150" aria-hidden="true"><rect width="320" height="150" fill="#0D0B12"/><g transform="translate(110 15)">${[1, 2, 3, 4, 5, 6, 7, 8].map((n, k) => { const pos = [0, 1, 2, 3, 4, 6, 7, 5][k]; return `<g transform="translate(${(pos % 3) * 34} ${Math.floor(pos / 3) * 34})"><rect width="31" height="31" rx="5" fill="#241F2E" stroke="#E6BE62" stroke-width="1.5"/><text x="15.5" y="21.5" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-weight="800" font-size="16" fill="#E6BE62">${n}</text></g>`; }).join('')}</g>
+const TAQUIN_ART = `<svg viewBox="0 0 320 150" aria-hidden="true"><rect width="320" height="150" fill="#0D0B12"/><g transform="translate(110 15)">${[1, 2, 3, 4, 5, 6, 7, 8].map((n, k) => { const pos = [0, 1, 2, 3, 4, 6, 7, 5][k]; return `<g transform="translate(${(pos % 3) * 34} ${Math.floor(pos / 3) * 34})"><rect width="31" height="31" rx="5" fill="#241F2E" stroke="#E6BE62" stroke-width="1.5"/><text x="15.5" y="21.5" text-anchor="middle" font-family="Unbounded, Archivo, sans-serif" font-weight="800" font-size="16" fill="#E6BE62">${n}</text></g>`; }).join('')}</g>
   <path d="M232 110l18-14M232 110l14 2M232 110l2-14" stroke="#E6BE62" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".7"/></svg>`;
 
 /* ---------- Top 10 des gains de la dernière heure (serveur) ---------- */
@@ -5867,6 +5959,7 @@ function buildNav() {
     const b = e.target.closest('[data-me-go]'); if (b) { setMenu(false); go(b.dataset.meGo); }
     if (e.target.closest('#logout-btn')) setMenu(false);
     if (e.target.closest('#me-fast')) FastMode.toggle();
+    if (e.target.closest('#me-bg')) BgFx.toggle();
     if (e.target.closest('#me-search')) { setMenu(false); Jump.open(); }
     if (e.target.closest('#me-claim')) { setMenu(false); showAuth(); authTab('register'); authStatus('Choisissez un pseudo et un mot de passe : votre partie d’invité est transférée sur ce compte.'); }
   });
