@@ -489,6 +489,58 @@ main{min-width:0}
 .pt-label{flex:1;min-width:0;font-weight:700;font-size:14px}
 .pt-state{font-size:12px;color:var(--jade);font-weight:700}
 .pt-cell .btn{padding:6px 12px;font-size:13px}
+.arcade-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.arcade-card{display:flex;flex-direction:column;text-align:left;padding:0;overflow:hidden;border-radius:var(--r-panel);border:1px solid var(--line-soft);background:var(--panel);color:var(--ink);cursor:pointer;transition:border-color .2s,transform .2s,box-shadow .2s;animation:rise .45s cubic-bezier(.2,.75,.2,1) both}
+.arcade-card:hover{border-color:rgba(230,190,98,.55);transform:translateY(-2px);box-shadow:0 24px 40px -24px rgba(0,0,0,.95)}
+.ac-art svg{display:block;width:100%;height:auto}
+.ac-body{display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px}
+.ac-name{font-family:var(--display);font-weight:800;font-size:21px}
+.ac-desc{color:var(--muted);font-size:14px}
+.ac-meta{font-size:13px;color:var(--faint)} .ac-meta b{color:var(--brass)}
+.tir-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tile-card.static{cursor:default;animation:none} .tile-card.static:hover{transform:none;border-color:var(--line-soft);box-shadow:none}
+.tir-stage{padding:14px}
+.tir-live{min-height:22px;margin:0 4px 10px;color:var(--muted);font-size:14px} .tir-live b{color:var(--brass)}
+.tir-wrap{position:relative;border-radius:12px;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#17141F,#0A090E);border:1px solid var(--line)}
+#tir-canvas{display:block;width:100%;cursor:crosshair;touch-action:none}
+.tir-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:20px;background:rgba(8,7,11,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.tir-overlay[hidden]{display:none}
+.tr-reason{color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:12px}
+.tr-score{font-family:var(--display);font-size:34px;font-weight:800}
+.tr-rec{display:inline-block;vertical-align:middle;font-family:var(--font);font-size:12px;font-weight:800;color:var(--brass-ink);background:var(--brass);border-radius:5px;padding:3px 8px;margin-left:6px}
+.tr-gain{font-family:var(--display);font-size:30px;font-weight:800;color:var(--jade)}
+.tr-train{color:var(--faint)}
+.center{text-align:center} .btn-row.center{justify-content:center}
+.cf-stage,.tq-stage{display:flex;flex-direction:column;gap:14px}
+.cf-board{display:flex;flex-direction:column;gap:6px;align-items:center}
+.cf-row{display:grid;grid-template-columns:26px auto 54px;gap:12px;align-items:center;padding:5px 10px;border-radius:10px;border:1px solid transparent;opacity:.55}
+.cf-row.done{opacity:1}
+.cf-row.current{opacity:1;border-color:var(--brass);background:rgba(230,190,98,.06)}
+.cf-n{font-weight:800;color:var(--faint);font-size:13px;text-align:right}
+.cf-slots{display:flex;gap:8px}
+.cf-slot{width:38px;height:38px;border-radius:9px;background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;padding:0}
+.cf-slot svg{width:28px;height:28px}
+.cf-slot.empty{border-style:dashed}
+button.cf-slot{cursor:pointer} button.cf-slot:hover{border-color:var(--red)}
+.cf-fb{display:grid;grid-template-columns:repeat(2,12px);gap:5px}
+.cf-fb i{width:12px;height:12px;border-radius:50%;background:var(--line-soft);border:1px solid var(--line)}
+.cf-fb i.ok{background:var(--jade);border-color:var(--jade);box-shadow:0 0 6px rgba(47,214,155,.6)}
+.cf-fb i.near{background:var(--brass);border-color:var(--brass)}
+.cf-palette{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.cf-gem{width:52px;height:52px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);display:grid;place-items:center;cursor:pointer;transition:transform .12s,border-color .2s}
+.cf-gem:hover{transform:translateY(-2px);border-color:var(--brass)} .cf-gem:active{transform:scale(.94)}
+.cf-gem svg{width:36px;height:36px}
+.cf-code{display:inline-flex;gap:4px;vertical-align:middle} .cf-code svg{width:24px;height:24px}
+.gain-table{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:4px}
+.gain-table li{display:flex;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:14px;color:var(--muted)}
+.gain-table li b{color:var(--brass)}
+.gain-table li.now{background:rgba(230,190,98,.1);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(230,190,98,.4)}
+.tq-grid{position:relative;width:min(330px,82vw);aspect-ratio:1;margin:0 auto;border-radius:14px;background:var(--bg);border:1px solid var(--line);padding:0}
+.tq-tile{position:absolute;left:2%;top:2%;width:32%;height:32%;margin:0;border:0;border-radius:12px;background:linear-gradient(160deg,#2B2535,#1C1824);box-shadow:inset 0 0 0 1px rgba(230,190,98,.35),0 6px 14px rgba(0,0,0,.45);color:var(--brass);font-family:var(--display);font-weight:800;font-size:clamp(28px,7vw,40px);cursor:pointer;transition:transform .16s cubic-bezier(.3,.8,.3,1),box-shadow .2s;display:grid;place-items:center}
+.tq-tile span{pointer-events:none}
+.tq-tile.placed{box-shadow:inset 0 0 0 2px rgba(47,214,155,.55),0 6px 14px rgba(0,0,0,.45);color:var(--jade-hi)}
+.tq-tile:disabled{cursor:default}
+@media (max-width:760px){ .tir-stats{grid-template-columns:minmax(0,1fr)} .arcade-cards{grid-template-columns:minmax(0,1fr)} }
 .boost-stock{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
 .boost-stock:empty{display:none}
 .bs-label{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:4px}
@@ -799,7 +851,7 @@ html.vt .view.active{animation:none}
 .btn-brass:hover:not(:disabled)::after,.btn-go:hover:not(:disabled)::after{transform:translateX(120%)}
 .btn-ghost{border:1px solid var(--line);box-shadow:none}
 .btn-ghost:hover:not(:disabled){border-color:var(--muted)}
-.btn-cta{padding:13px 22px;font-size:15px;border-radius:10px}
+.btn-cta{padding:13px 22px;font-size:15px;border-radius:10px;max-width:100%;white-space:normal;line-height:1.3}
 /* accueil */
 .home-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .hh-kicker{text-transform:uppercase;letter-spacing:.18em;font-size:12px;font-weight:800;color:var(--brass);margin-bottom:6px}
@@ -863,6 +915,34 @@ html.vt .view.active{animation:none}
 /* notifications */
 .toast{animation:toastIn .3s cubic-bezier(.2,.8,.2,1)}
 @keyframes toastIn{from{opacity:0;transform:translateX(24px)}}
+.jump-btn{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--muted);border-radius:10px;padding:7px 10px;cursor:pointer;font-weight:600;font-size:13px;flex:none;transition:border-color .2s,color .2s}
+.jump-btn:hover{border-color:var(--brass);color:var(--ink)}
+.jump-btn svg,.jump-input svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.jump-btn kbd,.jump-hint kbd{font:600 11px var(--font);padding:2px 6px;border-radius:5px;border:1px solid var(--line);background:var(--bg);color:var(--faint)}
+.jump{position:fixed;inset:0;z-index:140;display:flex;justify-content:center;align-items:flex-start;padding:12vh 16px 16px;background:rgba(5,4,8,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.jump[hidden]{display:none}
+.jump-box{width:min(560px,100%);background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 30px 70px rgba(0,0,0,.7);overflow:hidden;animation:menuIn .18s cubic-bezier(.2,.8,.2,1)}
+.jump-input{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line-soft);color:var(--muted)}
+.jump-input input{flex:1;border:0;background:none;outline:none;color:var(--ink);font-size:16px}
+.jump-list{list-style:none;margin:0;padding:6px;max-height:min(52vh,420px);overflow:auto}
+.jump-list li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;cursor:pointer}
+.jump-list li[aria-selected="true"],.jump-list li:hover{background:var(--panel-2)}
+.jump-list li[aria-selected="true"] .ji-label{color:var(--brass)}
+.ji-ic svg{width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ji-label{font-weight:700} .ji-where{font-size:12px;color:var(--faint)}
+.jump-empty{color:var(--faint);cursor:default!important}
+.jump-hint{padding:10px 16px;border-top:1px solid var(--line-soft);font-size:12px;color:var(--faint)}
+.home-paths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.path-card{display:flex;align-items:center;gap:14px;text-align:left;padding:16px 18px;border-radius:var(--r-panel);border:1px solid var(--line-soft);background:linear-gradient(135deg,rgba(230,190,98,.07),transparent 60%),var(--panel);color:var(--ink);cursor:pointer;transition:border-color .2s,transform .2s;animation:rise .45s cubic-bezier(.2,.75,.2,1) both}
+.path-card:hover{border-color:rgba(230,190,98,.55);transform:translateY(-2px)}
+.pc-ic{width:44px;height:44px;flex:none;border-radius:12px;display:grid;place-items:center;background:rgba(230,190,98,.12);color:var(--brass)}
+.pc-ic svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.path-card b{display:block;font-size:16px} .path-card small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+@media (max-width:900px){ .home-paths{grid-template-columns:minmax(0,1fr)} }
+@media (max-width:1980px){ .jump-btn kbd{display:none} }
+@media (max-width:1500px){ .jb-label{display:none} }
+.me-search{display:none!important}
+@media (max-width:400px){ .jump-btn{display:none} .me-search{display:block!important} .wallet-amount{font-size:18px} .topbar-in{gap:6px} }
 /* en-tête plus compact sur les écrans moyens */
 @media (max-width:1980px){
   .tn-btn svg{display:none}
@@ -970,6 +1050,7 @@ html.vt .view.active{animation:none}
       <span class="brand-word"><span class="bw-main">Carat</span></span>
     </a>
     <nav class="topnav" id="topnav" aria-label="Navigation principale"></nav>
+    <button class="jump-btn" id="jump-btn" type="button" aria-label="Rechercher une page ou un jeu" title="Rechercher (Ctrl + K)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><span class="jb-label">Rechercher</span><kbd>Ctrl K</kbd></button>
     <div class="top-chips">
       <span class="malus-chip" id="malus-chip" hidden></span>
       <button class="boost-chip" id="boost-chip" type="button" hidden onclick="go('clicker')"></button>
@@ -986,9 +1067,8 @@ html.vt .view.active{animation:none}
         <div class="me-head"><span class="me-av big" id="me-av2">?</span><div><span class="user-name" id="user-name">—</span><span class="user-kind" id="user-kind"></span></div></div>
         <button type="button" class="me-claim" id="me-claim" hidden>Créer un compte et garder ma partie</button>
         <button type="button" id="me-fast">Mode rapide : désactivé</button>
-        <button type="button" data-me-go="stats">Statistiques</button>
-        <button type="button" data-me-go="boutique">Boutique</button>
-        <button type="button" data-me-go="pass">Pass de saison</button>
+        <button type="button" data-me-go="stats">Statistiques et compte</button>
+        <button type="button" class="me-search" id="me-search">Rechercher une page ou un jeu</button>
         <p class="net" id="net-side" data-state="connecting"><span class="dot"></span><span class="net-text">Connexion au serveur…</span></p>
         <button type="button" class="me-logout" id="logout-btn">Se déconnecter</button>
       </div>
@@ -996,6 +1076,13 @@ html.vt .view.active{animation:none}
   </div>
 </header>
 <nav class="bottomnav" id="bottomnav" aria-label="Navigation"></nav>
+<div class="jump" id="jump" hidden role="dialog" aria-modal="true" aria-label="Rechercher une page ou un jeu">
+  <div class="jump-box">
+    <label class="jump-input"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><input id="jump-q" type="text" placeholder="Aller à… (Plinko, pass, boutique, taquin…)" autocomplete="off" spellcheck="false"></label>
+    <ul class="jump-list" id="jump-list" role="listbox"></ul>
+    <p class="jump-hint"><kbd>↑</kbd><kbd>↓</kbd> pour choisir, <kbd>Entrée</kbd> pour ouvrir, <kbd>Échap</kbd> pour fermer</p>
+  </div>
+</div>
 <div class="splash" id="splash" hidden><div class="splash-in"><span class="splash-logo" id="splash-logo"></span><p class="splash-name">Carat</p><p class="splash-text" id="splash-text">Ouverture du club…</p><span class="splash-bar"><i></i></span></div></div>
 
 <aside class="lb" id="lb" aria-label="Classement des joueurs">
@@ -1019,6 +1106,11 @@ html.vt .view.active{animation:none}
         <button class="btn btn-brass btn-cta" type="button" id="home-resume" hidden></button>
       </header>
       <div class="home-tiles" id="home-tiles"></div>
+      <div class="home-paths">
+        <button type="button" class="path-card" data-go-view="jeux"><span class="pc-ic">ICON_grid</span><span><b>Jouer au casino</b><small>Aviateur, Plinko, Blackjack, duels… avec une mise.</small></span></button>
+        <button type="button" class="path-card" data-go-view="clicker"><span class="pc-ic">ICON_plus</span><span><b>Gagner sans risque</b><small>Clicker et mini-jeux d’adresse, sans rien miser.</small></span></button>
+        <button type="button" class="path-card" data-go-view="pass"><span class="pc-ic">ICON_star</span><span><b>Progresser</b><small>Pass de saison, objectifs et Panthéon.</small></span></button>
+      </div>
       <div class="panel season-banner" id="season-banner" hidden>
         <span class="sb-emblem" id="sb-emblem"></span>
         <div><p class="sb-num" id="sb-num"></p><p class="sb-name" id="sb-name"></p><p class="sb-tag" id="sb-tag"></p><ul class="sb-rules" id="sb-rules"></ul></div>
@@ -1039,8 +1131,8 @@ html.vt .view.active{animation:none}
     <!-- ===== Tous les jeux ===== -->
     <section class="view" id="view-jeux" aria-labelledby="h-jeux">
       <header class="view-head">
-        <h2 id="h-jeux">Les jeux</h2>
-        <p>Choisissez une table. Le taux de retour indique la part des mises rendue en moyenne aux joueurs : plus il est proche de 100 %, moins la maison garde.</p>
+        <h2 id="h-jeux">Casino</h2>
+        <p>Tous les jeux où l’on mise : le Loto et les Duels y sont aussi. Le taux de retour indique la part des mises rendue en moyenne aux joueurs : plus il est proche de 100 %, moins la maison garde.</p>
       </header>
       <div class="games-bar">
         <div class="filters" id="game-filters" role="tablist"></div>
@@ -1095,6 +1187,84 @@ html.vt .view.active{animation:none}
             <ul class="live" id="race-bets"><li class="empty">Aucun pari sur cette course.</li></ul>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ===== Mini-jeux ===== -->
+    <section class="view" id="view-arcade" aria-labelledby="h-arcade">
+      <header class="view-head">
+        <h2 id="h-arcade">Mini-jeux</h2>
+        <p>Des jeux d’adresse pour gagner de l’argent sans rien miser : seul votre talent compte. Chaque jeu offre 5 parties récompensées par jour, et la valeur des récompenses change tous les jours.</p>
+      </header>
+      <div class="arcade-cards" id="arcade-cards"></div>
+    </section>
+
+    <!-- ===== Tir de précision ===== -->
+    <section class="view" id="view-tir" aria-labelledby="h-tir">
+      <header class="view-head">
+        <h2 id="h-tir">Tir de précision</h2>
+        <p>Touchez chaque cible avant qu’elle disparaisse. Chaque cible rapporte 20 % de plus que la précédente : les gains grimpent de plus en plus vite, mais chaque cible est aussi plus petite et plus rapide. Au premier tir manqué, ou si une cible s’échappe, la partie s’arrête et vous empochez vos gains.</p>
+      </header>
+      <div class="tir-stats">
+        <div class="tile-card static"><span class="tc-label">Valeur du jour</span><span class="tc-value" id="tir-value">—</span><span class="tc-sub" id="tir-next"></span></div>
+        <div class="tile-card static"><span class="tc-label">Parties récompensées</span><span class="tc-value" id="tir-runs">—</span><span class="tc-sub">Remises à zéro chaque jour à minuit</span></div>
+        <div class="tile-card static"><span class="tc-label">Record</span><span class="tc-value" id="tir-best">—</span><span class="tc-sub">Centre doré : +50 % sur la cible</span></div>
+      </div>
+      <div class="panel tir-stage">
+        <p class="tir-live" id="tir-live"></p>
+        <div class="tir-wrap">
+          <canvas id="tir-canvas" aria-label="Arène de tir"></canvas>
+          <div class="tir-overlay" id="tir-overlay"><div id="tir-result"><p class="tr-score">Prêt ?</p><p class="muted-sm">Visez juste : un seul raté et la partie s’arrête.</p></div><button class="btn btn-brass btn-cta" type="button" id="tir-start">Commencer</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Le Coffre-fort ===== -->
+    <section class="view" id="view-coffre" aria-labelledby="h-coffre">
+      <header class="view-head">
+        <h2 id="h-coffre">Le Coffre-fort</h2>
+        <p>Trouvez le code secret : 4 gemmes parmi 6, une même gemme peut revenir plusieurs fois. Après chaque essai, un voyant vert signale une gemme bien placée et un voyant doré une gemme présente mais mal placée, sans dire lesquelles. Vous avez 10 essais.</p>
+      </header>
+      <div class="tir-stats">
+        <div class="tile-card static"><span class="tc-label">Base du jour</span><span class="tc-value" id="cf-base">—</span><span class="tc-sub">Change chaque jour à minuit</span></div>
+        <div class="tile-card static"><span class="tc-label">Parties récompensées</span><span class="tc-value" id="cf-runs">—</span><span class="tc-sub">Une partie commencée est comptée</span></div>
+        <div class="tile-card static"><span class="tc-label">Record</span><span class="tc-value" id="cf-best">—</span><span class="tc-sub">Le moins d’essais</span></div>
+      </div>
+      <div class="game-grid">
+        <div class="panel cf-stage">
+          <div class="cf-board" id="cf-board"></div>
+          <p class="result-line center" id="cf-msg"></p>
+          <div id="cf-controls" hidden>
+            <div class="cf-palette" id="cf-palette"></div>
+            <div class="btn-row center"><button class="btn btn-brass" type="button" id="cf-submit" disabled>Valider l’essai</button><button class="btn btn-ghost" type="button" id="cf-giveup">Abandonner</button></div>
+            <p class="muted-sm center">Touchez une gemme pour la placer, touchez une gemme posée pour la retirer.</p>
+          </div>
+          <div id="cf-start-box" class="center"><button class="btn btn-brass btn-cta" type="button" id="cf-start">Nouveau coffre</button></div>
+        </div>
+        <div class="panel"><h3 class="panel-title">Gains du jour</h3><ul class="gain-table" id="cf-table"></ul><p class="hint">Le gain dépend du nombre d’essais utilisés pour ouvrir le coffre. Un coffre resté fermé après 10 essais ne rapporte rien.</p></div>
+      </div>
+    </section>
+
+    <!-- ===== Le Taquin ===== -->
+    <section class="view" id="view-taquin" aria-labelledby="h-taquin">
+      <header class="view-head">
+        <h2 id="h-taquin">Le Taquin</h2>
+        <p>Remettez les pièces dans l’ordre, de 1 à 8, avec la case vide en bas à droite. Touchez une pièce voisine de la case vide pour la faire glisser, ou utilisez les flèches du clavier. Moins vous faites de mouvements, plus vous gagnez.</p>
+      </header>
+      <div class="tir-stats">
+        <div class="tile-card static"><span class="tc-label">Base du jour</span><span class="tc-value" id="tq-base">—</span><span class="tc-sub">Change chaque jour à minuit</span></div>
+        <div class="tile-card static"><span class="tc-label">Parties récompensées</span><span class="tc-value" id="tq-runs">—</span><span class="tc-sub">Une partie commencée est comptée</span></div>
+        <div class="tile-card static"><span class="tc-label">Record</span><span class="tc-value" id="tq-best">—</span><span class="tc-sub">Le moins de mouvements</span></div>
+      </div>
+      <div class="game-grid">
+        <div class="panel tq-stage">
+          <p class="tir-live" id="tq-moves"></p>
+          <div class="tq-grid" id="tq-grid"></div>
+          <p class="result-line center" id="tq-msg"></p>
+          <div id="tq-controls" class="btn-row center" hidden><button class="btn btn-ghost" type="button" id="tq-giveup">Abandonner</button></div>
+          <div id="tq-start-box" class="center"><button class="btn btn-brass btn-cta" type="button" id="tq-start">Nouveau taquin</button></div>
+        </div>
+        <div class="panel"><h3 class="panel-title">Gains du jour</h3><ul class="gain-table" id="tq-table"></ul><p class="hint">Le gain dépend du nombre de mouvements. Le mélange peut toujours être résolu, en 30 mouvements au plus pour un joueur parfait.</p></div>
       </div>
     </section>
 
@@ -1720,6 +1890,23 @@ function normalize(raw) {
   s.passClaimed = obj(raw && raw.passClaimed);
   s.passTitles = Array.isArray(raw && raw.passTitles) ? raw.passTitles.filter(t => typeof t === 'string').slice(0, 30) : [];
   s.coinSkin = typeof s.coinSkin === 'string' ? s.coinSkin : 'or';
+  const ar = raw && raw.arcade;
+  s.arcade = null;
+  if (ar && typeof ar.day === 'string') {
+    s.arcade = { day: ar.day, earned: num(ar.earned) };
+    const one = (o, id) => {
+      const g = { runs: Math.min(ARCADE_RUNS, Math.floor(num(o && o.runs))), best: Math.floor(num(o && o.best)), live: null };
+      const l = o && o.live;
+      if (l && id === 'coffre' && Array.isArray(l.code) && l.code.length === 4 && Array.isArray(l.rows))
+        g.live = { code: l.code.map(v => Math.min(5, Math.max(0, Math.floor(num(v))))), rows: l.rows.slice(0, 10), cur: Array.isArray(l.cur) ? l.cur.slice(0, 4) : [], paid: !!l.paid, base: num(l.base) };
+      if (l && id === 'taquin' && Array.isArray(l.board) && l.board.slice().sort().join() === '0,1,2,3,4,5,6,7,8')
+        g.live = { board: l.board.map(Number), moves: Math.floor(num(l.moves)), paid: !!l.paid, base: num(l.base) };
+      return g;
+    };
+    s.arcade.tir = one(ar.tir || { runs: ar.runs, best: ar.best }, 'tir'); // ancien format : un seul jeu
+    s.arcade.coffre = one(ar.coffre, 'coffre');
+    s.arcade.taquin = one(ar.taquin, 'taquin');
+  }
   s.boostItems = {};
   Object.entries(obj(raw && raw.boostItems)).forEach(([k, v]) => { if (BOOSTS.some(b => String(b.mult) === k) && num(v) > 0) s.boostItems[k] = Math.floor(num(v)); });
   s.passVersion = raw ? Math.floor(num(raw.passVersion)) : PASS_VERSION;
@@ -1956,7 +2143,7 @@ function startSession(name, state, guest) {
   Loto.claimAll();
   Duel.resume();
   Duel.render();
-  renderSeasonUI(); Pass.render(); Clicker.renderSkin(); renderHome();
+  renderSeasonUI(); Pass.render(); Clicker.renderSkin(); renderHome(); Arcade.render(); Tir.render(); Coffre.last = null; Taquin.last = null; Coffre.render(); Taquin.render();
   Splash.hide();
 }
 async function startGuest() { // compte invité créé sur le serveur
@@ -3922,6 +4109,10 @@ const XP = {
 };
 
 const fmtXp = n => Math.floor(n).toLocaleString('fr-FR');
+function hubCounts() { // une seule pastille sur « Progression » : récompenses du pass + objectifs prêts
+  const n = (Pass.readyN || 0) + ((typeof Goals !== 'undefined' && Goals.readyN) || 0);
+  $$('[data-count="progression"]').forEach(el => { el.textContent = n || ''; el.hidden = !n; });
+}
 const REWARD_TEXT = r => !r ? '' : r.t === 'money' ? money(r.v) : r.t === 'boost' ? `Boost ×${r.mult} en réserve` : r.label || '';
 const Pass = {
   tiers() { return (Season.cfg() && Season.cfg().pass) || []; },
@@ -3935,7 +4126,7 @@ const Pass = {
     });
     return out;
   },
-  badge() { const n = user ? this.ready().length : 0; $$('[data-count="pass"]').forEach(el => { el.textContent = n || ''; el.hidden = !n; }); },
+  badge() { const n = user ? this.ready().length : 0; $$('[data-count="pass"]').forEach(el => { el.textContent = n || ''; el.hidden = !n; }); this.readyN = n; hubCounts(); },
   give(r) {
     if (r.t === 'money') Wallet.credit(r.v);
     else if (r.t === 'boost') { // gardé en réserve : le joueur l'active quand il veut, sans écraser un boost en cours
@@ -4121,6 +4312,48 @@ const Scratch = {
   }
 };
 
+/* ---------- Recherche rapide : aller à n'importe quelle page ou n'importe quel jeu ---------- */
+const Jump = {
+  items: [], sel: 0,
+  list() {
+    const hubName = id => { const h = hubOf(id); return h.id === 'profil' ? 'Profil' : h.label; };
+    const extra = { pass: 'xp niveau récompenses saison', objectifs: 'missions défis', pantheon: 'classement saisons héritage titres', boutique: 'thèmes titres boosts handicaps', social: 'tchat transferts envoyer argent', stats: 'statistiques compte mot de passe historique', clicker: 'diamant cliquer revenus', jeux: 'tous les jeux casino' };
+    return VIEWS.filter(v => !['arcade', 'secours'].includes(v.id) && !(LOBBY.find(g => g.id === v.id && g.seasonal) && !Season.has(v.id)))
+      .map(v => ({ id: v.id, label: v.label, where: v.id === 'salle' ? 'Tableau de bord' : hubName(v.id), icon: v.icon, keys: `${v.label} ${hubName(v.id)} ${extra[v.id] || ''}`.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') }));
+  },
+  open() {
+    this.items = this.list(); this.sel = 0;
+    $('#jump').hidden = false; $('#jump-q').value = ''; this.render(); $('#jump-q').focus();
+  },
+  close() { $('#jump').hidden = true; },
+  filtered() {
+    const q = $('#jump-q').value.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return !q ? this.items : this.items.filter(i => q.split(/\s+/).every(w => i.keys.includes(w)));
+  },
+  render() {
+    const f = this.filtered();
+    this.sel = Math.min(this.sel, Math.max(0, f.length - 1));
+    $('#jump-list').innerHTML = f.length ? f.map((i, k) => `<li role="option" aria-selected="${k === this.sel}" data-jump="${i.id}"><span class="ji-ic">${ICONS[i.icon] || ''}</span><span class="ji-label">${esc(i.label)}</span><span class="ji-where">${esc(i.where)}</span></li>`).join('')
+      : '<li class="jump-empty">Aucune page ne correspond.</li>';
+    const cur = $('#jump-list [aria-selected="true"]'); if (cur) cur.scrollIntoView({ block: 'nearest' });
+  },
+  init() {
+    $('#jump-btn').addEventListener('click', () => this.open());
+    $('#jump').addEventListener('click', e => { const it = e.target.closest('[data-jump]'); if (it) { this.close(); go(it.dataset.jump); } else if (e.target.id === 'jump') this.close(); });
+    $('#jump-q').addEventListener('input', () => { this.sel = 0; this.render(); });
+    document.addEventListener('keydown', e => {
+      const typing = /input|textarea|select/i.test((document.activeElement || {}).tagName || '') && document.activeElement.id !== 'jump-q';
+      if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !typing && $('#jump').hidden)) { e.preventDefault(); if (user) this.open(); return; }
+      if ($('#jump').hidden) return;
+      const f = this.filtered();
+      if (e.key === 'Escape') this.close();
+      else if (e.key === 'ArrowDown') { e.preventDefault(); this.sel = Math.min(f.length - 1, this.sel + 1); this.render(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); this.sel = Math.max(0, this.sel - 1); this.render(); }
+      else if (e.key === 'Enter' && f[this.sel]) { e.preventDefault(); this.close(); go(f[this.sel].id); }
+    });
+  }
+};
+
 /* ---------- Accueil : tableau de bord ---------- */
 function renderHome() {
   if (!$('#home-tiles')) return;
@@ -4143,7 +4376,7 @@ function renderHome() {
   const c = Season.cfg(), featured = [c && c.featured, 'crash', 'course', 'duel', 'plinko'].filter((v, i, a) => v && a.indexOf(v) === i && LOBBY.some(g => g.id === v) && !(LOBBY.find(g => g.id === v).seasonal && !Season.has(v))).slice(0, 4);
   setHTML($('#home-games'), featured.map((id, i) => { const g = LOBBY.find(x => x.id === id); return `<button type="button" class="lobby-card${c && c.featured === id ? ' featured' : ''}" style="--i:${i}" data-go-view="${g.id}"><span class="lobby-art">${ART[g.id] || ''}</span><span class="lobby-body"><span class="lobby-name">${esc(g.name)}</span>${['crash', 'course', 'loto', 'duel'].includes(g.id) ? `<span class="lobby-live" data-live="${g.id}"></span>` : `<span class="lobby-desc">${esc(g.desc)}</span>`}</span></button>`; }).join(''));
 }
-$('#home-tiles') && document.addEventListener('click', e => { const t = e.target.closest('#home-tiles [data-go-view]'); if (t) go(t.dataset.goView); });
+document.addEventListener('click', e => { const t = e.target.closest('#home-tiles [data-go-view], .home-paths [data-go-view]'); if (t) go(t.dataset.goView); });
 
 /* ---------- Écran de chargement (le serveur peut mettre une minute à se réveiller) ---------- */
 const Splash = {
@@ -4215,6 +4448,361 @@ const BgFx = {
     ctx.globalCompositeOperation = 'source-over';
   }
 };
+
+/* =====================================================================
+   MINI-JEUX D'ADRESSE (sans hasard dans le gain : seul le talent compte)
+   Tir de précision : chaque cible touchée rapporte, la suivante rapporte plus
+   mais elle est plus petite et plus rapide. Au premier raté, la partie s'arrête.
+   5 parties récompensées par jour ; valeur des cibles différente chaque jour.
+   ===================================================================== */
+const ARCADE_RUNS = 5;
+const TIR_GROWTH = 1.2; // chaque cible rapporte 20 % de plus que la précédente (croissance exponentielle)
+// AAAA-MM-JJ, à l'heure de Paris et d'après l'horloge du serveur : changer la date de son appareil ne donne pas de parties en plus
+const parisDay = () => new Date(Date.now() + ((typeof Net !== 'undefined' && Net.offset) || 0)).toLocaleDateString('fr-CA', { timeZone: 'Europe/Paris' });
+function dayHash(str) { let h = 2166136261; for (const ch of str) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+const Arcade = {
+  GAMES: ['tir', 'coffre', 'taquin'],
+  rec() { // parties du jour et records de chaque mini-jeu (enregistrés avec la partie sur le serveur)
+    const day = parisDay(), old = S.arcade;
+    if (!old || old.day !== day) {
+      S.arcade = { day, earned: (old && old.earned) || 0 };
+      // une partie de logique commencée hier reste jouable : elle était déjà comptée
+      this.GAMES.forEach(id => { const o = old && old[id]; S.arcade[id] = { runs: o && o.live ? 1 : 0, best: (o && o.best) || 0, live: (o && o.live) || null }; });
+    }
+    return S.arcade;
+  },
+  g(id) { const a = this.rec(); return (a[id] = a[id] || { runs: 0, best: 0, live: null }); },
+  left(id) { return Math.max(0, ARCADE_RUNS - this.g(id).runs); },
+  render() {
+    const box = $('#arcade-cards');
+    if (!box) return;
+    const a = user ? this.g('tir') : null, v = Tir.dayValue();
+    const card = (id, art, name, desc, meta) => `<button type="button" class="arcade-card" data-go-view="${id}"><span class="ac-art">${art}</span><span class="ac-body"><span class="ac-name">${name}</span><span class="ac-desc">${desc}</span><span class="ac-meta">${meta}</span></span></button>`;
+    const runs = id => user ? `${this.left(id)} / ${ARCADE_RUNS} parties récompensées restantes` : 'Connectez-vous pour jouer';
+    const logic = card('coffre', COFFRE_ART, 'Le Coffre-fort', 'Trouvez le code secret de 4 gemmes en un minimum d’essais. Les voyants vous disent combien sont bien placées et combien sont mal placées.', `Jusqu’à <b>${money(r2(LOGIC_BASE('coffre') * 6))}</b> aujourd’hui · ${runs('coffre')}`)
+      + card('taquin', TAQUIN_ART, 'Le Taquin', 'Remettez les 8 pièces dans l’ordre en les faisant glisser dans la case vide. Moins de mouvements, plus de gains.', `Jusqu’à <b>${money(r2(LOGIC_BASE('taquin') * 6))}</b> aujourd’hui · ${runs('taquin')}`);
+    setHTML(box, logic + `<button type="button" class="arcade-card" data-go-view="tir">
+      <span class="ac-art">${TIR_ART}</span>
+      <span class="ac-body"><span class="ac-name">Tir de précision</span>
+        <span class="ac-desc">Touchez les cibles avant qu’elles disparaissent. Chaque cible rapporte 20 % de plus que la précédente, mais va plus vite. Au premier raté, la partie s’arrête.</span>
+        <span class="ac-meta"><b>${money(v)}</b> la première cible aujourd’hui · ${a ? `${this.left('tir')} / ${ARCADE_RUNS} parties récompensées restantes` : 'Connectez-vous pour jouer'}${a && a.best ? ` · record ${a.best} cibles` : ''}</span></span></button>`);
+  }
+};
+const TIR_ART = `<svg viewBox="0 0 320 150" aria-hidden="true"><rect width="320" height="150" fill="#0D0B12"/><g stroke="rgba(230,190,98,.12)"><path d="M0 50H320M0 100H320M80 0V150M160 0V150M240 0V150"/></g>
+  <g transform="translate(160 75)"><circle r="46" fill="#C81E38"/><circle r="36" fill="#F4EFE3"/><circle r="26" fill="#C81E38"/><circle r="15" fill="#F4EFE3"/><circle r="8" fill="#E6BE62"/></g>
+  <g transform="translate(248 40)" opacity=".6"><circle r="16" fill="#C81E38"/><circle r="10" fill="#F4EFE3"/><circle r="5" fill="#E6BE62"/></g>
+  <g transform="translate(70 108)" opacity=".4"><circle r="11" fill="#C81E38"/><circle r="7" fill="#F4EFE3"/><circle r="3.5" fill="#E6BE62"/></g>
+  <g stroke="#E6BE62" stroke-width="2.5" fill="none"><circle cx="160" cy="75" r="58" opacity=".8"/><path d="M160 5v28M160 117v28M90 75h28M202 75h28"/></g></svg>`;
+
+const Tir = {
+  c: null, ctx: null, w: 0, h: 0, raf: 0, state: 'idle', paid: false, hits: 0, earned: 0, target: null, fx: [], aim: null, last: 0, value: 0,
+  dayValue() { return 25 + (dayHash('tir:' + parisDay()) % 16) * 5; }, // entre 25 et 100 $, la même pour tout le monde
+  init() {
+    this.c = $('#tir-canvas'); this.ctx = this.c.getContext('2d');
+    window.addEventListener('resize', () => this.resize());
+    this.c.addEventListener('pointerdown', e => this.shoot(e));
+    this.c.addEventListener('pointermove', e => { const r = this.c.getBoundingClientRect(); this.aim = { x: e.clientX - r.left, y: e.clientY - r.top }; });
+    this.c.addEventListener('pointerleave', () => { this.aim = null; });
+    $('#tir-start').addEventListener('click', () => this.start());
+    this.resize(); this.render();
+  },
+  resize() {
+    if (!this.c || !this.c.offsetParent) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1), w = this.c.parentElement.clientWidth;
+    const room = window.innerHeight - (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tb')) || 64) - 40;
+    this.w = w; this.h = Math.round(Math.max(280, Math.min(w * 0.58, 520, room)));
+    this.c.width = Math.round(this.w * dpr); this.c.height = Math.round(this.h * dpr);
+    this.c.style.height = this.h + 'px';
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.draw(performance.now());
+  },
+  prize(base, n) { return r2(base * Math.pow(TIR_GROWTH, n - 1)); }, // valeur de la n-ième cible
+  valueOf(n) { return this.prize(this.value, n); },
+  start() {
+    if (!user) return showAuth();
+    if (this.state === 'run') return;
+    const a = Arcade.g('tir');
+    this.paid = a.runs < ARCADE_RUNS;
+    if (this.paid) { a.runs++; saveNow(); }
+    this.value = this.dayValue(); this.hits = 0; this.earned = 0; this.fx = [];
+    this.state = 'run';
+    $('#tir-overlay').hidden = true;
+    this.resize();
+    // toute l'arène doit être visible : sinon une cible pourrait filer sous le bord de l'écran
+    const r = this.c.getBoundingClientRect(), top = r.top + window.scrollY - (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tb')) || 64) - 12;
+    if (r.top < 70 || r.bottom > window.innerHeight) window.scrollTo({ top: Math.max(0, top), behavior: 'auto' });
+    this.spawn();
+    this.last = performance.now();
+    cancelAnimationFrame(this.raf);
+    const loop = t => { this.update(t); this.draw(t); if (this.state === 'run' || this.fx.length) this.raf = requestAnimationFrame(loop); };
+    this.raf = requestAnimationFrame(loop);
+    this.render();
+  },
+  spawn() {
+    const n = this.hits + 1;
+    const r = Math.max(14, 46 - n * 1.3) * Math.min(1, this.w / 700 + 0.3);   // de plus en plus petite
+    const life = Math.max(650, 2600 - n * 85);                                   // reste de moins en moins longtemps
+    const speed = Math.min(360, 30 + n * 13) * Math.min(1, this.w / 800 + 0.35); // bouge de plus en plus vite
+    const ang = RNG.float() * Math.PI * 2;
+    this.target = { x: r + RNG.float() * (this.w - 2 * r), y: r + RNG.float() * (this.h - 2 * r), r, vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed,
+      born: performance.now(), life, value: this.valueOf(n) };
+  },
+  update(t) {
+    const dt = Math.min(0.05, (t - this.last) / 1000); this.last = t;
+    const g = this.target;
+    if (this.state === 'run' && g) {
+      g.x += g.vx * dt; g.y += g.vy * dt;
+      if (g.x < g.r || g.x > this.w - g.r) { g.vx *= -1; g.x = Math.max(g.r, Math.min(this.w - g.r, g.x)); }
+      if (g.y < g.r || g.y > this.h - g.r) { g.vy *= -1; g.y = Math.max(g.r, Math.min(this.h - g.r, g.y)); }
+      if (t - g.born > g.life) this.end('La cible s’est échappée');
+    }
+    this.fx = this.fx.filter(f => t - f.t < f.d);
+  },
+  shoot(e) {
+    if (this.state !== 'run') return;
+    const r = this.c.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, g = this.target;
+    const d = Math.hypot(x - g.x, y - g.y);
+    if (d > g.r) { this.fx.push({ kind: 'miss', x, y, t: performance.now(), d: 600 }); return this.end('Tir manqué'); }
+    const bull = d <= g.r * 0.3, gain = r2(g.value * (bull ? 1.5 : 1));
+    this.hits++; this.earned = r2(this.earned + gain);
+    this.fx.push({ kind: 'hit', x: g.x, y: g.y, r: g.r, t: performance.now(), d: 550 });
+    this.fx.push({ kind: 'text', x: g.x, y: g.y - g.r, txt: `${bull ? 'Centre ! ' : ''}+${money(gain)}`, bull, t: performance.now(), d: 900 });
+    this.spawn(); this.render();
+  },
+  end(reason) {
+    if (this.state !== 'run') return;
+    this.state = 'over'; this.target = null;
+    const a = Arcade.g('tir');
+    const record = this.hits > a.best;
+    a.best = Math.max(a.best, this.hits);
+    if (this.paid && this.earned > 0) {
+      Wallet.credit(this.earned);
+      Arcade.rec().earned = r2((Arcade.rec().earned || 0) + this.earned);
+      XP.add(this.hits * 3);
+      if (this.earned >= 500) celebrate();
+    }
+    saveNow(); markDirty();
+    $('#tir-overlay').hidden = false;
+    $('#tir-result').innerHTML = `<p class="tr-reason">${esc(reason)}</p><p class="tr-score">${this.hits} cible${this.hits > 1 ? 's' : ''}${record ? ' <span class="tr-rec">Nouveau record</span>' : ''}</p>`
+      + (this.paid ? `<p class="tr-gain">+${money(this.earned)}</p>` : '<p class="tr-train">Partie d’entraînement : pas de gain</p>');
+    this.render();
+  },
+  abandon() { if (this.state === 'run') this.end('Partie interrompue'); }, // quitter la page termine la partie (le gain est versé)
+  render() {
+    if (!$('#tir-value')) return;
+    const a = user ? Arcade.g('tir') : null, left = user ? Arcade.left('tir') : 0;
+    $('#tir-value').textContent = money(this.dayValue());
+    $('#tir-runs').textContent = user ? `${left} / ${ARCADE_RUNS}` : '—';
+    $('#tir-best').textContent = a && a.best ? `${a.best} cible${a.best > 1 ? 's' : ''}` : '—';
+    $('#tir-live').innerHTML = this.state === 'run' ? `<b>${this.hits}</b> cible${this.hits > 1 ? 's' : ''} · <b>${money(this.earned)}</b>${this.paid ? '' : ' (entraînement)'} · prochaine cible : ${money(this.valueOf(this.hits + 1))}` : '';
+    $('#tir-start').textContent = !user ? 'Se connecter pour jouer' : left > 0 ? (this.state === 'over' ? 'Rejouer' : 'Commencer') + ` (${left} partie${left > 1 ? 's' : ''} récompensée${left > 1 ? 's' : ''})` : 'S’entraîner (sans gain)';
+    const v = this.dayValue();
+    $('#tir-next').textContent = `1re cible ${money(v)}, 10e ${money(this.prize(v, 10))}, 20e ${money(this.prize(v, 20))}`;
+  },
+  draw(t) {
+    const { ctx, w, h } = this;
+    if (!ctx || !w) return;
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = 'rgba(230,190,98,.07)'; ctx.lineWidth = 1;
+    for (let x = 40; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+    for (let y = 40; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+    const g = this.target;
+    if (g) {
+      const k = Math.max(0, 1 - (t - g.born) / g.life);
+      [[1, '#C81E38'], [0.78, '#F4EFE3'], [0.56, '#C81E38'], [0.34, '#F4EFE3'], [0.18, '#E6BE62']].forEach(([f, c]) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(g.x, g.y, g.r * f, 0, Math.PI * 2); ctx.fill(); });
+      ctx.strokeStyle = k > 0.3 ? '#E6BE62' : '#E8475F'; ctx.lineWidth = 3; ctx.lineCap = 'round'; // temps restant
+      ctx.beginPath(); ctx.arc(g.x, g.y, g.r + 7, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * k); ctx.stroke();
+    }
+    for (const f of this.fx) {
+      const p = (t - f.t) / f.d;
+      if (f.kind === 'hit') { ctx.strokeStyle = `rgba(230,190,98,${1 - p})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (1 + p * 1.6), 0, Math.PI * 2); ctx.stroke(); }
+      if (f.kind === 'miss') { ctx.strokeStyle = `rgba(232,71,95,${1 - p})`; ctx.lineWidth = 3; const s = 10 + p * 6; ctx.beginPath(); ctx.moveTo(f.x - s, f.y - s); ctx.lineTo(f.x + s, f.y + s); ctx.moveTo(f.x + s, f.y - s); ctx.lineTo(f.x - s, f.y + s); ctx.stroke(); }
+      if (f.kind === 'text') { ctx.fillStyle = f.bull ? `rgba(243,213,140,${1 - p})` : `rgba(47,214,155,${1 - p})`; ctx.font = '800 16px Archivo, sans-serif'; ctx.textAlign = 'center'; ctx.fillText(f.txt, f.x, f.y - p * 34); }
+    }
+    if (this.aim && this.state === 'run') { // viseur
+      const { x, y } = this.aim;
+      ctx.strokeStyle = 'rgba(244,240,230,.85)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(x, y, 12, 0, Math.PI * 2); ctx.moveTo(x - 20, y); ctx.lineTo(x - 6, y); ctx.moveTo(x + 6, y); ctx.lineTo(x + 20, y); ctx.moveTo(x, y - 20); ctx.lineTo(x, y - 6); ctx.moveTo(x, y + 6); ctx.lineTo(x, y + 20); ctx.stroke();
+    }
+  }
+};
+
+/* ---------- Jeux de logique : Coffre-fort et Taquin ---------- */
+const LOGIC_BASE = id => 1500 + (dayHash(id + ':' + parisDay()) % 16) * 100; // base du jour : 1 500 à 3 000 $, la même pour tous
+const GEMS6 = [{ id: 'r', name: 'Rubis', c: '#C81E38' }, { id: 's', name: 'Saphir', c: '#3D7BDB' }, { id: 'e', name: 'Émeraude', c: '#2FAE78' },
+  { id: 't', name: 'Topaze', c: '#E6BE62' }, { id: 'a', name: 'Améthyste', c: '#8E5BD8' }, { id: 'd', name: 'Diamant', c: '#DDF1FF' }];
+const gemIcon = c => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12l4 5-10 12L2 9z" fill="${c}" stroke="rgba(0,0,0,.4)" stroke-width=".8"/><path d="M2 9h20M6 4l3 5 3-5 3 5 3-5M9 9l3 12 3-12" fill="none" stroke="rgba(255,255,255,.5)" stroke-width=".8"/></svg>`;
+
+const Coffre = {
+  MAX: 10,
+  mult(t) { return t <= 4 ? 6 : t === 5 ? 5 : t === 6 ? 4 : t === 7 ? 3 : t === 8 ? 2 : t === 9 ? 1.5 : 1; },
+  g() { return Arcade.g('coffre'); },
+  live() { return this.g().live; },
+  init() {
+    $('#cf-palette').innerHTML = GEMS6.map((g, i) => `<button type="button" class="cf-gem" data-cf-pick="${i}" title="${g.name}" aria-label="${g.name}">${gemIcon(g.c)}</button>`).join('');
+    $('#view-coffre').addEventListener('click', e => {
+      const p = e.target.closest('[data-cf-pick]'), c = e.target.closest('[data-cf-slot]');
+      if (p) this.pick(Number(p.dataset.cfPick));
+      if (c) this.unpick(Number(c.dataset.cfSlot));
+      if (e.target.closest('#cf-submit')) this.submit();
+      if (e.target.closest('#cf-start')) this.start();
+      if (e.target.closest('#cf-giveup') && confirm('Abandonner ce coffre ? La partie sera perdue.')) this.finish(false);
+    });
+  },
+  start() {
+    if (!user) return showAuth();
+    if (this.live()) return;
+    const g = this.g(), paid = g.runs < ARCADE_RUNS;
+    if (paid) g.runs++;
+    g.live = { code: Array.from({ length: 4 }, () => RNG.int(6)), rows: [], cur: [], paid, base: LOGIC_BASE('coffre') };
+    $('#cf-msg').textContent = '';
+    saveNow(); this.render();
+  },
+  pick(i) { const l = this.live(); if (!l || l.cur.length >= 4) return; l.cur.push(i); this.render(); },
+  unpick(k) { const l = this.live(); if (!l) return; l.cur.splice(k, 1); this.render(); },
+  score(guess, code) {
+    let exact = 0; const cg = {}, cc = {};
+    guess.forEach((v, i) => { if (v === code[i]) exact++; else { cg[v] = (cg[v] || 0) + 1; cc[code[i]] = (cc[code[i]] || 0) + 1; } });
+    let near = 0; Object.keys(cg).forEach(k => { near += Math.min(cg[k], cc[k] || 0); });
+    return { exact, near };
+  },
+  submit() {
+    const l = this.live();
+    if (!l || l.cur.length < 4) return toast('Choisissez 4 gemmes avant de valider.', 'error');
+    const fb = this.score(l.cur, l.code);
+    l.rows.push({ g: l.cur.slice(), ...fb }); l.cur = [];
+    saveNow();
+    if (fb.exact === 4) return this.finish(true);
+    if (l.rows.length >= this.MAX) return this.finish(false);
+    this.render();
+  },
+  finish(win) {
+    const l = this.live(); if (!l) return;
+    const g = this.g(), tries = l.rows.length, gain = win && l.paid ? r2(l.base * this.mult(tries)) : 0;
+    if (gain) { Wallet.credit(gain); Arcade.rec().earned = r2((Arcade.rec().earned || 0) + gain); XP.add(40); if (gain >= 5000) celebrate(); }
+    const record = win && (!g.best || tries < g.best);
+    if (record) g.best = tries;
+    this.last = { win, tries, gain, code: l.code, paid: l.paid, record, rows: l.rows };
+    g.live = null; saveNow(); markDirty(); this.render();
+  },
+  render() {
+    if (!$('#cf-board')) return;
+    const l = user ? this.live() : null, base = LOGIC_BASE('coffre'), g = user ? this.g() : null;
+    $('#cf-base').textContent = money(base);
+    $('#cf-runs').textContent = user ? `${Arcade.left('coffre')} / ${ARCADE_RUNS}` : '—';
+    $('#cf-best').textContent = g && g.best ? `${g.best} essai${g.best > 1 ? 's' : ''}` : '—';
+    $('#cf-table').innerHTML = [[4, '4 essais ou moins'], [5, '5 essais'], [6, '6 essais'], [7, '7 essais'], [8, '8 essais'], [9, '9 essais'], [10, '10 essais']]
+      .map(([t, lab]) => `<li class="${l && l.rows.length + 1 === t ? 'now' : ''}"><span>${lab}</span><b>${money(r2(base * this.mult(t)))}</b></li>`).join('');
+    const show = l || this.last;
+    const rows = show ? (l ? l.rows : this.last.rows) : [];
+    let html = '';
+    for (let i = 0; i < this.MAX; i++) {
+      const r = rows[i], current = l && i === rows.length;
+      const slots = r ? r.g : current ? l.cur : [];
+      html += `<div class="cf-row${current ? ' current' : ''}${r ? ' done' : ''}"><span class="cf-n">${i + 1}</span><span class="cf-slots">${[0, 1, 2, 3].map(k => {
+        const v = slots[k];
+        return v == null ? '<span class="cf-slot empty"></span>' : current ? `<button type="button" class="cf-slot" data-cf-slot="${k}" title="Retirer">${gemIcon(GEMS6[v].c)}</button>` : `<span class="cf-slot">${gemIcon(GEMS6[v].c)}</span>`;
+      }).join('')}</span><span class="cf-fb">${r ? `${'<i class="ok"></i>'.repeat(r.exact)}${'<i class="near"></i>'.repeat(r.near)}${'<i></i>'.repeat(4 - r.exact - r.near)}` : ''}</span></div>`;
+    }
+    setHTML($('#cf-board'), html);
+    $('#cf-controls').hidden = !l;
+    $('#cf-start-box').hidden = !!l;
+    $('#cf-submit').disabled = !l || l.cur.length < 4;
+    if (!l && this.last) {
+      const L = this.last;
+      $('#cf-msg').innerHTML = L.win ? `Coffre ouvert en ${L.tries} essai${L.tries > 1 ? 's' : ''} !${L.record ? ' <span class="tr-rec">Nouveau record</span>' : ''} ${L.paid ? `<b class="pos">+${money(L.gain)}</b>` : '(entraînement, sans gain)'}`
+        : `Coffre resté fermé. Le code était : <span class="cf-code">${L.code.map(v => gemIcon(GEMS6[v].c)).join('')}</span>`;
+    }
+    const left = user ? Arcade.left('coffre') : 0;
+    $('#cf-start').textContent = !user ? 'Se connecter pour jouer' : left > 0 ? `Nouveau coffre (${left} partie${left > 1 ? 's' : ''} récompensée${left > 1 ? 's' : ''})` : 'S’entraîner (sans gain)';
+  }
+};
+
+const Taquin = {
+  mult(m) { return m <= 50 ? 6 : m <= 70 ? 5 : m <= 90 ? 4 : m <= 120 ? 3 : m <= 160 ? 2 : 1; },
+  g() { return Arcade.g('taquin'); },
+  live() { return this.g().live; },
+  init() {
+    $('#tq-grid').innerHTML = Array.from({ length: 8 }, (_, i) => `<button type="button" class="tq-tile" data-tq="${i + 1}"><span>${i + 1}</span></button>`).join('');
+    $('#view-taquin').addEventListener('click', e => {
+      const t = e.target.closest('[data-tq]'); if (t) this.move(Number(t.dataset.tq));
+      if (e.target.closest('#tq-start')) this.start();
+      if (e.target.closest('#tq-giveup') && confirm('Abandonner ce taquin ? La partie sera perdue.')) this.finish(false);
+    });
+    document.addEventListener('keydown', e => {
+      if (currentView !== 'taquin' || !this.live()) return;
+      const b = this.live().board, z = b.indexOf(0), d = { ArrowUp: 3, ArrowDown: -3, ArrowLeft: 1, ArrowRight: -1 }[e.key];
+      if (d == null) return;
+      e.preventDefault();
+      const j = z + d;
+      if (j < 0 || j > 8 || (Math.abs(d) === 1 && Math.floor(j / 3) !== Math.floor(z / 3))) return;
+      this.move(b[j]);
+    });
+  },
+  neighbors(i) { return [i - 3, i + 3, i % 3 ? i - 1 : -1, i % 3 < 2 ? i + 1 : -1].filter(j => j >= 0 && j < 9); },
+  start() {
+    if (!user) return showAuth();
+    if (this.live()) return;
+    const g = this.g(), paid = g.runs < ARCADE_RUNS;
+    if (paid) g.runs++;
+    let b = [1, 2, 3, 4, 5, 6, 7, 8, 0], z = 8, prev = -1;
+    do { // mélange par vrais mouvements : le taquin est toujours soluble
+      for (let i = 0; i < 60; i++) { const o = this.neighbors(z).filter(j => j !== prev); const j = o[RNG.int(o.length)]; [b[z], b[j]] = [b[j], b[z]]; prev = z; z = j; }
+    } while (b.join() === '1,2,3,4,5,6,7,8,0');
+    g.live = { board: b, moves: 0, paid, base: LOGIC_BASE('taquin') };
+    $('#tq-msg').textContent = '';
+    saveNow(); this.render();
+  },
+  move(tile) {
+    const l = this.live(); if (!l) return;
+    const i = l.board.indexOf(tile), z = l.board.indexOf(0);
+    if (!this.neighbors(z).includes(i)) return;
+    [l.board[i], l.board[z]] = [l.board[z], l.board[i]];
+    l.moves++;
+    if (l.board.join() === '1,2,3,4,5,6,7,8,0') return this.finish(true);
+    if (l.moves % 5 === 0) scheduleSave();
+    this.render();
+  },
+  finish(win) {
+    const l = this.live(); if (!l) return;
+    const g = this.g(), gain = win && l.paid ? r2(l.base * this.mult(l.moves)) : 0;
+    if (gain) { Wallet.credit(gain); Arcade.rec().earned = r2((Arcade.rec().earned || 0) + gain); XP.add(40); if (gain >= 5000) celebrate(); }
+    const record = win && (!g.best || l.moves < g.best);
+    if (record) g.best = l.moves;
+    this.last = { win, moves: l.moves, gain, paid: l.paid, record, board: l.board.slice() };
+    g.live = null; saveNow(); markDirty(); this.render();
+  },
+  render() {
+    if (!$('#tq-grid')) return;
+    const l = user ? this.live() : null, base = LOGIC_BASE('taquin'), g = user ? this.g() : null;
+    const board = l ? l.board : this.last ? this.last.board : [1, 2, 3, 4, 5, 6, 7, 8, 0];
+    $$('#tq-grid .tq-tile').forEach(t => {
+      const v = Number(t.dataset.tq), i = board.indexOf(v);
+      t.style.transform = `translate(${(i % 3) * 100}%, ${Math.floor(i / 3) * 100}%)`;
+      t.classList.toggle('placed', i === v - 1);
+      t.disabled = !l;
+    });
+    $('#tq-base').textContent = money(base);
+    $('#tq-runs').textContent = user ? `${Arcade.left('taquin')} / ${ARCADE_RUNS}` : '—';
+    $('#tq-best').textContent = g && g.best ? `${g.best} mouvements` : '—';
+    $('#tq-moves').innerHTML = l ? `<b>${l.moves}</b> mouvement${l.moves > 1 ? 's' : ''} · gain actuel si vous terminez maintenant : <b>${money(r2(base * this.mult(l.moves + 1)))}</b>${l.paid ? '' : ' (entraînement)'}` : '';
+    $('#tq-table').innerHTML = [[50, '50 mouvements ou moins'], [70, '51 à 70'], [90, '71 à 90'], [120, '91 à 120'], [160, '121 à 160'], [999, 'plus de 160']]
+      .map(([m, lab], i, arr) => { const lo = i ? arr[i - 1][0] : 0, cur = l && l.moves + 1 > lo && l.moves + 1 <= m; return `<li class="${cur ? 'now' : ''}"><span>${lab}</span><b>${money(r2(base * this.mult(m)))}</b></li>`; }).join('');
+    $('#tq-controls').hidden = !l; $('#tq-start-box').hidden = !!l;
+    if (!l && this.last) {
+      const L = this.last;
+      $('#tq-msg').innerHTML = L.win ? `Taquin résolu en ${L.moves} mouvements !${L.record ? ' <span class="tr-rec">Nouveau record</span>' : ''} ${L.paid ? `<b class="pos">+${money(L.gain)}</b>` : '(entraînement, sans gain)'}` : 'Partie abandonnée.';
+    }
+    const left = user ? Arcade.left('taquin') : 0;
+    $('#tq-start').textContent = !user ? 'Se connecter pour jouer' : left > 0 ? `Nouveau taquin (${left} partie${left > 1 ? 's' : ''} récompensée${left > 1 ? 's' : ''})` : 'S’entraîner (sans gain)';
+  }
+};
+const COFFRE_ART = `<svg viewBox="0 0 320 150" aria-hidden="true"><rect width="320" height="150" fill="#0D0B12"/><rect x="100" y="18" width="120" height="114" rx="10" fill="#1F1C27" stroke="#E6BE62" stroke-width="3"/><circle cx="160" cy="75" r="30" fill="#14121A" stroke="#E6BE62" stroke-width="2.5"/>
+  <g stroke="#E6BE62" stroke-width="2.5" stroke-linecap="round"><path d="M160 52v8M160 90v8M137 75h8M175 75h8"/></g><circle cx="160" cy="75" r="7" fill="#E6BE62"/>
+  ${GEMS6.slice(0, 4).map((g, i) => `<g transform="translate(${36 + i * 0} ${0})"></g>`).join('')}
+  <g transform="translate(16 40) scale(1.3)">${gemIcon('#C81E38')}</g><g transform="translate(16 82) scale(1.3)">${gemIcon('#3D7BDB')}</g><g transform="translate(272 40) scale(1.3)">${gemIcon('#2FAE78')}</g><g transform="translate(272 82) scale(1.3)">${gemIcon('#8E5BD8')}</g></svg>`;
+const TAQUIN_ART = `<svg viewBox="0 0 320 150" aria-hidden="true"><rect width="320" height="150" fill="#0D0B12"/><g transform="translate(110 15)">${[1, 2, 3, 4, 5, 6, 7, 8].map((n, k) => { const pos = [0, 1, 2, 3, 4, 6, 7, 5][k]; return `<g transform="translate(${(pos % 3) * 34} ${Math.floor(pos / 3) * 34})"><rect width="31" height="31" rx="5" fill="#241F2E" stroke="#E6BE62" stroke-width="1.5"/><text x="15.5" y="21.5" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-weight="800" font-size="16" fill="#E6BE62">${n}</text></g>`; }).join('')}</g>
+  <path d="M232 110l18-14M232 110l14 2M232 110l2-14" stroke="#E6BE62" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".7"/></svg>`;
 
 /* ---------- Top 10 des gains de la dernière heure (serveur) ---------- */
 const TopHour = {
@@ -4843,7 +5431,7 @@ const Goals = {
     });
     this.badge(ready.length);
   },
-  badge(n) { $$('[data-count="objectifs"]').forEach(el => { el.textContent = n || ''; el.hidden = !n; }); },
+  badge(n) { $$('[data-count="objectifs"]').forEach(el => { el.textContent = n || ''; el.hidden = !n; }); this.readyN = n || 0; hubCounts(); },
   claim(id) {
     const g = GOALS.find(x => x.id === id);
     if (!g || S.goals[id] || g.val() < g.goal) return;
@@ -5198,6 +5786,7 @@ const ICONS = {
   ticket: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></svg>',
   home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V20h-5.5v-5h-5v5H4z"/></svg>',
   duel: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4l10 10M4 4h4M4 4v4M20 4 10 14M20 4h-4M20 4v4M7 17l-3 3M17 17l3 3M8 13l3 3M16 13l-3 3"/></svg>',
+  target: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg>',
   star: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.6 6.1.7-4.5 4.1 1.3 6-5.5-3.1-5.5 3.1 1.3-6-4.5-4.1 6.1-.7z"/></svg>',
   columns: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16M12 3 4 7v2h16V7zM6 9v8M10 9v8M14 9v8M18 9v8M3 20h18"/></svg>',
   user: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>',
@@ -5206,7 +5795,7 @@ const ICONS = {
 };
 const VIEWS = [
   { id: 'salle', label: 'Accueil', group: 'Accueil', icon: 'home' },
-  { id: 'jeux', label: 'Jeux', group: 'Accueil', icon: 'grid' },
+  { id: 'jeux', label: 'Tous les jeux du casino', group: 'Accueil', icon: 'grid' },
   { id: 'crash', label: 'Aviateur', group: 'Jeux', icon: 'crash' },
   { id: 'slots', label: 'Machine à sous', group: 'Jeux', icon: 'slots' },
   { id: 'course', label: 'Course de chevaux', group: 'Jeux', icon: 'race' },
@@ -5218,33 +5807,49 @@ const VIEWS = [
   { id: 'roue-fortune', label: 'Roue de la fortune', group: 'Tables', icon: 'wheel2' },
   { id: 'pile-face', label: 'Pile ou face', group: 'Tables', icon: 'coin' },
   { id: 'clicker', label: 'Clicker', group: 'Gagner de l’argent', icon: 'plus' },
-  { id: 'objectifs', label: 'Objectifs', group: 'Gagner de l’argent', icon: 'target' },
-  { id: 'loto', label: 'Loto du jour', group: 'Gagner de l’argent', icon: 'ticket' },
+  { id: 'objectifs', label: 'Objectifs', group: 'Progression', icon: 'target' },
+  { id: 'loto', label: 'Loto du jour', group: 'Jeux', icon: 'ticket' },
+  { id: 'arcade', label: 'Mini-jeux', group: 'Gagner de l’argent', icon: 'target' },
+  { id: 'tir', label: 'Tir de précision', group: 'Gagner', icon: 'target' },
+  { id: 'coffre', label: 'Coffre-fort', group: 'Gagner', icon: 'target' },
+  { id: 'taquin', label: 'Taquin', group: 'Gagner', icon: 'target' },
   { id: 'pass', label: 'Pass de saison', group: 'Saison', icon: 'star' },
   { id: 'pantheon', label: 'Panthéon', group: 'Saison', icon: 'columns' },
   { id: 'grattage', label: 'Grattage', group: 'Jeux', icon: 'ticket' },
   { id: 'boutique', label: 'Boutique', group: 'Compte', icon: 'bag' },
-  { id: 'stats', label: 'Statistiques', group: 'Compte', icon: 'bars' },
+  { id: 'stats', label: 'Statistiques et compte', group: 'Profil', icon: 'bars' },
   { id: 'social', label: 'Tchat et transferts', group: 'Communauté', icon: 'chat' }
 ];
 // Rubriques du site : chaque rubrique regroupe une ou plusieurs pages (sous-onglets)
+// Six rubriques, chacune avec un rôle clair. Les jeux du casino ont leur propre page, rattachée à « Casino ».
 const HUBS = [
   { id: 'accueil', label: 'Accueil', icon: 'home', views: ['salle'] },
-  { id: 'jeux', label: 'Jeux', icon: 'grid', views: ['jeux'] },
-  { id: 'saison', label: 'Saison', icon: 'star', views: ['pass', 'pantheon'] },
-  { id: 'gagner', label: 'Gagner', icon: 'plus', views: ['clicker', 'objectifs', 'loto'] },
-  { id: 'communaute', label: 'Communauté', icon: 'chat', views: ['social'] },
-  { id: 'profil', label: 'Profil', icon: 'user', views: ['stats', 'boutique'] }
+  { id: 'jeux', label: 'Casino', icon: 'grid', views: ['jeux'] },
+  { id: 'gagner', label: 'Gagner', short: 'Gagner', icon: 'plus', views: ['clicker', 'tir', 'coffre', 'taquin'] },
+  { id: 'progression', label: 'Progression', short: 'Progrès', icon: 'star', views: ['pass', 'objectifs', 'pantheon'] },
+  { id: 'boutique', label: 'Boutique', icon: 'bag', views: ['boutique'] },
+  { id: 'communaute', label: 'Communauté', short: 'Social', icon: 'chat', views: ['social'] },
+  { id: 'profil', label: 'Profil', icon: 'user', views: ['stats'], noTab: true } // accessible par l'avatar
 ];
 const GAME_GROUPS = ['Jeux', 'Tables'];
 const isGameView = id => VIEWS.some(v => v.id === id && GAME_GROUPS.includes(v.group));
-const hubOf = id => HUBS.find(h => h.views.includes(id)) || (isGameView(id) ? HUBS[1] : HUBS[0]);
-const HUB_COUNT = { gagner: 'objectifs', saison: 'pass' };
+const hubOf = id => HUBS.find(h => h.views.includes(id) || (h.hidden || []).includes(id)) || (isGameView(id) ? HUBS[1] : HUBS[0]);
+const HUB_COUNT = { progression: 'progression' };
+const NavMemory = {
+  data: (() => { try { return JSON.parse(localStorage.getItem('carat_nav') || '{}'); } catch { return {}; } })(),
+  get(hub) { return this.data[hub]; },
+  set(hub, view) { this.data[hub] = view; try { localStorage.setItem('carat_nav', JSON.stringify(this.data)); } catch {} }
+};
 function buildNav() {
-  const tab = (h, cls) => `<button type="button" class="${cls}" data-hub="${h.id}">${ICONS[h.icon]}<span>${esc(h.label)}</span>${HUB_COUNT[h.id] ? `<span class="nav-count" data-count="${HUB_COUNT[h.id]}" hidden></span>` : ''}</button>`;
-  $('#topnav').innerHTML = HUBS.map(h => tab(h, 'tn-btn')).join('') + '<span class="tn-ind" id="tn-ind"></span>';
-  $('#bottomnav').innerHTML = HUBS.map(h => tab(h, 'bn-btn')).join('');
-  const onHub = e => { const b = e.target.closest('[data-hub]'); if (b) go(HUBS.find(h => h.id === b.dataset.hub).views[0]); };
+  const tab = (h, cls, short) => `<button type="button" class="${cls}" data-hub="${h.id}">${ICONS[h.icon]}<span>${esc(short && h.short ? h.short : h.label)}</span>${HUB_COUNT[h.id] ? `<span class="nav-count" data-count="${HUB_COUNT[h.id]}" hidden></span>` : ''}</button>`;
+  const tabs = HUBS.filter(h => !h.noTab);
+  $('#topnav').innerHTML = tabs.map(h => tab(h, 'tn-btn')).join('') + '<span class="tn-ind" id="tn-ind"></span>';
+  $('#bottomnav').innerHTML = tabs.map(h => tab(h, 'bn-btn', true)).join('');
+  const onHub = e => { // chaque rubrique rouvre le dernier onglet consulté
+    const b = e.target.closest('[data-hub]'); if (!b) return;
+    const h = HUBS.find(x => x.id === b.dataset.hub), last = NavMemory.get(h.id);
+    go(h.views.includes(last) ? last : h.views[0]);
+  };
   $('#topnav').addEventListener('click', onHub);
   $('#bottomnav').addEventListener('click', onHub);
   $('#subtabs').addEventListener('click', e => { const b = e.target.closest('[data-sub]'); if (b) go(b.dataset.sub); });
@@ -5262,6 +5867,7 @@ function buildNav() {
     const b = e.target.closest('[data-me-go]'); if (b) { setMenu(false); go(b.dataset.meGo); }
     if (e.target.closest('#logout-btn')) setMenu(false);
     if (e.target.closest('#me-fast')) FastMode.toggle();
+    if (e.target.closest('#me-search')) { setMenu(false); Jump.open(); }
     if (e.target.closest('#me-claim')) { setMenu(false); showAuth(); authTab('register'); authStatus('Choisissez un pseudo et un mot de passe : votre partie d’invité est transférée sur ce compte.'); }
   });
   document.addEventListener('click', e => { if (!menu.hidden && !e.target.closest('.me')) setMenu(false); });
@@ -5278,7 +5884,7 @@ function placeIndicators() { // soulignements qui glissent sous l'onglet actif
     ind.style.transform = `translateX(${b.offsetLeft}px)`;
   });
 }
-const HUB_ORDER = ['accueil', 'jeux', 'saison', 'gagner', 'communaute', 'profil'];
+const HUB_ORDER = ['accueil', 'jeux', 'gagner', 'progression', 'boutique', 'communaute', 'profil'];
 function go(id) { // transition orientée : vers la droite quand on avance dans les rubriques, vers la gauche quand on revient
   const from = currentView;
   const hubA = hubOf(from), hubB = hubOf(VIEWS.some(v => v.id === id) ? id : 'salle');
@@ -5289,19 +5895,23 @@ function go(id) { // transition orientée : vers la droite quand on avance dans 
   if (document.startViewTransition && !reducedMotion && from && from !== id && !document.hidden) {
     currentView = id;
     document.documentElement.classList.add('vt');
-    document.startViewTransition(() => goNow(id));
+    const vt = document.startViewTransition(() => goNow(id));
+    // si on change de page avant la fin de l'animation, le navigateur l'annule : ce n'est pas une erreur
+    [vt.ready, vt.finished, vt.updateCallbackDone].forEach(pr => pr && pr.catch(() => {}));
   } else goNow(id);
 }
 function goNow(id) {
   if (id === 'secours') id = 'clicker'; // ancien lien
+  if (id === 'arcade') id = 'tir';       // les mini-jeux ont maintenant chacun leur onglet
   if (LOBBY.some(g => g.id === id && g.seasonal) && SEASON_INFO && !Season.has(id)) { toast('Ce jeu de saison n’est pas disponible ce mois-ci.', 'info'); id = 'salle'; }
   if (!VIEWS.some(v => v.id === id)) id = 'salle';
   currentView = id;
   $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + id));
   const hub = hubOf(id);
+  if (hub.views.includes(id)) NavMemory.set(hub.id, id);
   $$('[data-hub]').forEach(b => b.setAttribute('aria-current', b.dataset.hub === hub.id ? 'page' : 'false'));
   const sub = $('#subtabs');
-  if (hub.views.length > 1 && !isGameView(id)) {
+  if (hub.views.length > 1 && !isGameView(id) && hub.views.includes(id)) {
     sub.hidden = false;
     const html = hub.views.map(v => { const vv = VIEWS.find(x => x.id === v); return `<button type="button" class="st-btn" role="tab" data-sub="${v}" aria-current="${v === id ? 'page' : 'false'}">${esc(vv.label)}${v === 'objectifs' || v === 'pass' ? `<span class="nav-count" data-count="${v}" hidden></span>` : ''}</button>`; }).join('');
     if (sub.dataset.hub !== hub.id) { sub.innerHTML = html + '<span class="st-ind" id="st-ind"></span>'; sub.dataset.hub = hub.id; }
@@ -5316,6 +5926,11 @@ function goNow(id) {
   if (id === 'clicker') Clicker.render();
   if (id === 'objectifs') Goals.render();
   if (id === 'pass') { Pass.jump = true; Pass.render(); }
+  if (id === 'arcade') Arcade.render();
+  if (id === 'tir') { Tir.resize(); Tir.render(); }
+  if (id === 'coffre') Coffre.render();
+  if (id === 'taquin') Taquin.render();
+  if (id !== 'tir') Tir.abandon();
   if (id === 'pantheon') Pantheon.render();
   if (id === 'salle') { renderSeasonUI(); renderHome(); }
   if (id === 'plinko') Plinko.resize();
@@ -5459,10 +6074,12 @@ document.addEventListener('DOMContentLoaded', () => {
   BJ.init();
   Coin.init();
   Clicker.init();
-  Plinko.init(); Hilo.init(); WheelF.init(); Slots.init(); Race.init(); Loto.init(); LB.init(); FastMode.init(); TopHour.init(); Duel.init(); Scratch.init();
+  Plinko.init(); Hilo.init(); WheelF.init(); Slots.init(); Race.init(); Loto.init(); LB.init(); FastMode.init(); TopHour.init(); Duel.init(); Scratch.init(); Tir.init(); Coffre.init(); Taquin.init(); Jump.init();
+  $('#arcade-cards').addEventListener('click', e => { const b = e.target.closest('[data-go-view]'); if (b) go(b.dataset.goView); });
   $('#view-pass').addEventListener('click', e => { const b = e.target.closest('[data-pass-claim]'); if (b) { const [tr, l] = b.dataset.passClaim.split(':'); Pass.claim(tr, Number(l)); } if (e.target.closest('#pass-claim-all')) Pass.claimAll(); });
   setInterval(() => { if (currentView === 'salle') { renderSeasonUI(); renderHome(); } if (currentView === 'jeux') filterGames(); }, 30000);
   BgFx.init();
+  $$('.home-paths .pc-ic').forEach(el => { el.innerHTML = ICONS[el.textContent.replace('ICON_', '')] || ''; });
   $('#brand-mark').innerHTML = LOGO_SVG; $('#ab-logo').innerHTML = LOGO_SVG; $('#splash-logo').innerHTML = LOGO_SVG;
   if (SEASON_INFO) $('#ab-season').textContent = `Saison ${SEASON_INFO.num} en cours : ${SEASON_INFO.config.name}`;
   renderLobby();
