@@ -2004,8 +2004,8 @@ function normalize(raw) {
     const one = (o, id) => {
       const g = { runs: Math.min(ARCADE_RUNS, Math.floor(num(o && o.runs))), best: Math.floor(num(o && o.best)), live: null };
       const l = o && o.live;
-      if (l && id === 'coffre' && Array.isArray(l.code) && l.code.length === 4 && Array.isArray(l.rows))
-        g.live = { code: l.code.map(v => Math.min(5, Math.max(0, Math.floor(num(v))))), rows: l.rows.slice(0, 10), cur: Array.isArray(l.cur) ? l.cur.slice(0, 4) : [], paid: !!l.paid, base: num(l.base) };
+      if (l && id === 'coffre' && Array.isArray(l.rows)) // le code secret reste sur le serveur
+        g.live = { rows: l.rows.slice(0, 10), paid: !!l.paid, base: num(l.base) };
       if (l && id === 'taquin' && Array.isArray(l.board) && l.board.slice().sort().join() === '0,1,2,3,4,5,6,7,8')
         g.live = { board: l.board.map(Number), moves: Math.floor(num(l.moves)), paid: !!l.paid, base: num(l.base) };
       return g;
@@ -2017,46 +2017,85 @@ function normalize(raw) {
   s.boostItems = {};
   Object.entries(obj(raw && raw.boostItems)).forEach(([k, v]) => { if (BOOSTS.some(b => String(b.mult) === k) && num(v) > 0) s.boostItems[k] = Math.floor(num(v)); });
   s.passVersion = raw ? Math.floor(num(raw.passVersion)) : PASS_VERSION;
+  s.rev = raw ? num(raw.rev) : 0;
   return s;
 }
 
-/* ----- Sauvegarde ----- */
-function saveNow() { // la partie n'est enregistrée que sur le serveur
-  if (!user) return;
-  S.savedAt = Date.now();
-  Cloud.push(false);
-}
+/* ----- Sauvegarde : seuls les réglages d'apparence sont envoyés, le serveur garde la partie ----- */
+function saveNow() { if (user) Cloud.push(false); }
 let saveTimer = 0;
 function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 800); }
-function setPending(key, value) {
-  if (value == null) delete S.pending[key]; else S.pending[key] = value;
-  saveNow();
-}
 
-/* ----- Portefeuille ----- */
-const Wallet = {
-  canPay(a) { return a > 0 && a <= S.balance + 1e-9; },
-  debit(a) {
-    a = r2(a);
-    if (!this.canPay(a)) return false;
-    S.balance = r2(S.balance - a);
-    onBalance(-a);
-    return true;
+/* =====================================================================
+   SERVEUR : il calcule tout ce qui touche à l'argent (mises, gains, XP,
+   objectifs, pass, boutique). Le site envoie une demande (« je mise 10 $
+   à pile »), le serveur répond avec le résultat et la progression à jour
+   (st), que le site recopie dans S. Pendant une animation (rouleaux, roue,
+   bille…), la progression reçue est mise de côté puis appliquée à la fin,
+   pour ne pas dévoiler le résultat avant l'heure.
+   ===================================================================== */
+const Srv = {
+  rev: 0, holds: 0, queued: null,
+  async act(ev, data = {}, opts = {}) {
+    if (!user) { showAuth(); return null; }
+    if (!Net.ready()) { if (!opts.quiet) toast('Serveur injoignable : réessayez dans un instant.', 'error'); return null; }
+    if (opts.hold) this.hold();
+    const res = await Net.request(ev, data, 12000);
+    if (!res || !res.ok) {
+      if (opts.hold) this.release();
+      if (res && res.code === 'auth') { Cloud.active = false; Cloud.resume(); }
+      if (!opts.quiet) toast((res && res.msg) || 'Action refusée.', 'error');
+      return null;
+    }
+    if (res.st && !opts.hold) this.apply(res.st);
+    return res;
   },
-  credit(a, quiet) {
-    a = r2(a);
-    if (!(a > 0)) return;
-    S.balance = r2(S.balance + a);
-    onBalance(a, quiet);
-  }
+  apply(st, force, quiet) {
+    if (!st || !user) return;
+    if (this.holds && !force) { // mise de côté pendant une animation
+      const q = this.queued;
+      this.queued = !q ? st : (st.rev || 0) >= (q.rev || 0) ? { ...q, ...st } : { ...st, ...q };
+      return;
+    }
+    if (st.rev != null && st.rev < this.rev) return; // réponse plus ancienne que ce qui est affiché
+    const before = { xp: S.xp || 0, level: XP.level(), balance: S.balance, badge: S.equippedBadge, theme: S.theme, skin: S.coinSkin };
+    Object.keys(st).forEach(k => { S[k] = st[k]; });
+    S.pending = S.pending || {};
+    if (Clicker.pending && 'balance' in st) { S.totalClicks += Clicker.pending; S.balance = r2(S.balance + Clicker.pending * Clicker.lastGain); }
+    if (st.rev != null) this.rev = st.rev;
+    const delta = r2(S.balance - before.balance);
+    if (!quiet && Math.abs(delta) >= 0.01) flashWallet(delta);
+    if (S.xp > before.xp + 1e-9) XP.pop(S.xp - before.xp);
+    const L = XP.level();
+    if (L > before.level) {
+      const pl = Season.prestigeLevel();
+      toast(`Niveau ${L} atteint !${L >= pl && before.level < pl ? ' La piste Prestige du pass est débloquée.' : ''} Récupérez votre récompense dans le pass.`, 'success');
+      celebrate();
+    }
+    if (S.theme !== before.theme) applyTheme(S.theme);
+    if (S.coinSkin !== before.skin) Clicker.renderSkin();
+    if (S.equippedBadge !== before.badge) renderUser();
+    checkAchievements();
+    Goals.check(); Pass.badge(); Malus.render(); Boost.tick();
+    markDirty();
+  },
+  hold() { this.holds++; },
+  release(st) { // fin d'une animation : on affiche le résultat, puis ce qui a été mis de côté
+    this.holds = Math.max(0, this.holds - 1);
+    if (st) this.apply(st, true);
+    if (!this.holds && this.queued) { const q = this.queued; this.queued = null; this.apply(q, false, true); }
+  },
+  reset() { this.rev = 0; this.holds = 0; this.queued = null; }
 };
 
-function onBalance(delta, quiet) {
-  if (!quiet) flashWallet(delta);
-  markDirty();
-  if (quiet) Net.pushBalanceSlow(); else Net.pushBalance();
-  scheduleSave();
-}
+/* ----- Portefeuille : affichage seulement, le vrai solde est sur le serveur ----- */
+const Wallet = {
+  canPay(a) { return a > 0 && a <= S.balance + 1e-9; },
+  show(delta) { // une mise est retirée tout de suite de l'affichage, en attendant la réponse du serveur
+    S.balance = r2(S.balance + delta);
+    flashWallet(delta); markDirty();
+  }
+};
 
 function readBet(key) {
   if (!user) { showAuth(); return null; }
@@ -2074,183 +2113,44 @@ function lockBet(key, on) {
   wrap.querySelectorAll('input,button').forEach(x => { x.disabled = on; });
 }
 
-/* Enregistre le résultat d'une partie : payout = somme rendue au joueur (0 si perdu). */
-function settle(game, bet, payout, mult, opts = {}) {
-  payout = r2(payout);
-  // Boost actif : le bénéfice d'une partie gagnée est multiplié (la mise est rendue normalement)
-  // Ce bonus puise dans une réserve égale à la moitié du prix du boost : un boost
-  // ne peut donc jamais se rembourser avec les seuls jeux.
-  const bm = opts.raw ? 1 : boostMult();
-  let bonus = 0;
-  if (bm > 1 && payout > bet && S.boost.pool > 0) {
-    bonus = Math.min(r2((payout - bet) * (bm - 1)), S.boost.pool);
-    S.boost.pool = r2(S.boost.pool - bonus);
-    payout = r2(payout + bonus);
-  }
-  // Handicap « Gains divisés par 2 » : consommé par chaque partie d'au moins 10 $
-  // Règle de saison : bonus sur les gains d'un jeu (parfois seulement le week-end)
-  const gb = Season.rules().gameBonus;
-  if (!opts.raw && gb && gb.game === game && payout > bet && (!gb.weekend || isWeekend())) payout = r2(payout + r2((payout - bet) * gb.pct / 100));
-  if (!opts.raw && malusOn('halve') && bet >= 10) {
-    if (payout > bet) payout = r2(bet + (payout - bet) / 2);
-    S.malus.halve.games--;
-    if (S.malus.halve.games <= 0) { delete S.malus.halve; toast('Le handicap « Gains divisés par 2 » est terminé.', 'info'); }
-    Malus.render();
-  }
-  if (payout > 0) Wallet.credit(payout);
-  const net = r2(payout - bet);
-  S.gamesPlayed++;
-  if (net > 0) {
-    S.totalWon = r2(S.totalWon + net);
-    S.gamesWon++;
-    if (mult > S.biggestMult) S.biggestMult = mult;
-  } else if (net < 0) {
-    S.totalLost = r2(S.totalLost - net);
-  }
-  S.history.unshift({ g: game, bet, win: payout, mult: mult || 0, t: Date.now() });
-  if (S.history.length > 50) S.history.length = 50;
-  S.c.wagered = r2(S.c.wagered + bet);
-  Goals.bump('wager', bet);
-  if (bet >= GOAL_MIN_BET) { // les petites mises ne font pas avancer les objectifs
-    S.c.games10++;
-    S.seen[game] = 1;
-    Goals.bump('games', 1);
-    if (net > 0) { S.c.wins10++; Goals.bump('wins', 1); }
-  }
-  if (net > 0) {
-    Goals.bump('profit', net);
-    if (net > S.c.bestWin) S.c.bestWin = net;
-  }
-  checkAchievements();
-  markDirty();
-  scheduleSave();
-  XP.fromGame(game, bet);
-  if (net > 0 && (mult >= 5 || bm >= 10)) celebrate();
-  if (net >= 500 && (mult >= 5 || net >= 5000)) Net.emit('big_win', { game, amount: net, mult });
-  if (net > 0) TopHour.send(game, net, mult);
-  return payout;
-}
-
-/* Reprise après rechargement de page : rien n'est perdu ni dupliqué. */
-function resolvePending() {
-  const p = S.pending || {};
-  S.pending = {};
-  if (p.duels && Object.keys(p.duels).length) S.pending.duels = p.duels; // le serveur dira ce qu'ils sont devenus (Duel.resume)
-  const notes = [];
-  if (p.crash) {
-    if (p.crash.roundId) S.pending.crash = p.crash; // le serveur dira ce qu'elle est devenue (Crash.resume)
-    else { Wallet.credit(p.crash.bet); notes.push(`Mise Aviateur remboursée (${money(p.crash.bet)}).`); }
-  }
-  if (p.mines) {
-    if (p.mines.found > 0) {
-      const m = Mines.mult(p.mines.bombs, p.mines.found);
-      const got = settle('Mines', p.mines.bet, r2(p.mines.bet * m), m);
-      notes.push(`Partie de Mines encaissée automatiquement à ${fmtX(m)} : ${money(got)}.`);
-    } else { Wallet.credit(p.mines.bet); notes.push('Partie de Mines non commencée : mise remboursée.'); }
-  }
-  if (p.bj) { settle('Blackjack', p.bj.bet, 0, 0); notes.push('Main de blackjack abandonnée : mise perdue.'); }
-  Object.entries(p).forEach(([k, v]) => { // parties instantanées (dés, plinko, roues…) déjà tirées
-    if ((k === 'instant' || k.startsWith('i_')) && v) settle(v.game, v.bet, v.payout, v.mult);
-  });
-  if (p.race) S.pending.race = p.race; // le serveur dira ce qu'est devenu le pari (Race.resume)
-  if (p.chicken) { Wallet.credit(p.chicken.bet); notes.push('La Traversée du poulet a été retirée : votre mise en cours est remboursée.'); }
-  if (p.tower) { Wallet.credit(p.tower.bet); notes.push('Le jeu Tours a été retiré : votre mise en cours est remboursée.'); }
-  if (p.hilo) {
-    if (p.hilo.mult > 1) {
-      const m = floor2(p.hilo.mult), got = settle('Hilo', p.hilo.bet, r2(p.hilo.bet * m), m);
-      notes.push(`Partie de Hilo encaissée automatiquement à ${fmtX(m)} : ${money(got)}.`);
-    } else { Wallet.credit(p.hilo.bet); notes.push('Partie de Hilo non commencée : mise remboursée.'); }
-  }
-  notes.forEach(n => toast(n, 'info'));
-  saveNow();
+/* Messages du serveur à l'ouverture de la session (parties interrompues, gains hors ligne, loto) */
+function showNotes(res) {
+  (res && res.notes || []).forEach(n => toast(n.replace(/(\d+(?:\.\d+)?) \$/g, (m, v) => money(Number(v))), 'info'));
+  if (res && res.offlineGain > 0) toast(`Pendant votre absence, vos machines ont rapporté ${money(res.offlineGain)}.`, 'success');
 }
 
 /* =====================================================================
-   COMPTES (stockés sur cet appareil, mots de passe hachés SHA-256 + sel)
+   COMPTES : tous enregistrés sur le serveur (pseudo, mot de passe haché,
+   progression). Le navigateur ne garde qu'un jeton de connexion.
    ===================================================================== */
-const NAME_RE = /^[\p{L}\p{N}_.\-]{3,16}$/u;
-const Auth = {
-  all() {
-    try { const u = JSON.parse(store.get(KEYS.users) || '{}'); return u && typeof u === 'object' ? u : {}; }
-    catch { return {}; }
-  },
-  write(users) { store.set(KEYS.users, JSON.stringify(users)); },
-  find(name, users = this.all()) {
-    const n = String(name).toLowerCase();
-    return Object.keys(users).find(k => k.toLowerCase() === n) || null;
-  },
-  salt() { const a = new Uint8Array(16); crypto.getRandomValues(a); return hex(a); },
-  async hash(pw, salt) {
-    if (window.crypto && crypto.subtle) {
-      const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${salt}:${pw}`));
-      return hex(new Uint8Array(d));
-    }
-    return 'nohash:' + pw; // contexte non sécurisé (http://) : hébergez le site en https
-  },
-  async register(name, pw) {
-    if (!NAME_RE.test(name)) return { ok: false, msg: 'Pseudo invalide : 3 à 16 lettres, chiffres, point, tiret ou tiret bas.' };
-    if (/^invit/i.test(name)) return { ok: false, msg: 'Les pseudos commençant par « Invité » sont réservés.' };
-    if (pw.length < 6) return { ok: false, msg: 'Mot de passe trop court : 6 caractères minimum.' };
-    const users = this.all();
-    if (this.find(name, users)) return { ok: false, msg: 'Ce pseudo est déjà pris.' };
-    const salt = this.salt();
-    users[name] = { salt, hash: await this.hash(pw, salt), state: DEFAULT_STATE(), created: Date.now() };
-    this.write(users);
-    return { ok: true, name };
-  },
-  async login(name, pw) {
-    const users = this.all();
-    const key = this.find(name, users);
-    const rec = key && users[key];
-    const fail = { ok: false, msg: 'Pseudo ou mot de passe incorrect.' };
-    if (!rec) return fail;
-    let ok;
-    if (typeof rec.password === 'string') { // ancien compte en clair : migration
-      ok = rec.password === pw;
-      if (ok) { rec.salt = this.salt(); rec.hash = await this.hash(pw, rec.salt); delete rec.password; this.write(users); }
-    } else {
-      ok = rec.hash === await this.hash(pw, rec.salt);
-    }
-    return ok ? { ok: true, name: key, state: rec.state } : fail;
-  },
-  saveState(name, state) {
-    const users = this.all();
-    const key = this.find(name, users);
-    if (key) { users[key].state = state; this.write(users); }
-  }
-};
-
-function startSession(name, state, guest) {
+function resetGames() { // parties en cours abandonnées côté affichage (le serveur les a réglées)
+  if (Mines.active) Mines.reset();
+  if (Hilo.active) Hilo.reset();
+  if (BJ.active) BJ.reset();
+  if (Scratch.card && Scratch.card.open.size < 9) Scratch.reset();
+  if (Tir.state === 'run') Tir.cancel();
+}
+function startSession(name, state, guest, res) {
   user = name; isGuest = guest;
+  Srv.reset();
+  resetGames();
   S = normalize(state);
+  Srv.rev = S.rev || 0;
   const authEl = $('#auth');
   if (!authEl.hidden && !reducedMotion) { authEl.classList.add('leaving'); setTimeout(() => { authEl.hidden = true; authEl.classList.remove('leaving'); }, 400); }
-  if (Season.num() && S.season !== Season.num()) { // partie d'une saison terminée : on repart de zéro
-    const had = state && (Number(state.gamesPlayed) > 0 || Number(state.totalClicks) > 0);
-    S = normalize(null); S.season = Season.num();
-    if (had) setTimeout(() => toast(`Saison ${Season.num()} : votre progression repart de zéro. Vos titres d’Héritage restent à vous.`, 'info'), 600);
-  }
-  if (S.passVersion !== PASS_VERSION) { // nouvelle progression du pass : tout le monde repart du niveau 1
-    const had = S.xp > 0 || Object.keys(S.passClaimed).length > 0;
-    resetPassState(S);
-    if (had) setTimeout(() => toast('Le pass de saison a été remis à zéro pour tous les joueurs, avec une nouvelle progression plus exigeante. L’argent déjà reçu vous reste acquis.', 'info'), 900);
-  }
   if (!authEl.classList.contains('leaving')) authEl.hidden = true;
-  resolvePending();
-  Goals.ensureDay();
-  Clicker.offline();
   applyTheme(S.theme);
   Boost.endedNotice = false;
   renderAll();
   Goals.prime();
   Net.join();
-  Crash.resume();
-  Race.resume();
+  Crash.restore(res && res.live);
+  Race.restore(res && res.live);
   Loto.render();
-  Loto.claimAll();
-  Duel.resume();
   Duel.render();
+  Hilo.render(); BJ.render();
   renderSeasonUI(); Pass.render(); Clicker.renderSkin(); renderHome(); Arcade.render(); Tir.render(); Coffre.last = null; Taquin.last = null; Coffre.render(); Taquin.render();
+  showNotes(res);
   Splash.hide();
 }
 async function startGuest() { // compte invité créé sur le serveur
@@ -2259,12 +2159,12 @@ async function startGuest() { // compte invité créé sur le serveur
   const res = await Net.request('account_guest', {}, 20000);
   if (!res.ok) return authError(res.msg || 'Impossible de créer une partie invité.');
   Cloud.adopt(res);
-  startSession(res.username, res.state, true);
+  startSession(res.username, res.state, true, res);
   toast('Partie invité : elle est enregistrée sur le serveur. Créez un compte pour la retrouver sur vos autres appareils.', 'info');
 }
 function endSession() {
-  user = null; isGuest = false; S = DEFAULT_STATE();
-  store.del(KEYS.active);
+  resetGames();
+  user = null; isGuest = false; S = DEFAULT_STATE(); Srv.reset();
   applyTheme('tapis');
   Boost.tick();
   Malus.render();
@@ -2279,12 +2179,10 @@ async function logout() {
     authStatus('Créez un compte pour garder votre partie : votre progression d’invité y sera transférée.');
     return;
   }
-  if (Mines.active || BJ.active || Crash.active || S.pending.crash || Coin.busy || Hilo.active ||
-      Plinko.balls.length || WheelF.busy || Slots.busy || Race.myBet || S.pending.race || Duel.anim || (Scratch.card && Scratch.card.open.size < 9)) {
+  if (Mines.active || BJ.active || Crash.active || Coin.busy || Hilo.active || Plinko.balls.length || WheelF.busy || Slots.busy || Race.myBet || Duel.anim || (Scratch.card && Scratch.card.open.size < 9)) {
     toast('Terminez la partie en cours avant de changer de compte.', 'error');
     return;
   }
-  saveNow();
   Cloud.push(true); await Cloud.logout();
   endSession();
   showAuth();
@@ -2311,24 +2209,22 @@ function initAuthUI() {
     if (!res.ok) return authError(res.msg);
     $('#login-pass').value = '';
     Cloud.adopt(res);
-    startSession(res.username, res.state, false);
-    toast(res.imported ? `Compte ${res.username} transféré en ligne avec toute sa progression : vous pouvez maintenant vous connecter depuis n’importe quel appareil.` : `Bon retour, ${res.username}.`, 'success');
+    startSession(res.username, res.state, false, res);
+    toast(`Bon retour, ${res.username}.`, 'success');
   });
   $('#form-register').addEventListener('submit', async e => {
     e.preventDefault();
     const btn = e.submitter || $('#form-register button'); btn.disabled = true; authError('');
     const fromGuest = !!(user && isGuest);
-    if (fromGuest) { S.savedAt = Date.now(); await Net.request('account_save', { state: S }, 15000); } // dernière sauvegarde avant le transfert
     const res = fromGuest
       ? await Net.request('account_claim', { username: $('#reg-name').value.trim(), password: $('#reg-pass').value }, 20000)
-      : await Cloud.register($('#reg-name').value.trim(), $('#reg-pass').value, null);
+      : await Cloud.register($('#reg-name').value.trim(), $('#reg-pass').value);
     btn.disabled = false;
     if (!res.ok) return authError(res.msg);
     $('#reg-pass').value = '';
     Cloud.adopt(res);
-    startSession(res.username, res.state, false);
-    Net.join();
-    toast(fromGuest ? 'Compte créé : votre partie invité y a été transférée.' : 'Compte créé : 150,00 $ ont été crédités.', 'success');
+    startSession(res.username, res.state, false, res);
+    toast(fromGuest ? 'Compte créé : votre partie invité y a été transférée.' : `Compte créé : ${money(res.state ? res.state.balance : 0)} ont été crédités.`, 'success');
   });
   $('#guest-btn').addEventListener('click', () => { authStatus(''); startGuest(); });
   $('#logout-btn').addEventListener('click', logout);
@@ -2342,53 +2238,24 @@ function initAuthUI() {
   });
 }
 
-/* Nouvelle saison : la première fois que cette version s'ouvre sur un appareil, la
-   progression de tous les comptes de cet appareil repart de zéro (pseudos et mots
-   de passe conservés). Changer SEASON relance une remise à zéro. */
-const SEASON = '2';
-let seasonReset = false;
-function applySeason() {
-  if (store.get(KEYS.season) === SEASON) return;
-  const users = Auth.all();
-  const had = Object.keys(users).length > 0 || !!store.get(KEYS.guestSave);
-  Object.values(users).forEach(u => { u.state = DEFAULT_STATE(); });
-  Auth.write(users);
-  store.del(KEYS.guestSave);
-  store.set(KEYS.season, SEASON);
-  seasonReset = had;
-}
 function autoLogin() {
-  // anciennes copies locales : supprimées (la partie n'est plus gardée sur l'appareil)
-  Object.keys(localStorage).filter(k => k.startsWith('emeraude_cache:')).forEach(k => store.del(k));
-  store.del(KEYS.guestSave); store.del(KEYS.guestName); store.del(KEYS.season);
-  if (!Object.keys(Auth.all()).length) { store.del(KEYS.users); store.del(KEYS.active); } // anciens comptes locaux : gardés seulement jusqu'à leur transfert
+  // Anciennes données du navigateur (comptes locaux, copies de partie) : supprimées, tout est sur le serveur
+  try { Object.keys(localStorage).filter(k => k.startsWith('emeraude_cache:')).forEach(k => store.del(k)); } catch {}
+  [KEYS.users, KEYS.active, KEYS.guestSave, KEYS.guestName, KEYS.season].forEach(k => store.del(k));
   if (Cloud.token && Cloud.username) { // session enregistrée : on attend le serveur, qui renvoie la partie
     Splash.show('Connexion à votre compte…');
     return;
   }
   Splash.hide();
-  const active = store.get(KEYS.active);
-  if (!active || /^invit/i.test(active)) return showAuth();
-  // ancien compte enregistré seulement sur cet appareil : mot de passe demandé une fois pour le transférer en ligne
-  const key = Auth.find(active);
   showAuth();
-  if (key) {
-    $('#login-name').value = key;
-    authStatus(`Votre compte ${key} n’a pas encore été transféré sur le serveur. Entrez votre mot de passe une fois : il sera transféré, puis effacé de cet appareil.`);
-  }
 }
 
 /* =====================================================================
    COMPTES EN LIGNE : connexion depuis n'importe quel appareil
-   La progression est enregistrée sur le serveur (et gardée en copie locale
-   pour démarrer vite). Les anciens comptes locaux sont transférés
-   automatiquement à la première connexion.
    ===================================================================== */
 const Cloud = {
   token: store.get(KEYS.token), username: store.get(KEYS.tokenUser),
   active: false, replaced: false, pushTimer: 0, resuming: false,
-  cacheKey(u) { return 'emeraude_cache:' + String(u).toLowerCase(); },
-  writeCache() {}, // plus aucune copie de la partie sur l'appareil
   heritage: [],
   adopt(res) {
     this.token = res.token; this.username = res.username; this.guest = !!res.guest;
@@ -2413,21 +2280,11 @@ const Cloud = {
   },
   async login(name, pw) {
     if (!await this.waitServer()) return { ok: false, msg: 'Serveur injoignable : réessayez dans un instant.' };
-    const res = await Net.request('account_login', { username: name, password: pw }, 20000);
-    if (res.ok || res.code !== 'not_found') return res;
-    // Pas encore de compte en ligne : on transfère le compte enregistré sur cet appareil, s'il existe
-    const local = await Auth.login(name, pw);
-    if (!local.ok) return { ok: false, msg: 'Pseudo ou mot de passe incorrect.' };
-    const state = local.state || DEFAULT_STATE();
-    state.savedAt = Date.now();
-    const r = await Net.request('account_register', { username: local.name, password: pw, state, imported: true }, 20000);
-    if (r.ok) { r.imported = true; const users = Auth.all(); delete users[local.name]; Auth.write(users); store.del(KEYS.active); }
-    return r;
+    return Net.request('account_login', { username: name, password: pw }, 20000);
   },
-  async register(name, pw, state) {
+  async register(name, pw) {
     if (!await this.waitServer()) return { ok: false, msg: 'Serveur injoignable : réessayez dans un instant.' };
-    if (state) state.savedAt = Date.now();
-    return Net.request('account_register', { username: name, password: pw, state }, 20000);
+    return Net.request('account_register', { username: name, password: pw }, 20000);
   },
   async resume() { // reconnexion automatique avec le jeton enregistré sur l'appareil
     if (!this.token || !this.username || !Net.ready() || this.resuming || this.replaced) return false;
@@ -2448,19 +2305,16 @@ const Cloud = {
     this.active = true; this.replaced = false;
     this.heritage = Array.isArray(res.heritage) ? res.heritage : [];
     const same = user && user.toLowerCase() === res.username.toLowerCase();
-    if (!same || (res.state && (res.savedAt || 0) > (S.savedAt || 0) + 1000)) {
-      // la version du serveur est plus récente (partie jouée sur un autre appareil)
-      startSession(res.username, res.state, !!res.guest);
-      if (same) toast('Votre progression a été mise à jour depuis un autre appareil.', 'info');
-    } else this.push(true); // la copie de cet appareil est la plus récente
+    startSession(res.username, res.state, !!res.guest, res); // la partie du serveur fait toujours foi
+    if (same && res.notes && res.notes.length) toast('Connexion rétablie : vos parties en cours ont été réglées.', 'info');
     authStatus('');
     Splash.hide();
     return true;
   },
-  push(now) { // envoie la progression au serveur (au plus toutes les 1,5 s)
+  push(now) { // envoie les réglages d'apparence (le reste est calculé par le serveur)
     if (!user || !this.active || this.replaced) return;
     clearTimeout(this.pushTimer);
-    const send = () => Net.request('account_save', { state: S }, 15000).then(r => {
+    const send = () => Net.request('account_save', { state: { season: S.season, theme: S.theme, equippedBadge: S.equippedBadge, coinSkin: S.coinSkin, fast: !!S.fast, achievements: S.achievements } }, 15000).then(r => {
       if (r.code === 'replaced') this.onReplaced();
       else if (r.code === 'season') { toast('Nouvelle saison : rechargement du club…', 'info'); setTimeout(() => location.reload(), 1500); }
       else if (r.code === 'auth') { this.active = false; this.resume(); }
@@ -2471,9 +2325,8 @@ const Cloud = {
     if (!user) return;
     this.replaced = true; this.active = false;
     const name = user;
-    this.writeCache();
     endSession();
-    showAuth(); $('#login-name').value = name; authTab('login'); $('#login-name').value = name;
+    showAuth(); authTab('login'); $('#login-name').value = name;
     authError('Votre compte vient d’être ouvert sur un autre appareil. Reconnectez-vous ici pour reprendre la partie (l’autre appareil sera alors déconnecté).');
   },
   async logout() {
@@ -2576,7 +2429,7 @@ function renderShop() {
   }));
 }
 function initShop() {
-  $('#view-boutique').addEventListener('click', e => {
+  $('#view-boutique').addEventListener('click', async e => {
     const b = e.target.closest('button');
     if (!b) return;
     if (!user) return showAuth();
@@ -2586,11 +2439,12 @@ function initShop() {
     if (b.dataset.themeBuy) {
       const t = THEMES.find(x => x.id === b.dataset.themeBuy);
       if (!t || S.inventory['theme_' + t.id]) return;
-      if (!Wallet.debit(t.price)) return toast('Solde insuffisant pour ce thème.', 'error');
-      S.inventory['theme_' + t.id] = true;
-      S.theme = t.id; applyTheme(t.id);
+      b.disabled = true;
+      const res = await Srv.act('shop_theme', { id: t.id });
+      b.disabled = false;
+      if (!res) return;
       toast(`Thème ${t.name} acheté et appliqué.`, 'success');
-      celebrate(); saveNow(); return renderShop();
+      celebrate(); return renderShop();
     }
     if (b.dataset.themeUse) {
       const t = THEMES.find(x => x.id === b.dataset.themeUse);
@@ -2602,9 +2456,10 @@ function initShop() {
     if (b.dataset.buy) {
       const it = SHOP_ALL().find(i => i.id === b.dataset.buy);
       if (!it || S.inventory[it.id]) return;
-      if (!Wallet.debit(it.price)) return toast('Solde insuffisant pour ce titre.', 'error');
-      S.inventory[it.id] = true;
-      S.equippedBadge = it.tag;
+      b.disabled = true;
+      const res = await Srv.act('shop_title', { id: it.id });
+      b.disabled = false;
+      if (!res) return;
       toast(`Titre ${it.tag} acheté et équipé.`, 'success');
       celebrate();
     } else if (b.dataset.equip) {
@@ -2681,12 +2536,8 @@ const Crash = {
   },
   onEnd(r) {
     this.applyRound(r);
-    if (this.active && !this.cashed && this.betRound === r.id) {
-      this.active = false;
-      settle('Aviateur', this.bet, 0, r.point);
-      setPending('crash', null);
+    if (this.active && !this.cashed && this.betRound === r.id) // la perte est enregistrée par le serveur
       toast(`Crash à ${fmtX(r.point)} : mise de ${money(this.bet)} perdue.`, 'error');
-    }
     this.active = false;
     this.history.unshift({ id: r.id, point: r.point, seed: r.seed, hash: r.hash });
     this.history.length = Math.min(this.history.length, 14);
@@ -2694,15 +2545,11 @@ const Crash = {
     this.updateButton();
   },
   onCashed(d) {
-    if (!this.active || this.cashed || !d || d.roundId !== this.betRound) return;
+    if (!d) return;
+    if (d.st) Srv.apply(d.st);
+    if (!this.active || this.cashed || d.roundId !== this.betRound) return;
     this.cashed = true; this.active = false;
-    const mult = Number(d.mult), pay = r2(d.payout);
-    if (mult > S.bestCrash) S.bestCrash = mult;
-    const got = settle('Aviateur', this.bet, pay, mult);
-    if (mult >= 2) Goals.bump('crash2', 1);
-    if (mult >= 5) Goals.bump('crash5', 1);
-    setPending('crash', null);
-    toast(`Encaissé à ${fmtX(mult)} : ${money(got)}.`, 'success');
+    toast(`Encaissé à ${fmtX(Number(d.mult))} : ${money(d.payout)}.`, 'success');
     this.updateButton();
   },
   onBets(list) {
@@ -2714,35 +2561,16 @@ const Crash = {
   },
   onDisconnect() {
     this.phase = 'offline';
-    this.active = false; // la mise reste enregistrée (S.pending) et sera resynchronisée
+    this.active = false; // la mise reste sur le serveur : elle sera réaffichée à la reconnexion
     this.updateButton();
   },
-
-  /* Reprise d'une mise après rechargement ou coupure réseau */
-  async resume() {
-    const p = S.pending.crash;
-    if (!p || !user || this.resuming || !Net.ready()) return;
-    this.resuming = true;
-    const r = await Net.request('crash_result', { roundId: p.roundId });
-    this.resuming = false;
-    if (r.ok === false) return; // serveur muet : on réessaiera à la prochaine connexion
-    if (r.status === 'cashed') {
-      if (r.mult > S.bestCrash) S.bestCrash = r.mult;
-      const got = settle('Aviateur', p.bet, r2(r.payout), r.mult);
-      setPending('crash', null);
-      toast(`Votre mise Aviateur a été encaissée à ${fmtX(r.mult)} : ${money(got)}.`, 'success');
-    } else if (r.status === 'lost') {
-      settle('Aviateur', p.bet, 0, r.point || 0);
-      setPending('crash', null);
-      toast(`Votre mise Aviateur a été perdue (crash à ${fmtX(r.point || 1)}).`, 'error');
-    } else if (r.status === 'active') {
-      this.bet = p.bet; this.betRound = p.roundId; this.auto = r.auto || 0;
-      this.active = true; this.cashed = false;
+  /* Mise en cours renvoyée par le serveur à l'ouverture de la session */
+  restore(live) {
+    const c = live && live.crash;
+    this.active = !!(c && c.cashedAt == null && c.roundId === this.id); this.cashed = false;
+    if (this.active) {
+      this.bet = c.amount; this.betRound = c.roundId; this.auto = c.auto || 0;
       if (this.auto) $('#crash-auto').value = this.auto.toFixed(2);
-    } else {
-      Wallet.credit(p.bet);
-      setPending('crash', null);
-      toast('Manche introuvable sur le serveur (redémarrage) : mise remboursée.', 'info');
     }
     this.updateButton();
   },
@@ -2761,29 +2589,20 @@ const Crash = {
     }
     if (this.phase === 'betting' && this.active) {
       this.busy = true; this.updateButton();
-      const res = await Net.request('crash_cancel', {});
+      const res = await Srv.act('crash_cancel');
       this.busy = false;
-      if (res.ok && this.active) {
-        this.active = false;
-        Wallet.credit(this.bet);
-        setPending('crash', null);
-        toast('Mise annulée et remboursée.', 'info');
-      } else if (!res.ok) toast(res.msg || 'Annulation refusée.', 'error');
+      if (res) { this.active = false; toast('Mise annulée et remboursée.', 'info'); }
       return this.updateButton();
     }
     if (this.phase !== 'betting' || this.active) return;
-    if (S.pending.crash) return toast('Récupération de votre mise précédente en cours…', 'info');
     const b = readBet('crash');
     if (b == null) return;
     this.busy = true; this.updateButton();
-    Net.pushBalanceNow();
-    const res = await Net.request('crash_bet', { amount: b, auto: this.autoTarget() });
+    const res = await Srv.act('crash_bet', { amount: b, auto: this.autoTarget() });
     this.busy = false;
-    if (!res.ok) { toast(res.msg || 'Mise refusée.', 'error'); return this.updateButton(); }
-    if (!Wallet.debit(b)) { Net.request('crash_cancel', {}); return this.updateButton(); }
+    if (!res) return this.updateButton();
     this.bet = b; this.betRound = res.roundId; this.auto = res.auto || 0;
     this.active = true; this.cashed = false;
-    setPending('crash', { bet: b, roundId: res.roundId });
     this.updateButton();
   },
 
@@ -2976,56 +2795,51 @@ const Mines = {
     lockBet('mines', on);
     $('#mines-start').disabled = on;
   },
-  start() {
-    if (this.active) return;
+  async start() { // les mines sont placées par le serveur : le navigateur ne les connaît qu'à la fin
+    if (this.active || this.busy) return;
     const bet = readBet('mines');
-    if (bet == null || !Wallet.debit(bet)) return;
-    this.bet = bet;
-    this.bombs = Number($('#mines-count').value);
-    const order = RNG.shuffle([...Array(25).keys()]);
-    this.mineSet = new Set(order.slice(0, this.bombs));
-    this.open = new Set(); this.found = 0; this.active = true;
-    setPending('mines', { bet, bombs: this.bombs, found: 0 });
+    if (bet == null) return;
+    const bombs = Number($('#mines-count').value);
+    this.busy = true;
+    const res = await Srv.act('mines_start', { amount: bet, bombs });
+    this.busy = false;
+    if (!res) return;
+    this.bet = bet; this.bombs = bombs;
+    this.mineSet = new Set(); this.open = new Set(); this.found = 0; this.active = true;
     $$('.tile', $('#mines-grid')).forEach(t => { t.className = 'tile'; t.innerHTML = ''; t.disabled = false; });
     this.lock(true);
     this.preview();
   },
-  pick(i) {
-    if (!this.active || this.open.has(i)) return;
+  async pick(i) {
+    if (!this.active || this.busy || this.open.has(i)) return;
+    this.busy = true;
+    const res = await Srv.act('mines_pick', { i });
+    this.busy = false;
+    if (!res) return;
     this.open.add(i);
     const tile = $('#mines-grid').children[i];
-    if (this.mineSet.has(i)) {
+    if (res.bomb) {
       tile.className = 'tile bomb'; tile.innerHTML = MINE_SVG;
-      this.finish(false);
-      return;
+      toast(`Mine touchée : mise de ${money(this.bet)} perdue.`, 'error');
+      return this.finish(res.mines);
     }
     tile.className = 'tile gem'; tile.innerHTML = GEM_SVG; tile.disabled = true;
     this.found++;
-    if (this.bet >= GOAL_MIN_BET) {
-      if (this.bombs >= 3 && this.found > S.c.minesRun) S.c.minesRun = this.found;
-      Goals.bump('gems', 1);
-    }
-    S.pending.mines = { bet: this.bet, bombs: this.bombs, found: this.found };
-    saveNow();
+    if (res.cashed) { toast(`Tous les diamants trouvés ! Encaissé à ${fmtX(res.m)} : ${money(res.got)}.`, 'success'); return this.finish(res.mines); }
     this.preview();
-    if (this.found === 25 - this.bombs) this.cashout();
   },
-  cashout() {
-    if (!this.active || this.found === 0) return;
-    const m = this.mult(this.bombs, this.found), pay = r2(this.bet * m);
-    const got = settle('Mines', this.bet, pay, m);
-    Goals.bump('mineswins', 1);
-    if (this.found === 25 - this.bombs && this.bombs >= 3 && this.bet >= GOAL_MIN_BET) S.c.minesClear++;
-    toast(`Encaissé à ${fmtX(m)} : ${money(got)}.`, 'success');
-    this.finish(true);
+  async cashout() {
+    if (!this.active || this.busy || this.found === 0) return;
+    this.busy = true;
+    const res = await Srv.act('mines_cash');
+    this.busy = false;
+    if (!res) return;
+    toast(`Encaissé à ${fmtX(res.m)} : ${money(res.got)}.`, 'success');
+    this.finish(res.mines);
   },
-  finish(won) {
+  finish(mines) {
     this.active = false;
-    if (!won) {
-      settle('Mines', this.bet, 0, 0);
-      toast(`Mine touchée : mise de ${money(this.bet)} perdue.`, 'error');
-    }
-    setPending('mines', null);
+    this.mineSet = new Set(mines || []);
     $$('.tile', $('#mines-grid')).forEach((t, i) => {
       t.disabled = true;
       if (this.open.has(i)) return;
@@ -3035,6 +2849,11 @@ const Mines = {
     this.lock(false);
     this.found = 0;
     this.preview();
+  },
+  reset() { // session rouverte : la partie a été réglée par le serveur
+    this.active = false; this.found = 0;
+    $$('.tile', $('#mines-grid')).forEach(t => { t.className = 'tile'; t.innerHTML = ''; t.disabled = true; });
+    this.lock(false); this.preview();
   }
 };
 
@@ -3045,23 +2864,14 @@ const SUITS = ['♠', '♥', '♦', '♣'];
 const SUIT_NAME = { '♠': 'de pique', '♥': 'de cœur', '♦': 'de carreau', '♣': 'de trèfle' };
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 const BJ = {
-  shoe: [], cut: 0, player: [], dealer: [], bet: 0, active: false, shownP: 0, shownD: 0, holeWasHidden: false,
+  player: [], dealer: [], bet: 0, active: false, busy: false, shownP: 0, shownD: 0, holeWasHidden: false,
   init() {
     $('#bj-deal').addEventListener('click', () => this.deal());
-    $('#bj-hit').addEventListener('click', () => this.hit());
-    $('#bj-stand').addEventListener('click', () => this.stand());
-    $('#bj-double').addEventListener('click', () => this.double());
-    this.newShoe(true);
+    $('#bj-hit').addEventListener('click', () => this.act('bj_hit'));
+    $('#bj-stand').addEventListener('click', () => this.act('bj_stand'));
+    $('#bj-double').addEventListener('click', () => this.act('bj_double'));
     this.render();
   },
-  newShoe(silent) {
-    const s = [];
-    for (let d = 0; d < 6; d++) for (const su of SUITS) for (const r of RANKS) s.push({ r, s: su });
-    this.shoe = RNG.shuffle(s);
-    this.cut = 52 + RNG.int(27); // on remélange quand il reste entre 52 et 78 cartes
-    if (!silent) toast('Nouveau sabot mélangé.', 'info');
-  },
-  draw() { if (!this.shoe.length) this.newShoe(); return this.shoe.pop(); },
   cardVal(c) { return c.r === 'A' ? 1 : (c.r === 'J' || c.r === 'Q' || c.r === 'K') ? 10 : Number(c.r); },
   total(hand) {
     let t = 0, aces = 0;
@@ -3070,71 +2880,53 @@ const BJ = {
     return { t: soft ? t + 10 : t, soft };
   },
   isBJ(hand) { return hand.length === 2 && this.total(hand).t === 21; },
-  deal() {
-    if (this.active || performance.now() < (this.cooldown || 0)) return; // évite qu'un double clic relance une main
+  /* Le sabot est mélangé et distribué par le serveur ; la carte cachée du croupier n'arrive qu'à la fin */
+  show(res) {
+    this.player = res.player; this.dealer = res.done ? res.dealer : [res.dealer[0]];
+    this.bet = res.bet; this.active = !res.done;
+    if (res.done) this.finish(res); else { this.msg('Tirer, rester ou doubler ?', ''); this.render(); }
+  },
+  async deal() {
+    if (this.active || this.busy || performance.now() < (this.cooldown || 0)) return; // évite qu'un double clic relance une main
     const bet = readBet('blackjack');
     if (bet == null) return;
-    if (this.shoe.length < this.cut) this.newShoe();
-    if (!Wallet.debit(bet)) return;
-    this.bet = bet; this.active = true;
-    this.player = []; this.dealer = []; this.shownP = 0; this.shownD = 0;
-    this.player.push(this.draw()); this.dealer.push(this.draw());
-    this.player.push(this.draw()); this.dealer.push(this.draw());
-    setPending('bj', { bet });
-    Net.emit('place_bet', { game: 'Blackjack', amount: bet, win: false, payout: 0 });
-    const up = this.cardVal(this.dealer[0]);
-    if (this.isBJ(this.player) || ((up === 1 || up === 10) && this.isBJ(this.dealer))) {
-      this.cooldown = performance.now() + 700; // main finie d'entrée : un double clic ne doit pas en relancer une
-      return this.finish();
-    }
-    this.msg('Tirer, rester ou doubler ?', '');
-    this.render();
+    this.busy = true;
+    const res = await Srv.act('bj_deal', { amount: bet });
+    this.busy = false;
+    if (!res) return;
+    this.shownP = 0; this.shownD = 0;
+    if (res.done) this.cooldown = performance.now() + 700; // main finie d'entrée
+    this.show(res);
   },
-  hit() {
-    if (!this.active) return;
-    this.player.push(this.draw());
-    const t = this.total(this.player).t;
-    if (t > 21) return this.finish();
-    if (t === 21) return this.stand();
-    this.render();
+  async act(ev) {
+    if (!this.active || this.busy) return;
+    if (ev === 'bj_double' && this.player.length !== 2) return;
+    if (ev === 'bj_double' && !Wallet.canPay(this.bet)) return toast(`Solde insuffisant pour doubler : il faut ${money(this.bet)}.`, 'error');
+    this.busy = true; this.render();
+    const res = await Srv.act(ev);
+    this.busy = false;
+    if (!res) return this.render();
+    this.show(res);
   },
-  double() {
-    if (!this.active || this.player.length !== 2) return;
-    if (!Wallet.canPay(this.bet)) return toast(`Solde insuffisant pour doubler : il faut ${money(this.bet)}.`, 'error');
-    Wallet.debit(this.bet);
-    this.bet = r2(this.bet * 2);
-    setPending('bj', { bet: this.bet });
-    this.player.push(this.draw());
-    if (this.total(this.player).t > 21) return this.finish();
-    this.stand();
-  },
-  stand() {
-    if (!this.active) return;
-    while (this.total(this.dealer).t < 17) this.dealer.push(this.draw());
-    this.finish();
-  },
-  finish() {
+  finish(res) {
     this.active = false;
     const p = this.total(this.player).t, d = this.total(this.dealer).t;
-    const pBJ = this.isBJ(this.player), dBJ = this.isBJ(this.dealer), b = this.bet;
-    let pay = 0, text;
-    if (pBJ && dBJ) { pay = b; text = 'Deux blackjacks : égalité, mise rendue.'; }
-    else if (pBJ) { pay = r2(b * 2.5); text = 'Blackjack : vous gagnez {G}.'; }
-    else if (dBJ) { text = 'Blackjack du croupier.'; }
-    else if (p > 21) { text = `Vous dépassez 21 avec ${p}.`; }
-    else if (d > 21) { pay = r2(b * 2); text = 'Le croupier dépasse 21 : vous gagnez {G}.'; }
-    else if (p > d) { pay = r2(b * 2); text = `${p} contre ${d} : vous gagnez {G}.`; }
-    else if (p === d) { pay = b; text = `${p} partout : égalité, mise rendue.`; }
-    else { text = `${d} contre ${p} : le croupier gagne.`; }
-    const got = settle('Blackjack', b, pay, pay ? r2(pay / b) : 0);
-    text = text.replace('{G}', money(r2(got - b)));
-    setPending('bj', null);
+    const pBJ = this.isBJ(this.player), dBJ = this.isBJ(this.dealer), b = this.bet, pay = res.pay;
+    let text;
+    if (pBJ && dBJ) text = 'Deux blackjacks : égalité, mise rendue.';
+    else if (pBJ) text = 'Blackjack : vous gagnez {G}.';
+    else if (dBJ) text = 'Blackjack du croupier.';
+    else if (p > 21) text = `Vous dépassez 21 avec ${p}.`;
+    else if (d > 21) text = 'Le croupier dépasse 21 : vous gagnez {G}.';
+    else if (p > d) text = `${p} contre ${d} : vous gagnez {G}.`;
+    else if (p === d) text = `${p} partout : égalité, mise rendue.`;
+    else text = `${d} contre ${p} : le croupier gagne.`;
+    text = text.replace('{G}', money(r2(res.got - b)));
     this.msg(text, pay > b ? 'win' : pay === b ? 'push' : 'lose');
     this.render();
-    if (pBJ) { S.c.blackjacks++; Goals.bump('bjs', 1); }
-    if (pay > b) Goals.bump('bjwins', 1);
     if (pBJ && !dBJ) celebrate();
   },
+  reset() { this.active = false; this.player = []; this.dealer = []; this.msg('Placez votre mise pour recevoir vos cartes.', ''); this.render(); },
   msg(text, kind) { const m = $('#bj-msg'); m.textContent = text; m.dataset.kind = kind; },
   cardHTML(c, hidden, cls) {
     if (hidden) return `<div class="card back ${cls}" aria-label="Carte cachée"></div>`;
@@ -3156,47 +2948,51 @@ const BJ = {
     $('#bj-dtotal').textContent = !this.dealer.length ? '' : hideHole ? String(this.total([this.dealer[0]]).t) : String(this.total(this.dealer).t);
     $('#bj-pname').textContent = user || 'Vous';
 
-    $('#bj-deal').disabled = this.active;
-    $('#bj-hit').disabled = !this.active;
-    $('#bj-stand').disabled = !this.active;
-    $('#bj-double').disabled = !this.active || this.player.length !== 2;
+    $('#bj-deal').disabled = this.active || this.busy;
+    $('#bj-hit').disabled = !this.active || this.busy;
+    $('#bj-stand').disabled = !this.active || this.busy;
+    $('#bj-double').disabled = !this.active || this.busy || this.player.length !== 2;
     lockBet('blackjack', this.active);
-    $('#bj-shoe').textContent = `Sabot : ${this.shoe.length} cartes restantes.`;
+    $('#bj-shoe').textContent = `Sabot : ${S.bjShoeLeft != null ? S.bjShoeLeft : 312} cartes restantes.`;
   }
 };
 
 /* =====================================================================
    PILE OU FACE
    ===================================================================== */
+/* Mise d'un jeu instantané : retirée tout de suite de l'affichage, résultat tiré par le serveur,
+   progression appliquée à la fin de l'animation (Srv.release). */
+async function playInstant(ev, data, bet) {
+  Wallet.show(-bet);
+  const res = await Srv.act(ev, { ...data, amount: bet }, { hold: true });
+  if (!res) Wallet.show(bet);
+  return res;
+}
 const Coin = {
   busy: false, angle: 0, recent: [],
   init() { $$('[data-side]').forEach(b => b.addEventListener('click', () => this.play(b.dataset.side))); },
   lock(on) { $$('[data-side]').forEach(b => { b.disabled = on; }); lockBet('pile-face', on); },
-  play(side) {
+  async play(side) {
     if (this.busy) return;
     const bet = readBet('pile-face');
-    if (bet == null || !Wallet.debit(bet)) return;
+    if (bet == null) return;
     this.busy = true; this.lock(true);
-    const res = RNG.int(2) === 0 ? 'pile' : 'face';
-    const win = res === side, pay = win ? r2(bet * COIN_PAYOUT) : 0;
-    setPending('instant', { game: 'Pile ou face', bet, payout: pay, mult: win ? COIN_PAYOUT : 0 });
-    Net.emit('place_bet', { game: 'Pile ou face', amount: bet, win: false, payout: 0 });
+    const r = await playInstant('coin_play', { side }, bet);
+    if (!r) { this.busy = false; this.lock(false); return; }
+    const res = r.res, win = r.win;
     const out = $('#coin-result'); out.dataset.kind = ''; out.textContent = '';
     this.angle = Math.ceil((this.angle + 1) / 360) * 360 + 1440 + (res === 'face' ? 180 : 0);
     const dur = FAST() ? 260 : 1400;
     $('#coin').style.transitionDuration = `${dur - 50}ms`;
     $('#coin').style.transform = `rotateY(${this.angle}deg)`;
     setTimeout(() => {
-      S.c.coinStreak = win ? S.c.coinStreak + 1 : 0;
-      if (S.c.coinStreak > S.c.coinBest) S.c.coinBest = S.c.coinStreak;
-      const got = settle('Pile ou face', bet, pay, win ? COIN_PAYOUT : 0);
-      if (win) Goals.bump('coinwins', 1);
-      setPending('instant', null);
+      Srv.release(r.st);
       const label = res === 'pile' ? 'Pile' : 'Face';
       out.dataset.kind = win ? 'win' : 'lose';
-      out.textContent = win ? `${label} : vous gagnez ${money(got - bet)}.` : `${label} : mise perdue.`;
+      out.textContent = win ? `${label} : vous gagnez ${money(r.got - bet)}.` : `${label} : mise perdue.`;
+      if (win && r.got - bet > 0 && COIN_PAYOUT >= 5) celebrate();
       this.recent.unshift(res); this.recent.length = Math.min(this.recent.length, 16);
-      $('#coin-recent').innerHTML = this.recent.map(r => `<i class="${r}">${r === 'pile' ? 'P' : 'F'}</i>`).join('');
+      $('#coin-recent').innerHTML = this.recent.map(x => `<i class="${x}">${x === 'pile' ? 'P' : 'F'}</i>`).join('');
       this.busy = false; this.lock(false);
     }, dur);
   }
@@ -3208,18 +3004,13 @@ const PLINKO_TABLES = {"8": {"faible": [7.24, 2.53, 1.2, 0.76, 0.66, 0.76, 1.2, 
    Tous les tirages passent par RNG (aléatoire cryptographique).
    ===================================================================== */
 const ALL_GAMES = ['Aviateur', 'Machine à sous', 'Course', 'Plinko', 'Mines', 'Blackjack', 'Hilo', 'Roue de la fortune', 'Pile ou face'];
-function instantPending(game, bet, payout, mult) {
-  const id = 'i_' + Date.now().toString(36) + RNG.int(1e6).toString(36);
-  setPending(id, { game, bet, payout, mult });
-  return id;
-}
 function setResult(el, text, kind) { el.textContent = text; el.dataset.kind = kind || ''; }
 function pushRecent(arr, item, max = 16) { arr.unshift(item); if (arr.length > max) arr.length = max; }
 const counts = bet => bet >= GOAL_MIN_BET;
 
 /* ---------- Plinko ---------- */
 const Plinko = {
-  balls: [], hits: {}, recent: [], canvas: null, ctx: null, w: 0, h: 0, raf: 0,
+  balls: [], sending: 0, hits: {}, recent: [], canvas: null, ctx: null, w: 0, h: 0, raf: 0,
   rowMs() { return FAST() ? 60 : 430; }, // durée de chute par rangée, en millisecondes
   init() {
     this.canvas = $('#plinko-canvas');
@@ -3234,24 +3025,26 @@ const Plinko = {
   risk() { return $('#plinko-risk').value; },
   table() { return PLINKO_TABLES[this.rows()][this.risk()]; },
   lock() { const on = this.balls.length > 0; $('#plinko-rows').disabled = on; $('#plinko-risk').disabled = on; },
-  drop() {
-    if (this.balls.length >= 15) { toast('Attendez que quelques billes arrivent.', 'error'); return false; }
+  async drop() { // le chemin de la bille est tiré par le serveur ; le navigateur ne fait que l'animer
+    if (this.balls.length + this.sending >= 15) { toast('Attendez que quelques billes arrivent.', 'error'); return false; }
     const bet = readBet('plinko');
-    if (bet == null || !Wallet.debit(bet)) return false;
-    const n = this.rows(), t = this.table(), path = [];
-    let k = 0;
-    for (let i = 0; i < n; i++) { const right = RNG.int(2); path.push(right); k += right; }
-    const m = t[k], pay = r2(bet * m);
-    const pid = instantPending('Plinko', bet, pay, m);
-    Net.emit('place_bet', { game: 'Plinko', amount: bet, win: false, payout: 0 });
-    this.balls.push({ path, k, n, bet, pay, m, pid, risk: this.risk(), ms: this.rowMs(), start: performance.now() });
+    if (bet == null) return false;
+    const risk = this.risk(), rows = this.rows();
+    this.sending++; this.lockAll(true);
+    const r = await playInstant('plinko_drop', { rows, risk }, bet);
+    this.sending--; this.lockAll(false);
+    if (!r) return false;
+    this.balls.push({ path: r.path, k: r.k, n: r.path.length, bet, got: r.got, m: r.m, st: r.st, risk, ms: this.rowMs(), start: performance.now() });
     this.lock();
     this.loop();
     return true;
   },
+  lockAll(on) { // les réglages restent bloqués pendant l'envoi d'une bille
+    if (on || !this.sending) { $('#plinko-rows').disabled = on || this.balls.length > 0; $('#plinko-risk').disabled = on || this.balls.length > 0; }
+  },
   dropMany(c) {
     let i = 0;
-    const next = () => { if (i++ < c && this.drop() !== false) setTimeout(next, FAST() ? 110 : 650); };
+    const next = async () => { if (i++ < c && await this.drop() !== false) setTimeout(next, FAST() ? 110 : 650); };
     next();
   },
   resize() {
@@ -3286,17 +3079,10 @@ const Plinko = {
     this.lock(); // après le retrait des billes arrivées
   },
   land(b) {
-    if ((b.k === 0 || b.k === b.n) && counts(b.bet)) S.c.plinkoEdge++;
-    if (counts(b.bet)) Goals.bump('plinko', 1);
-    const got = settle('Plinko', b.bet, b.pay, b.m);
-    setPending(b.pid, null);
-    if (got > b.bet) { // toutes les billes qui rapportent plus que leur mise
-      const rec = { m: b.m, rows: b.n, risk: b.risk, bet: b.bet, win: r2(got - b.bet), t: Date.now() };
-      S.plinkoBig.unshift(rec);
-      S.plinkoBig.length = Math.min(S.plinkoBig.length, 30);
-      scheduleSave();
-      this.renderBig();
-    }
+    Srv.release(b.st); // gain, objectifs et billes gagnantes calculés par le serveur
+    const got = b.got;
+    if (got > b.bet) this.renderBig();
+    if (b.m >= 5 && got > b.bet) celebrate();
     this.hits[b.k] = performance.now();
     pushRecent(this.recent, { m: b.m, win: got > b.bet });
     $('#plinko-recent').innerHTML = this.recent.map(x => `<span class="hchip${x.m >= 10 ? ' moon' : x.win ? ' hi' : ''}">${fmtX(x.m)}</span>`).join('');
@@ -3354,75 +3140,74 @@ const Plinko = {
 /* ---------- Hilo ---------- */
 const HILO_LABEL = { 1: 'A', 11: 'J', 12: 'Q', 13: 'K' };
 const Hilo = {
-  active: false, bet: 0, mult: 1, card: null, hist: [], streak: 0,
+  active: false, busy: false, bet: 0, mult: 1, card: null, hist: [], streak: 0,
   init() {
-    this.card = this.draw();
+    this.card = { r: 7, s: '♠' };
     $('#hilo-start').addEventListener('click', () => this.start());
     $('#hilo-high').addEventListener('click', () => this.guess('high'));
     $('#hilo-low').addEventListener('click', () => this.guess('low'));
     $('#hilo-cash').addEventListener('click', () => this.cashout());
     this.render();
   },
-  draw() { return { r: RNG.int(13) + 1, s: SUITS[RNG.int(4)] }; },
   pHigh(r) { return (13 - r) / 13; },
   pLow(r) { return (r - 1) / 13; },
   step(p) { return p > 0 ? Math.floor((0.99 / p) * 10000) / 10000 : 0; },
-  start() {
-    if (this.active) return;
+  /* Les cartes sont tirées par le serveur (la carte affichée avant la partie aussi) */
+  async start() {
+    if (this.active || this.busy) return;
     const bet = readBet('hilo');
-    if (bet == null || !Wallet.debit(bet)) return;
+    if (bet == null) return;
+    this.busy = true;
+    const res = await Srv.act('hilo_start', { amount: bet });
+    this.busy = false;
+    if (!res) return;
     this.bet = bet; this.mult = 1; this.streak = 0; this.active = true;
-    this.hist = [this.card];
-    setPending('hilo', { bet, mult: 1 });
-    Net.emit('place_bet', { game: 'Hilo', amount: bet, win: false, payout: 0 });
+    this.card = res.card; this.hist = [res.card];
     setResult($('#hilo-msg'), 'Plus haut ou plus bas ?', '');
     this.render();
   },
-  guess(dir) {
-    if (!this.active) return;
+  async guess(dir) {
+    if (!this.active || this.busy) return;
     const r = this.card.r, p = dir === 'high' ? this.pHigh(r) : this.pLow(r);
     if (p <= 0) return;
-    const next = this.draw(), ok = dir === 'high' ? next.r > r : next.r < r;
-    this.card = next; this.hist.push(next);
-    if (!ok) return this.finish(false);
-    this.mult *= this.step(p); this.streak++;
-    if (counts(this.bet)) Goals.bump('hilo', 1);
-    S.pending.hilo = { bet: this.bet, mult: this.mult };
-    saveNow();
+    this.busy = true; this.render();
+    const res = await Srv.act('hilo_guess', { dir });
+    this.busy = false;
+    if (!res) return this.render();
+    this.card = res.card; this.hist.push(res.card);
+    if (!res.ok || !res.streak) return this.finish(false);
+    this.mult = res.mult; this.streak = res.streak;
     setResult($('#hilo-msg'), `Bien vu : ${this.streak} bonne${this.streak > 1 ? 's' : ''} réponse${this.streak > 1 ? 's' : ''} de suite.`, 'win');
     this.render();
   },
-  record() { if (counts(this.bet) && this.streak > S.c.hiloBest) S.c.hiloBest = this.streak; },
-  cashout() {
-    if (!this.active || this.streak === 0) return;
-    const m = floor2(this.mult), pay = r2(this.bet * m);
-    this.record();
-    const got = settle('Hilo', this.bet, pay, m);
-    setResult($('#hilo-msg'), `Encaissé à ${fmtX(m)} : ${money(got)}.`, 'win');
+  async cashout() {
+    if (!this.active || this.busy || this.streak === 0) return;
+    this.busy = true;
+    const res = await Srv.act('hilo_cash');
+    this.busy = false;
+    if (!res) return;
+    setResult($('#hilo-msg'), `Encaissé à ${fmtX(res.m)} : ${money(res.got)}.`, 'win');
     this.finish(true);
   },
   finish(won) {
     this.active = false;
-    if (!won) {
-      this.record();
-      settle('Hilo', this.bet, 0, 0);
-      setResult($('#hilo-msg'), `Raté : mise de ${money(this.bet)} perdue.`, 'lose');
-    }
-    setPending('hilo', null);
+    if (!won) setResult($('#hilo-msg'), `Raté : mise de ${money(this.bet)} perdue.`, 'lose');
     this.render();
   },
+  reset() { this.active = false; this.streak = 0; this.mult = 1; setResult($('#hilo-msg'), 'Misez puis commencez la partie.', ''); this.render(); },
   cardHTML(c, cls = '') {
     const red = c.s === '♥' || c.s === '♦', lab = HILO_LABEL[c.r] || String(c.r);
     return `<div class="card ${cls}${red ? ' red' : ''}"><span class="c-rank">${lab}</span><span class="c-pip">${c.s}</span><span class="c-suit">${c.s}</span></div>`;
   },
   render() {
+    if (!this.active && S.hiloCard) this.card = S.hiloCard;
     const c = this.card, ph = this.pHigh(c.r), pl = this.pLow(c.r);
     $('#hilo-card').innerHTML = this.cardHTML(c, 'big deal');
     const hb = $('#hilo-high'), lb = $('#hilo-low');
     hb.innerHTML = `Plus haut <small>${ph > 0 ? `${Math.round(ph * 100)} % de chance, ${fmtX(this.step(ph))}` : 'impossible'}</small>`;
     lb.innerHTML = `Plus bas <small>${pl > 0 ? `${Math.round(pl * 100)} % de chance, ${fmtX(this.step(pl))}` : 'impossible'}</small>`;
-    hb.disabled = !this.active || ph <= 0;
-    lb.disabled = !this.active || pl <= 0;
+    hb.disabled = !this.active || this.busy || ph <= 0;
+    lb.disabled = !this.active || this.busy || pl <= 0;
     $('#hilo-mult').textContent = fmtX(floor2(this.mult));
     $('#hilo-gain').textContent = this.active && this.streak ? money(r2(this.bet * floor2(this.mult))) : '—';
     $('#hilo-start').disabled = this.active;
@@ -3488,16 +3273,15 @@ const Slots = {
     });
     return wins;
   },
-  spin() {
+  async spin() {
     if (this.busy) return;
     const bet = readBet('slots');
-    if (bet == null || !Wallet.debit(bet)) return;
-    const L = SLOT_STRIP.length, stops = [0, 1, 2].map(() => RNG.int(L));
-    const wins = this.evaluate(stops), lineBet = bet / SLOT_LINES.length;
-    const total = wins.reduce((s, w) => s + w.m, 0), pay = r2(lineBet * total), m = r2(total / SLOT_LINES.length);
-    const pid = instantPending('Machine à sous', bet, pay, m);
-    Net.emit('place_bet', { game: 'Machine à sous', amount: bet, win: false, payout: 0 });
+    if (bet == null) return;
     this.busy = true; lockBet('slots', true); $('#slot-spin').disabled = true;
+    const r = await playInstant('slots_spin', {}, bet); // position des rouleaux tirée par le serveur
+    if (!r) { this.busy = false; lockBet('slots', false); $('#slot-spin').disabled = false; return; }
+    const L = SLOT_STRIP.length, stops = r.stops;
+    const wins = this.evaluate(stops), lineBet = bet / SLOT_LINES.length, pay = r.pay, got = r.got;
     $$('#slot-reels .sym.win').forEach(e => e.classList.remove('win'));
     setResult($('#slot-msg'), 'Les rouleaux tournent…', '');
     const base = FAST() ? 220 : 1300, gap = FAST() ? 80 : 550;
@@ -3513,11 +3297,9 @@ const Slots = {
         const cell = $(`#reel-${reel} .sym[data-i="${stops[reel] + SLOT_LINES[w.li][reel]}"]`);
         if (cell) cell.classList.add('win');
       }));
-      if (wins.some(w => w.sym === 'sept' && w.cells.length === 3) && counts(bet)) S.c.slot7++;
-      if (counts(bet)) Goals.bump('slots', 1);
-      const got = settle('Machine à sous', bet, pay, m);
-      setPending(pid, null);
+      Srv.release(r.st);
       const msg = $('#slot-msg'), net = r2(got - bet);
+      if (net > 0 && pay / bet >= 5) celebrate();
       if (!wins.length) setResult(msg, `Aucune ligne gagnante : ${money(bet)} perdus.`, 'lose');
       else {
         const head = net > 0 ? `Vous gagnez ${money(net)}` : net === 0 ? 'Vous récupérez votre mise' : `Vous récupérez ${money(got)} sur ${money(bet)} misés`;
@@ -3568,35 +3350,26 @@ const Race = {
       ? list.slice(0, 30).map(b => `<li><span class="who">${esc(String(b.username).slice(0, 24))}</span><span class="g"><i class="hdot" style="background:${(HORSES[b.horse] || HORSES[0]).color}"></i>${esc((HORSES[b.horse] || HORSES[0]).name)}</span><span class="amt">${money(Number(b.amount) || 0)}</span></li>`).join('')
       : '<li class="empty">Aucun pari sur cette course.</li>';
   },
-  onDisconnect() { this.phase = 'offline'; this.myBet = null; this.renderCards(); this.renderButton(); }, // le pari reste dans S.pending
-  settleBet(b, winner) {
-    const won = b.horse === winner, pay = won ? r2(b.amount * b.odds) : 0;
-    if (won && b.odds >= 9 && counts(b.amount)) S.c.outsider++;
-    if (counts(b.amount)) Goals.bump('races', 1);
-    const got = settle('Course', b.amount, pay, won ? b.odds : 0);
-    setPending('race', null);
-    return got;
+  onDisconnect() { this.phase = 'offline'; this.myBet = null; this.renderCards(); this.renderButton(); }, // le pari reste sur le serveur
+  /* Résultat de mon pari, calculé et payé par le serveur à l'arrivée */
+  onMine(d) {
+    if (!d) return;
+    this.result = d;
+    if (this.phase === 'finished' && d.raceId === this.id) this.finishMine();
   },
   finishMine() {
     const w = HORSES[this.winner];
-    const b = this.myBet;
+    const b = this.myBet, r = this.result;
     if (!b || b.raceId !== this.id) return setResult($('#race-msg'), `${w.name} remporte la course.`, '');
-    this.myBet = null;
-    const got = this.settleBet(b, this.winner);
-    setResult($('#race-msg'), b.horse === this.winner ? `${w.name} l’emporte : vous gagnez ${money(r2(got - b.amount))}.` : `${w.name} l’emporte. ${HORSES[b.horse].name} n’a pas gagné : mise perdue.`, b.horse === this.winner ? 'win' : 'lose');
+    if (!r || r.raceId !== this.id) return; // le résultat arrive juste après
+    this.myBet = null; this.result = null;
+    Srv.apply(r.st);
+    setResult($('#race-msg'), r.won ? `${w.name} l’emporte : vous gagnez ${money(r2(r.payout - b.amount))}.` : `${w.name} l’emporte. ${HORSES[b.horse].name} n’a pas gagné : mise perdue.`, r.won ? 'win' : 'lose');
+    if (r.won && b.odds >= 5) celebrate();
   },
-  async resume() { // après un rechargement ou une coupure : que s'est-il passé pour mon pari ?
-    const p = S.pending.race;
-    if (!p || !user || this.resuming || !Net.ready()) return;
-    this.resuming = true;
-    const r = await Net.request('race_result', { raceId: p.raceId });
-    this.resuming = false;
-    if (r.ok === false) return;
-    if (r.status === 'active') this.myBet = { ...p };
-    else if (r.status === 'won' || r.status === 'lost') {
-      const got = this.settleBet(p, r.winner);
-      toast(r.status === 'won' ? `Votre cheval ${HORSES[p.horse].name} a gagné : ${money(got)}.` : `Votre pari sur ${HORSES[p.horse].name} est perdu.`, r.status === 'won' ? 'success' : 'error');
-    } else { Wallet.credit(p.amount); setPending('race', null); toast('Course introuvable sur le serveur (redémarrage) : pari remboursé.', 'info'); }
+  restore(live) { // pari en cours renvoyé par le serveur à l'ouverture de la session
+    const p = live && live.race;
+    this.myBet = p && p.raceId === this.id ? { ...p } : null;
     this.renderCards(); this.renderButton();
   },
   async action() {
@@ -3605,25 +3378,20 @@ const Race = {
     if (!Net.ready()) return toast('Course indisponible : connexion au serveur en cours.', 'error');
     if (this.phase === 'betting' && this.myBet) {
       this.busy = true; this.renderButton();
-      const res = await Net.request('race_cancel', {});
+      const res = await Srv.act('race_cancel');
       this.busy = false;
-      if (res.ok && this.myBet) { Wallet.credit(this.myBet.amount); this.myBet = null; setPending('race', null); toast('Pari annulé et remboursé.', 'info'); }
-      else if (!res.ok) toast(res.msg || 'Annulation refusée.', 'error');
+      if (res) { this.myBet = null; toast('Pari annulé et remboursé.', 'info'); }
       this.renderCards(); return this.renderButton();
     }
     if (this.phase !== 'betting' || this.myBet) return;
     if (this.pick == null) return toast('Choisissez d’abord un cheval.', 'error');
-    if (S.pending.race) return toast('Récupération de votre pari précédent…', 'info');
     const bet = readBet('course');
     if (bet == null) return;
     this.busy = true; this.renderButton();
-    Net.pushBalanceNow();
-    const res = await Net.request('race_bet', { horse: this.pick, amount: bet });
+    const res = await Srv.act('race_bet', { horse: this.pick, amount: bet });
     this.busy = false;
-    if (!res.ok) { toast(res.msg || 'Pari refusé.', 'error'); return this.renderButton(); }
-    if (!Wallet.debit(bet)) { Net.request('race_cancel', {}); return this.renderButton(); }
+    if (!res) return this.renderButton();
     this.myBet = { raceId: res.raceId, horse: res.horse, amount: bet, odds: res.odds };
-    setPending('race', this.myBet);
     this.renderCards(); this.renderButton();
   },
   renderCards() {
@@ -3727,23 +3495,23 @@ const WheelF = {
     buildWheel($('#wf-svg'), this.segs.map(m => ({ fill: WHEEL_COLORS[m], label: m ? String(m).replace('.', ',') : '', text: m >= 2 && m < 4 ? '#2B1F06' : '#fff' })), 7);
     $('#wf-legend').innerHTML = WHEEL_RISKS[risk].map(([m, c]) => `<span><i style="background:${WHEEL_COLORS[m]}"></i>${fmtX(m)} <small>${c} sur 30</small></span>`).join('');
   },
-  spin() {
+  async spin() {
     if (this.busy) return;
     const bet = readBet('roue-fortune');
-    if (bet == null || !Wallet.debit(bet)) return;
+    if (bet == null) return;
+    const unlock = () => { this.busy = false; lockBet('roue-fortune', false); $('#wf-spin').disabled = false; $('#wf-risk').disabled = false; };
     this.busy = true; lockBet('roue-fortune', true); $('#wf-spin').disabled = true; $('#wf-risk').disabled = true;
-    const i = RNG.int(30), m = this.segs[i], pay = r2(bet * m);
-    const pid = instantPending('Roue de la fortune', bet, pay, m);
-    Net.emit('place_bet', { game: 'Roue de la fortune', amount: bet, win: false, payout: 0 });
+    const r = await playInstant('wheel_spin', { risk: $('#wf-risk').value }, bet); // case tirée par le serveur
+    if (!r) return unlock();
+    const i = r.i, m = r.m, got = r.got;
     setResult($('#wf-msg'), 'La roue tourne…', '');
     const dur = FAST() ? 1100 : 7500;
     spinWheel($('#wf-svg'), this.state, i, 30, dur, FAST() ? 1 : 3);
     setTimeout(() => {
-      if (m >= 29 && counts(bet)) S.c.wheelTop++;
-      const got = settle('Roue de la fortune', bet, pay, m);
-      setPending(pid, null);
+      Srv.release(r.st);
+      if (m >= 5) celebrate();
       setResult($('#wf-msg'), m === 0 ? '×0 : mise perdue.' : got > bet ? `${fmtX(m)} : vous gagnez ${money(r2(got - bet))}.` : `${fmtX(m)} : vous récupérez ${money(got)}.`, m === 0 ? 'lose' : got > bet ? 'win' : 'push');
-      this.busy = false; lockBet('roue-fortune', false); $('#wf-spin').disabled = false; $('#wf-risk').disabled = false;
+      unlock();
     }, dur + 80);
   }
 };
@@ -3779,46 +3547,17 @@ const Loto = {
     if (this.mine() + n > this.state.max) return toast(`${this.state.max} tickets au maximum par tirage.`, 'error');
     if (!Wallet.canPay(cost)) return toast(`Il vous manque ${money(r2(cost - S.balance))}.`, 'error');
     this.busy = true; this.render();
-    Net.pushBalanceNow();
-    const res = await Net.request('loto_buy', { count: n });
+    const res = await Srv.act('loto_buy', { count: n });
     this.busy = false;
-    if (!res.ok) { toast(res.msg || 'Achat refusé.', 'error'); return this.render(); }
-    Wallet.debit(res.cost);
-    const cur = S.loto[res.drawId] || { n: 0, paid: 0 };
-    S.loto[res.drawId] = { n: res.total, paid: r2(cur.paid + res.cost) };
-    S.c.lotoTickets += n;
-    XP.add(XP_TICKET * n);
-    saveNow();
-    Goals.check();
+    if (!res) return this.render();
     toast(`${n} ticket${n > 1 ? 's' : ''} acheté${n > 1 ? 's' : ''} : vous en avez ${res.total} pour le tirage de ce soir.`, 'success');
     this.render();
   },
-  async claimAll() { // résultat des tirages passés auxquels j'ai participé
-    if (this.claiming || !user || !Net.ready()) return;
-    const ids = Object.keys(S.loto).filter(id => !this.state || id !== this.state.id);
-    if (!ids.length) return;
-    this.claiming = true;
-    for (const id of ids) {
-      const r = await Net.request('loto_result', { drawId: id });
-      if (r.ok === false || r.status === 'open') continue;
-      const t = S.loto[id];
-      delete S.loto[id];
-      if (r.status === 'drawn') {
-        if (r.win > 0) {
-          S.c.lotoWins++;
-          Wallet.credit(r.win);
-          toast(`Loto du ${lotoDay(id)} : vous gagnez ${money(r.win)}`, 'success');
-          celebrate();
-        } else toast(`Loto du ${lotoDay(id)} : pas de ticket gagnant cette fois.`, 'info');
-      } else if (r.status === 'unknown' && t) {
-        Wallet.credit(t.paid);
-        toast(`Le tirage du ${lotoDay(id)} a été perdu par le serveur : vos ${t.n} tickets sont remboursés.`, 'info');
-      }
-      saveNow();
-    }
-    this.claiming = false;
-    Goals.check();
-    this.render();
+  claimAll() {}, // les gains sont versés par le serveur au moment du tirage, même si vous êtes absent
+  onWin(d) {
+    if (!d) return;
+    toast(`Loto du ${lotoDay(d.id)} : vous gagnez ${money(d.win)}`, 'success');
+    celebrate();
   },
   chance() {
     const T = this.state ? this.state.tickets : 0, m = this.mine();
@@ -4169,7 +3908,6 @@ const LOGO_SVG = `<svg viewBox="0 0 40 40" aria-hidden="true">
 /* ---------- Duels entre joueurs (gérés par le serveur) ---------- */
 const Duel = {
   list: [], busy: false, anim: false, handled: new Set(),
-  pend() { return (S.pending.duels = S.pending.duels || {}); },
   init() {
     $('#duel-create').addEventListener('click', () => this.create());
     $('#view-duel').addEventListener('click', e => {
@@ -4182,14 +3920,11 @@ const Duel = {
   isMe(name) { return !!user && String(name).toLowerCase() === user.toLowerCase(); },
   onList(l) { this.list = Array.isArray(l) ? l.filter(d => d && d.id) : []; this.render(); this.renderLive(); },
   onInvite(d) { if (d) toast(`${d.from} vous défie en duel pour ${money(d.amount)}. Rendez-vous dans Duels pour relever le défi.`, 'info'); },
-  onClosed(d) { if (d) { this.refund(d.id, d.status); this.render(); } },
-  refund(id, status) {
-    const p = this.pend()[id];
-    if (!p) return;
-    delete this.pend()[id];
-    Wallet.credit(p.amount);
-    saveNow();
-    toast(status === 'expired' ? `Personne n’a relevé votre défi de ${money(p.amount)} : mise remboursée.` : `Défi annulé : ${money(p.amount)} remboursés.`, 'info');
+  onClosed(d) { // défi annulé ou expiré : le serveur a remboursé la mise
+    if (!d) return;
+    if (d.st) Srv.apply(d.st);
+    toast(d.status === 'expired' ? `Personne n’a relevé votre défi de ${money(d.amount)} : mise remboursée.` : `Défi annulé : ${money(d.amount)} remboursés.`, 'info');
+    this.render();
   },
   async create() {
     if (this.busy) return;
@@ -4198,13 +3933,9 @@ const Duel = {
     const amount = readBet('duel');
     if (amount == null) return;
     this.busy = true; this.render();
-    Net.pushBalanceNow();
-    const res = await Net.request('duel_create', { amount, target: $('#duel-target').value });
+    const res = await Srv.act('duel_create', { amount, target: $('#duel-target').value });
     this.busy = false;
-    if (!res.ok) { toast(res.msg || 'Défi refusé.', 'error'); return this.render(); }
-    Wallet.debit(res.amount);
-    this.pend()[res.id] = { amount: res.amount, role: 'creator' };
-    saveNow();
+    if (!res) return this.render();
     toast(`Défi lancé : ${money(res.amount)} en jeu. Votre mise est bloquée jusqu’à ce qu’un joueur l’accepte.`, 'success');
     this.render();
   },
@@ -4223,26 +3954,20 @@ const Duel = {
     if (!d) return toast('Ce duel n’est plus disponible.', 'error');
     if (!Wallet.canPay(d.amount)) return toast(`Il vous faut ${money(d.amount)} pour relever ce défi.`, 'error');
     this.busy = true; this.render();
-    Net.pushBalanceNow();
-    const res = await Net.request('duel_accept', { id });
+    Wallet.show(-d.amount);
+    const res = await Srv.act('duel_accept', { id }, { hold: true });
     this.busy = false;
-    if (!res.ok) { toast(res.msg || 'Impossible d’accepter ce duel.', 'error'); return this.render(); }
-    Wallet.debit(d.amount);
-    this.pend()[id] = { amount: d.amount, role: 'acceptor' };
-    saveNow();
-    this.apply(res, true);
+    if (!res) { Wallet.show(d.amount); return this.render(); }
+    this.apply(res, true, true);
   },
-  apply(r, animate) { // résultat d'un duel auquel je participe
+  apply(r, animate, held) { // résultat d'un duel auquel je participe (le serveur a déjà réglé les mises)
     if (!r || this.handled.has(r.id)) return;
-    const p = this.pend()[r.id];
-    if (!p) return;
     this.handled.add(r.id);
-    const won = this.isMe(r.winner);
+    if (!held) Srv.hold();
+    const won = this.isMe(r.winner), amount = r.amount;
     const finish = () => {
-      delete this.pend()[r.id];
-      if (won) S.c.duelWins++;
-      settle('Duel', p.amount, won ? r2(p.amount * 2) : 0, won ? 2 : 0, { raw: true }); // ni boost ni handicap : la mise de l'autre, rien de plus
-      setResult($('#duel-msg'), won ? `Vous battez ${r.loser} et remportez ${money(r2(p.amount * 2))}` : `${r.winner} remporte le duel : ${money(p.amount)} perdus.`, won ? 'win' : 'lose');
+      Srv.release(r.st);
+      setResult($('#duel-msg'), won ? `Vous battez ${r.loser} et remportez ${money(r2(amount * 2))}` : `${r.winner} remporte le duel : ${money(amount)} perdus.`, won ? 'win' : 'lose');
       if (won) celebrate();
       this.anim = false;
       this.render();
@@ -4253,7 +3978,7 @@ const Duel = {
     const A = $('#duel-a'), B = $('#duel-b');
     A.querySelector('.dl-name').textContent = r.a; B.querySelector('.dl-name').textContent = r.b;
     A.querySelector('.dl-av').textContent = r.a.charAt(0).toUpperCase(); B.querySelector('.dl-av').textContent = r.b.charAt(0).toUpperCase();
-    $$('.dl-amount').forEach(e => { e.textContent = money(p.amount); });
+    $$('.dl-amount').forEach(e => { e.textContent = money(amount); });
     [A, B].forEach(e => e.classList.remove('on', 'win', 'lose'));
     setResult($('#duel-msg'), 'Tirage au sort…', '');
     const winA = r.winner === r.a, total = FAST() ? 900 : 2600;
@@ -4269,18 +3994,7 @@ const Duel = {
     tick();
   },
   onResult(r) { this.apply(r, true); },
-  async resume() { // après un rechargement : que sont devenus mes duels ?
-    const ids = Object.keys(this.pend());
-    if (!ids.length || !user || !Net.ready()) return;
-    const res = await Net.request('duel_status', { ids });
-    if (!res.ok) return;
-    res.list.forEach(r => {
-      if (r.status === 'open') return;
-      if (r.status === 'done') this.apply(r, false);
-      else this.refund(r.id, r.status);
-    });
-    this.render();
-  },
+  resume() {}, // les duels sont entièrement gérés par le serveur
   renderLive() {
     const els = $$('[data-live="duel"]');
     if (!els.length) return;
@@ -4376,33 +4090,10 @@ const isWeekend = () => { const d = new Date().getDay(); return d === 0 || d ===
 const XP = {
   level(xp = S.xp) { let L = 1; while (L < MAX_LEVEL && xp >= xpForLevel(L + 1)) L++; return L; },
   pops: 0, popTimer: 0,
-  add(n) {
-    if (!user || !(n > 0)) return;
-    const before = this.level();
-    S.xp = (S.xp || 0) + n; // valeur exacte, arrondie seulement à l'affichage
-    this.pop(n);
-    const after = this.level();
-    if (after > before) {
-      const pl = Season.prestigeLevel();
-      toast(`Niveau ${after} atteint !${after >= pl && before < pl ? ' La piste Prestige du pass est débloquée.' : ''} Récupérez votre récompense dans le pass.`, 'success');
-      celebrate();
-    }
-    this.render(); Pass.badge();
-  },
-  today() { // XP des parties gagnée aujourd'hui (pour le plafond quotidien)
-    const day = new Date().toDateString();
-    if (!S.xpDay || S.xpDay.day !== day) S.xpDay = { day, games: 0 };
-    return S.xpDay;
-  },
-  fromGame(game, bet) { // mise de 10 $ minimum ; 1 XP par tranche de 10 $, 25 au maximum, pondéré par la durée du jeu
-    if (!(bet >= 10)) return;
-    const season = (Season.rules().xpGames || {})[game] || 1;
-    let xp = Math.min(25, Math.floor(bet / 10) + 1) * (XP_WEIGHT[game] || 1) * season;
-    const d = this.today();
-    const full = Math.max(0, Math.min(xp, XP_DAILY_CAP - d.games));
-    const reduced = Math.max(0, Math.min((xp - full) * XP_OVER_CAP, XP_DAILY_MAX - Math.max(d.games + full, XP_DAILY_CAP)));
-    d.games += full + reduced;
-    if (full + reduced > 0) this.add(full + reduced);
+  /* L'XP est calculée par le serveur (parties, objectifs, loto, mini-jeux) ; le site l'affiche */
+  today() { // XP des parties gagnée aujourd'hui, jour de Paris comme sur le serveur
+    const day = parisDay();
+    return S.xpDay && S.xpDay.day === day ? S.xpDay : { day, games: 0 };
   },
   pop(n) { // petit « +12 XP » près du niveau, regroupé si les gains s'enchaînent
     const chip = $('#lvl-chip');
@@ -4445,27 +4136,23 @@ const Pass = {
     return out;
   },
   badge() { const n = user ? this.ready().length : 0; $$('[data-count="pass"]').forEach(el => { el.textContent = n || ''; el.hidden = !n; }); this.readyN = n; hubCounts(); },
-  give(r) {
-    if (r.t === 'money') Wallet.credit(r.v);
-    else if (r.t === 'boost') { // gardé en réserve : le joueur l'active quand il veut, sans écraser un boost en cours
-      S.boostItems[r.mult] = (S.boostItems[r.mult] || 0) + 1;
-    } else if (r.t === 'title') { if (!S.passTitles.includes(r.tag)) S.passTitles.push(r.tag); }
-    else if (r.t === 'theme') S.inventory['theme_' + r.id] = true;
-    else if (r.t === 'coin') { S.inventory['coin_' + r.id] = true; S.coinSkin = r.id; Clicker.renderSkin(); }
+  async claim(track, level) { // la récompense est vérifiée et versée par le serveur
+    if (this.busy) return;
+    this.busy = true;
+    const res = await Srv.act('pass_claim', { track, level });
+    this.busy = false;
+    if (!res) return;
+    const r = res.reward;
+    toast(`Pass, niveau ${level} : ${REWARD_TEXT(r)}${r.t === 'boost' ? '. Activez-le quand vous voulez depuis le clicker ou la boutique.' : ''}`, 'success');
+    this.render();
+    const c = $(`#pass-grid [data-level="${level}"] .pt-cell${track === 'p' ? '.prestige' : ':not(.prestige)'}`); if (c) c.classList.add('just');
   },
-  claim(track, level, quiet) {
-    const t = this.tiers().find(x => x.level === level), r = t && (track === 'f' ? t.free : t.prestige);
-    if (!r || S.passClaimed[this.key(track, level)] || level > XP.level()) return false;
-    if (track === 'p' && XP.level() < Season.prestigeLevel()) return false;
-    S.passClaimed[this.key(track, level)] = true;
-    this.give(r);
-    if (!quiet) { toast(`Pass, niveau ${level} : ${REWARD_TEXT(r)}${r.t === 'boost' ? '. Activez-le quand vous voulez depuis le clicker ou la boutique.' : ''}`, 'success'); saveNow(); this.render(); markDirty(); const c = $(`#pass-grid [data-level="${level}"] .pt-cell${track === 'p' ? '.prestige' : ':not(.prestige)'}`); if (c) c.classList.add('just'); }
-    return true;
-  },
-  claimAll() {
-    const list = this.ready();
-    list.forEach(([tr, l]) => this.claim(tr, l, true));
-    if (list.length) { toast(`${list.length} récompense${list.length > 1 ? 's' : ''} du pass récupérée${list.length > 1 ? 's' : ''}.`, 'success'); celebrate(); saveNow(); this.render(); markDirty(); }
+  async claimAll() {
+    if (this.busy) return;
+    this.busy = true;
+    const res = await Srv.act('pass_claim_all');
+    this.busy = false;
+    if (res && res.n) { toast(`${res.n} récompense${res.n > 1 ? 's' : ''} du pass récupérée${res.n > 1 ? 's' : ''}.`, 'success'); celebrate(); this.render(); }
   },
   cell(track, t, L) {
     const r = track === 'f' ? t.free : t.prestige;
@@ -4578,27 +4265,16 @@ const Scratch = {
     $('#sc-table').innerHTML = SCRATCH_TIERS.map(t => `<span>${scratchSym(t.sym).repeat(3)} <b>×${t.m}</b></span>`).join('');
     this.renderGrid();
   },
-  make() { // on tire d'abord le résultat, puis on remplit la carte en conséquence
-    let x = RNG.float(), tier = null;
-    for (const t of SCRATCH_TIERS) { if (x < t.p) { tier = t; break; } x -= t.p; }
-    const syms = SCRATCH_TIERS.map(t => t.sym), cells = [], count = {};
-    if (tier) { for (let i = 0; i < 3; i++) cells.push(tier.sym); count[tier.sym] = 3; }
-    while (cells.length < 9) {
-      const s = syms[RNG.int(syms.length)];
-      if ((count[s] || 0) >= 2 && !(tier && s === tier.sym && false)) continue;
-      if (tier && s === tier.sym) continue;
-      count[s] = (count[s] || 0) + 1; cells.push(s);
-    }
-    return { cells: RNG.shuffle(cells), tier, open: new Set() };
-  },
-  buy() {
+  /* La carte est tirée par le serveur à l'achat ; le gain est versé quand la carte est entièrement grattée */
+  async buy() {
     if (this.busy || (this.card && this.card.open.size < 9)) return toast('Grattez d’abord votre carte en cours.', 'error');
     const bet = readBet('grattage');
-    if (bet == null || !Wallet.debit(bet)) return;
-    this.card = this.make(); this.card.bet = bet;
-    const m = this.card.tier ? this.card.tier.m : 0;
-    this.card.pid = instantPending('Grattage', bet, r2(bet * m), m);
-    Net.emit('place_bet', { game: 'Grattage', amount: bet, win: false, payout: 0 });
+    if (bet == null) return;
+    this.busy = true;
+    const res = await Srv.act('scratch_buy', { amount: bet });
+    this.busy = false;
+    if (!res) return;
+    this.card = { cells: res.cells, m: res.m, sym: res.sym, bet, open: new Set() };
     setResult($('#sc-msg'), 'Grattez les 9 cases, ou cliquez sur « Tout gratter ».', '');
     lockBet('grattage', true);
     this.renderGrid();
@@ -4612,14 +4288,18 @@ const Scratch = {
     if (c.open.size === 9) this.finish();
   },
   revealAll() { if (this.card) for (let i = 0; i < 9; i++) this.reveal(i); },
-  finish() {
-    const c = this.card, m = c.tier ? c.tier.m : 0;
-    const got = settle('Grattage', c.bet, r2(c.bet * m), m);
-    setPending(c.pid, null);
-    if (c.tier) $$('#sc-grid [data-sc]').forEach(el => { if (c.cells[Number(el.dataset.sc)] === c.tier.sym) el.classList.add('win'); });
-    setResult($('#sc-msg'), !c.tier ? 'Pas de trio cette fois : carte perdante.' : got > c.bet ? `Trio ×${m} : vous gagnez ${money(r2(got - c.bet))}` : `Trio ×1 : votre mise vous est rendue.`, !c.tier ? 'lose' : got > c.bet ? 'win' : 'push');
+  async finish() {
+    const c = this.card, m = c.m;
+    $('#sc-all').disabled = true;
+    const res = await Srv.act('scratch_done');
     lockBet('grattage', false);
+    if (!res) return;
+    const got = res.got;
+    if (c.sym) $$('#sc-grid [data-sc]').forEach(el => { if (c.cells[Number(el.dataset.sc)] === c.sym) el.classList.add('win'); });
+    setResult($('#sc-msg'), !c.sym ? 'Pas de trio cette fois : carte perdante.' : got > c.bet ? `Trio ×${m} : vous gagnez ${money(r2(got - c.bet))}` : `Trio ×1 : votre mise vous est rendue.`, !c.sym ? 'lose' : got > c.bet ? 'win' : 'push');
+    if (m >= 10) celebrate();
   },
+  reset() { this.card = null; lockBet('grattage', false); setResult($('#sc-msg'), 'Achetez une carte pour commencer.', ''); this.renderGrid(); },
   renderGrid() {
     const c = this.card;
     $('#sc-grid').innerHTML = Array.from({ length: 9 }, (_, i) => {
@@ -4846,13 +4526,15 @@ const Tir = {
   },
   prize(base, n) { return r2(base * Math.pow(TIR_GROWTH, n - 1)); }, // valeur de la n-ième cible
   valueOf(n) { return this.prize(this.value, n); },
-  start() {
+  async start() {
     if (!user) return showAuth();
-    if (this.state === 'run') return;
-    const a = Arcade.g('tir');
-    this.paid = a.runs < ARCADE_RUNS;
-    if (this.paid) { a.runs++; saveNow(); }
-    this.value = this.dayValue(); this.hits = 0; this.earned = 0; this.fx = [];
+    if (this.state === 'run' || this.busy) return;
+    this.busy = true;
+    const res = await Srv.act('tir_start'); // le serveur compte la partie et note l'heure de départ
+    this.busy = false;
+    if (!res) return;
+    this.paid = res.paid;
+    this.value = res.value; this.hits = 0; this.bulls = []; this.earned = 0; this.fx = [];
     this.state = 'run';
     $('#tir-overlay').hidden = true;
     this.resize();
@@ -4892,30 +4574,28 @@ const Tir = {
     const d = Math.hypot(x - g.x, y - g.y);
     if (d > g.r) { this.fx.push({ kind: 'miss', x, y, t: performance.now(), d: 600 }); return this.end('Tir manqué'); }
     const bull = d <= g.r * 0.3, gain = r2(g.value * (bull ? 1.5 : 1));
-    this.hits++; this.earned = r2(this.earned + gain);
+    this.hits++; this.bulls.push(bull); this.earned = r2(this.earned + gain);
     this.fx.push({ kind: 'hit', x: g.x, y: g.y, r: g.r, t: performance.now(), d: 550 });
     this.fx.push({ kind: 'text', x: g.x, y: g.y - g.r, txt: `${bull ? 'Centre ' : ''}+${money(gain)}`, bull, t: performance.now(), d: 900 });
     this.spawn(); this.render();
   },
-  end(reason) {
+  async end(reason) { // le serveur vérifie le score (temps minimal par cible, plafond) et verse le gain
     if (this.state !== 'run') return;
     this.state = 'over'; this.target = null;
-    const a = Arcade.g('tir');
-    const record = this.hits > a.best;
-    a.best = Math.max(a.best, this.hits);
-    if (this.paid && this.earned > 0) {
-      Wallet.credit(this.earned);
-      Arcade.rec().earned = r2((Arcade.rec().earned || 0) + this.earned);
-      XP.add(this.hits * 3);
-      if (this.earned >= 500) celebrate();
-    }
-    saveNow(); markDirty();
     $('#tir-overlay').hidden = false;
-    $('#tir-result').innerHTML = `<p class="tr-reason">${esc(reason)}</p><p class="tr-score">${this.hits} cible${this.hits > 1 ? 's' : ''}${record ? ' <span class="tr-rec">Nouveau record</span>' : ''}</p>`
-      + (this.paid ? `<p class="tr-gain">+${money(this.earned)}</p>` : '<p class="tr-train">Partie d’entraînement : pas de gain</p>');
+    $('#tir-result').innerHTML = `<p class="tr-reason">${esc(reason)}</p><p class="tr-score">${this.hits} cible${this.hits > 1 ? 's' : ''}</p><p class="muted-sm">Vérification du score…</p>`;
+    $('#tir-start').disabled = true;
+    const res = await Srv.act('tir_end', { bulls: this.bulls });
+    $('#tir-start').disabled = false;
+    if (!res) { $('#tir-result').innerHTML = `<p class="tr-reason">${esc(reason)}</p><p class="tr-train">Score non enregistré</p>`; return this.render(); }
+    if (res.paid && res.earned >= 500) celebrate();
+    $('#tir-result').innerHTML = `<p class="tr-reason">${esc(reason)}</p><p class="tr-score">${res.hits} cible${res.hits > 1 ? 's' : ''}${res.record ? ' <span class="tr-rec">Nouveau record</span>' : ''}</p>`
+      + (res.paid ? `<p class="tr-gain">+${money(res.earned)}</p>` : '<p class="tr-train">Partie d’entraînement : pas de gain</p>')
+      + (res.capped ? '<p class="muted-sm">Score ramené à ce que le serveur a pu vérifier.</p>' : '');
     this.render();
   },
   abandon() { if (this.state === 'run') this.end('Partie interrompue'); }, // quitter la page termine la partie (le gain est versé)
+  cancel() { this.state = 'idle'; this.target = null; $('#tir-overlay').hidden = false; this.render(); },
   render() {
     if (!$('#tir-value')) return;
     const a = user ? Arcade.g('tir') : null, left = user ? Arcade.left('tir') : 0;
@@ -4974,44 +4654,43 @@ const Coffre = {
       if (c) this.unpick(Number(c.dataset.cfSlot));
       if (e.target.closest('#cf-submit')) this.submit();
       if (e.target.closest('#cf-start')) this.start();
-      if (e.target.closest('#cf-giveup') && confirm('Abandonner ce coffre ? La partie sera perdue.')) this.finish(false);
+      if (e.target.closest('#cf-giveup') && confirm('Abandonner ce coffre ? La partie sera perdue.')) this.giveUp();
     });
   },
-  start() {
+  /* Le code secret est tiré et gardé par le serveur : le navigateur n'en voit que les voyants */
+  cur: [], busy: false,
+  async start() {
     if (!user) return showAuth();
-    if (this.live()) return;
-    const g = this.g(), paid = g.runs < ARCADE_RUNS;
-    if (paid) g.runs++;
-    g.live = { code: Array.from({ length: 4 }, () => RNG.int(6)), rows: [], cur: [], paid, base: LOGIC_BASE('coffre') };
+    if (this.live() || this.busy) return;
+    this.busy = true;
+    const res = await Srv.act('coffre_start');
+    this.busy = false;
+    if (!res) return;
+    this.cur = []; this.last = null;
     $('#cf-msg').textContent = '';
-    saveNow(); this.render();
-  },
-  pick(i) { const l = this.live(); if (!l || l.cur.length >= 4) return; l.cur.push(i); this.render(); },
-  unpick(k) { const l = this.live(); if (!l) return; l.cur.splice(k, 1); this.render(); },
-  score(guess, code) {
-    let exact = 0; const cg = {}, cc = {};
-    guess.forEach((v, i) => { if (v === code[i]) exact++; else { cg[v] = (cg[v] || 0) + 1; cc[code[i]] = (cc[code[i]] || 0) + 1; } });
-    let near = 0; Object.keys(cg).forEach(k => { near += Math.min(cg[k], cc[k] || 0); });
-    return { exact, near };
-  },
-  submit() {
-    const l = this.live();
-    if (!l || l.cur.length < 4) return toast('Choisissez 4 gemmes avant de valider.', 'error');
-    const fb = this.score(l.cur, l.code);
-    l.rows.push({ g: l.cur.slice(), ...fb }); l.cur = [];
-    saveNow();
-    if (fb.exact === 4) return this.finish(true);
-    if (l.rows.length >= this.MAX) return this.finish(false);
     this.render();
   },
-  finish(win) {
-    const l = this.live(); if (!l) return;
-    const g = this.g(), tries = l.rows.length, gain = win && l.paid ? r2(l.base * this.mult(tries)) : 0;
-    if (gain) { Wallet.credit(gain); Arcade.rec().earned = r2((Arcade.rec().earned || 0) + gain); XP.add(40); if (gain >= 5000) celebrate(); }
-    const record = win && (!g.best || tries < g.best);
-    if (record) g.best = tries;
-    this.last = { win, tries, gain, code: l.code, paid: l.paid, record, rows: l.rows };
-    g.live = null; saveNow(); markDirty(); this.render();
+  pick(i) { if (!this.live() || this.cur.length >= 4) return; this.cur.push(i); this.render(); },
+  unpick(k) { if (!this.live()) return; this.cur.splice(k, 1); this.render(); },
+  async submit() {
+    if (!this.live() || this.busy) return;
+    if (this.cur.length < 4) return toast('Choisissez 4 gemmes avant de valider.', 'error');
+    this.busy = true; this.render();
+    const res = await Srv.act('coffre_guess', { guess: this.cur });
+    this.busy = false;
+    if (!res) return this.render();
+    this.cur = [];
+    if (res.done) return this.finish(res);
+    this.render();
+  },
+  async giveUp() {
+    const res = await Srv.act('coffre_giveup');
+    if (res) this.finish(res);
+  },
+  finish(res) {
+    this.last = res; this.cur = [];
+    if (res.gain >= 5000) celebrate();
+    this.render();
   },
   render() {
     if (!$('#cf-board')) return;
@@ -5026,7 +4705,7 @@ const Coffre = {
     let html = '';
     for (let i = 0; i < this.MAX; i++) {
       const r = rows[i], current = l && i === rows.length;
-      const slots = r ? r.g : current ? l.cur : [];
+      const slots = r ? r.g : current ? this.cur : [];
       html += `<div class="cf-row${current ? ' current' : ''}${r ? ' done' : ''}"><span class="cf-n">${i + 1}</span><span class="cf-slots">${[0, 1, 2, 3].map(k => {
         const v = slots[k];
         return v == null ? '<span class="cf-slot empty"></span>' : current ? `<button type="button" class="cf-slot" data-cf-slot="${k}" title="Retirer">${gemIcon(GEMS6[v].c)}</button>` : `<span class="cf-slot">${gemIcon(GEMS6[v].c)}</span>`;
@@ -5035,7 +4714,7 @@ const Coffre = {
     setHTML($('#cf-board'), html);
     $('#cf-controls').hidden = !l;
     $('#cf-start-box').hidden = !!l;
-    $('#cf-submit').disabled = !l || l.cur.length < 4;
+    $('#cf-submit').disabled = !l || this.busy || this.cur.length < 4;
     if (!l && this.last) {
       const L = this.last;
       $('#cf-msg').innerHTML = L.win ? `Coffre ouvert en ${L.tries} essai${L.tries > 1 ? 's' : ''} !${L.record ? ' <span class="tr-rec">Nouveau record</span>' : ''} ${L.paid ? `<b class="pos">+${money(L.gain)}</b>` : '(entraînement, sans gain)'}`
@@ -5055,7 +4734,7 @@ const Taquin = {
     $('#view-taquin').addEventListener('click', e => {
       const t = e.target.closest('[data-tq]'); if (t) this.move(Number(t.dataset.tq));
       if (e.target.closest('#tq-start')) this.start();
-      if (e.target.closest('#tq-giveup') && confirm('Abandonner ce taquin ? La partie sera perdue.')) this.finish(false);
+      if (e.target.closest('#tq-giveup') && confirm('Abandonner ce taquin ? La partie sera perdue.')) this.giveUp();
     });
     document.addEventListener('keydown', e => {
       if (currentView !== 'taquin' || !this.live()) return;
@@ -5068,37 +4747,54 @@ const Taquin = {
     });
   },
   neighbors(i) { return [i - 3, i + 3, i % 3 ? i - 1 : -1, i % 3 < 2 ? i + 1 : -1].filter(j => j >= 0 && j < 9); },
-  start() {
+  /* Le mélange est fait par le serveur, qui vérifie chaque mouvement et paie à la fin */
+  queue: [], sending: false, busy: false,
+  async start() {
     if (!user) return showAuth();
-    if (this.live()) return;
-    const g = this.g(), paid = g.runs < ARCADE_RUNS;
-    if (paid) g.runs++;
-    let b = [1, 2, 3, 4, 5, 6, 7, 8, 0], z = 8, prev = -1;
-    do { // mélange par vrais mouvements : le taquin est toujours soluble
-      for (let i = 0; i < 60; i++) { const o = this.neighbors(z).filter(j => j !== prev); const j = o[RNG.int(o.length)]; [b[z], b[j]] = [b[j], b[z]]; prev = z; z = j; }
-    } while (b.join() === '1,2,3,4,5,6,7,8,0');
-    g.live = { board: b, moves: 0, paid, base: LOGIC_BASE('taquin') };
+    if (this.live() || this.busy) return;
+    this.busy = true;
+    const res = await Srv.act('taquin_start');
+    this.busy = false;
+    if (!res) return;
+    this.last = null; this.queue = [];
     $('#tq-msg').textContent = '';
-    saveNow(); this.render();
+    this.render();
   },
-  move(tile) {
+  move(tile) { // affiché tout de suite, envoyé au serveur dans l'ordre
     const l = this.live(); if (!l) return;
     const i = l.board.indexOf(tile), z = l.board.indexOf(0);
     if (!this.neighbors(z).includes(i)) return;
     [l.board[i], l.board[z]] = [l.board[z], l.board[i]];
     l.moves++;
-    if (l.board.join() === '1,2,3,4,5,6,7,8,0') return this.finish(true);
-    if (l.moves % 5 === 0) scheduleSave();
+    this.queue.push(tile);
+    this.flush();
     this.render();
   },
-  finish(win) {
-    const l = this.live(); if (!l) return;
-    const g = this.g(), gain = win && l.paid ? r2(l.base * this.mult(l.moves)) : 0;
-    if (gain) { Wallet.credit(gain); Arcade.rec().earned = r2((Arcade.rec().earned || 0) + gain); XP.add(40); if (gain >= 5000) celebrate(); }
-    const record = win && (!g.best || l.moves < g.best);
-    if (record) g.best = l.moves;
-    this.last = { win, moves: l.moves, gain, paid: l.paid, record, board: l.board.slice() };
-    g.live = null; saveNow(); markDirty(); this.render();
+  async flush() {
+    if (this.sending) return;
+    this.sending = true;
+    while (this.queue.length) {
+      const tile = this.queue.shift();
+      const res = await Net.request('taquin_move', { tile }, 10000);
+      if (!res.ok) { // désaccord avec le serveur : on reprend sa version
+        this.queue = [];
+        toast(res.msg || 'Mouvement refusé.', 'error');
+        if (Net.ready()) Cloud.resume();
+        break;
+      }
+      if (res.done) { this.queue = []; Srv.apply(res.st); this.finish(res); }
+    }
+    this.sending = false;
+  },
+  async giveUp() {
+    this.queue = [];
+    const res = await Srv.act('taquin_giveup');
+    if (res) this.finish(res);
+  },
+  finish(res) {
+    this.last = res;
+    if (res.gain >= 5000) celebrate();
+    this.render();
   },
   render() {
     if (!$('#tq-grid')) return;
@@ -5323,7 +5019,7 @@ function patchList(container, rows) {
 function setHTML(el, html) { if (el && el.dataset.html !== html) { el.innerHTML = html; el.dataset.html = html; } }
 
 const Clicker = {
-  times: [], carry: 0, lastTick: Date.now(),
+  times: [], pending: 0, lastGain: 0, flushTimer: 0, buying: false,
   init() {
     $('#chip-btn').addEventListener('click', e => this.click(e));
     $('#view-clicker').addEventListener('click', e => {
@@ -5343,12 +5039,11 @@ const Clicker = {
     warn.textContent = '';
     this.times.push(now);
     const gain = r2(clickValue() * boostMult() * clickerFactor() * (Season.rules().clickMult || 1));
-    S.totalClicks++;
-    if (S.totalClicks % 100 === 0) XP.add(2);
-    S.clicker.clickEarned = r2(S.clicker.clickEarned + gain);
-    Wallet.credit(gain, true);
-    Goals.bump('clicks', 1);
-    checkAchievements();
+    // affiché tout de suite ; les clics sont envoyés par paquets au serveur, qui les limite et les paie
+    S.totalClicks++; S.balance = r2(S.balance + gain);
+    this.pending++; this.lastGain = gain;
+    if (!this.flushTimer) this.flushTimer = setTimeout(() => this.flush(), 400);
+    markDirty();
     $('#clicks-count').textContent = S.totalClicks.toLocaleString('fr-FR');
     const gem = $('#chip-btn');
     gem.classList.remove('hit'); void gem.offsetWidth; gem.classList.add('hit');
@@ -5369,47 +5064,22 @@ const Clicker = {
     area.appendChild(f);
     setTimeout(() => f.remove(), 800);
   },
-  /* Revenus automatiques, versés chaque seconde (le boost compte seulement pendant sa durée) */
+  async flush() {
+    this.flushTimer = 0;
+    const n = this.pending;
+    if (!n || !user) return;
+    this.pending = 0;
+    const res = await Net.request('clicks', { n }, 8000);
+    if (res && res.ok) Srv.apply(res.st, false, true);
+    if (this.pending && !this.flushTimer) this.flushTimer = setTimeout(() => this.flush(), 400);
+  },
+  /* Les revenus automatiques sont calculés et versés par le serveur (événement eco_patch) */
   tick() {
-    const now = Date.now();
-    const dt = Math.min(now - this.lastTick, OFFLINE_CAP_S * 1000);
-    const from = this.lastTick;
-    this.lastTick = now;
     if (!user) return;
-    S.lastSeen = now;
-    Goals.ensureDay();
-    const rate = autoRate();
-    if (rate > 0 && dt > 0) {
-      let boostedMs = 0;
-      if (S.boost && S.boost.until > from) boostedMs = Math.min(now, S.boost.until) - from;
-      const bm = S.boost && !malusOn('noboost') ? S.boost.mult : 1;
-      const units = (dt - boostedMs) / 1000 + (boostedMs / 1000) * bm;
-      const amt = rate * units * clickerFactor() + this.carry;
-      const whole = Math.floor(amt * 100) / 100;
-      this.carry = amt - whole;
-      if (whole > 0) {
-        S.clicker.autoEarned = r2(S.clicker.autoEarned + whole);
-        Wallet.credit(whole, true);
-      }
-    }
     Boost.tick();
     Malus.render();
     Goals.check();
     checkAchievements();
-  },
-  /* Gains pendant l'absence : moitié du rythme normal, 2 heures au maximum, sans boost */
-  offline() {
-    const now = Date.now(), last = S.lastSeen;
-    S.lastSeen = now; this.lastTick = now; this.carry = 0;
-    if (!last || now <= last) return;
-    const secs = Math.min((now - last) / 1000, OFFLINE_CAP_S);
-    if (secs < 60) return;
-    const gain = Math.floor(autoRate() * secs * OFFLINE_RATE * 100) / 100;
-    if (gain > 0) {
-      S.clicker.autoEarned = r2(S.clicker.autoEarned + gain);
-      Wallet.credit(gain, true);
-      toast(`Pendant votre absence, vos machines ont rapporté ${money(gain)}.`, 'success');
-    }
   },
   renderSkin() {
     const SK = { or: ['Diamant', '#DDF1FF'], argent: ['Saphir', '#3D7BDB'], onyx: ['Onyx', '#2A2A33'], emeraude: ['Émeraude', '#2FAE78'] };
@@ -5419,18 +5089,17 @@ const Clicker = {
     btn.className = 'gem-btn skin-' + S.coinSkin;
     $('#coin-skins').innerHTML = owned.length > 1 ? owned.map(k => `<button type="button" class="${S.coinSkin === k ? 'on' : ''}" style="background:${SK[k][1]}" data-skin="${k}" title="${SK[k][0]}" aria-label="Gemme : ${SK[k][0].toLowerCase()}"></button>`).join('') : '';
   },
-  buy(id) {
+  async buy(id) {
     if (!user) return showAuth();
     const u = UPGRADES.find(x => x.id === id);
-    if (!u) return;
+    if (!u || this.buying) return;
     const cost = upCost(u);
-    if (!Wallet.debit(cost)) return toast(`Il vous manque ${money(r2(cost - S.balance))}.`, 'error');
-    S.clicker.up[id] = level(id) + 1;
-    S.clicker.bought++;
-    Goals.bump('upgrades', 1);
+    if (!Wallet.canPay(cost)) return toast(`Il vous manque ${money(r2(cost - S.balance))}.`, 'error');
+    this.buying = true;
+    const res = await Srv.act('upgrade_buy', { id });
+    this.buying = false;
+    if (!res) return;
     toast(`${u.name} : niveau ${level(id)}.`, 'success');
-    saveNow();
-    Goals.check();
     this.render();
   },
   upRow(u) {
@@ -5480,40 +5149,33 @@ const Boost = {
     if (active && S.boost.mult === mult && S.boost.until - now + BOOST_MS > BOOST_MAX_MS) { toast('Un boost ne peut pas dépasser 30 minutes d’affilée.', 'error'); return false; }
     return true;
   },
-  start(mult) {
-    const b = BOOSTS.find(x => x.mult === mult), now = Date.now();
-    const extend = boostActive() && S.boost.mult === mult;
-    const pool = r2(b.price * GAME_BONUS_SHARE + (extend ? S.boost.pool || 0 : 0));
-    S.boost = { mult, until: (extend ? S.boost.until : now) + BOOST_MS, pool };
-    this.endedNotice = false;
-    return extend;
-  },
-  use(mult) { // active un boost gardé en réserve (récompense du pass)
+  async use(mult) { // active un boost gardé en réserve (récompense du pass)
     if (!user) return showAuth();
-    if (!(S.boostItems[mult] > 0) || !BOOSTS.some(x => x.mult === mult)) return toast('Aucun boost de ce type en réserve.', 'error');
-    if (!this.canStart(mult)) return;
-    S.boostItems[mult]--;
-    if (!S.boostItems[mult]) delete S.boostItems[mult];
-    const extend = this.start(mult);
-    toast(extend ? `Boost ×${mult} de votre réserve : prolongé de 5 minutes.` : `Boost ×${mult} de votre réserve activé pour 5 minutes.`, 'success');
-    celebrate(); saveNow(); markDirty(); renderShop();
+    if (!(S.boostItems[mult] > 0)) return toast('Aucun boost de ce type en réserve.', 'error');
+    if (!this.canStart(mult) || this.busy) return;
+    const was = boostActive() && S.boost.mult === mult;
+    this.busy = true;
+    const res = await Srv.act('boost_use', { mult });
+    this.busy = false;
+    if (!res) return;
+    this.endedNotice = false;
+    toast(was ? `Boost ×${mult} de votre réserve : prolongé de 5 minutes.` : `Boost ×${mult} de votre réserve activé pour 5 minutes.`, 'success');
+    celebrate(); renderShop();
   },
-  buy(mult) {
+  async buy(mult) {
     if (!user) return showAuth();
     const b = BOOSTS.find(x => x.mult === mult);
-    if (!b) return;
+    if (!b || this.busy) return;
     if (!this.canStart(mult)) return;
     const price = seasonPrice('boostPrice', b.price);
-    if (!Wallet.debit(price)) return toast(`Il vous manque ${money(r2(price - S.balance))} pour ce boost.`, 'error');
-    const extend = this.start(mult);
-    S.clicker.boosts++;
-    if (mult === 50) S.c.boost50++;
-    Goals.bump('boosts', 1);
-    toast(extend ? `Boost ×${mult} prolongé de 5 minutes.` : `Boost ×${mult} activé pour 5 minutes.`, 'success');
+    if (!Wallet.canPay(price)) return toast(`Il vous manque ${money(r2(price - S.balance))} pour ce boost.`, 'error');
+    this.busy = true;
+    const res = await Srv.act('boost_buy', { mult });
+    this.busy = false;
+    if (!res) return;
+    this.endedNotice = false;
+    toast(res.extend ? `Boost ×${mult} prolongé de 5 minutes.` : `Boost ×${mult} activé pour 5 minutes.`, 'success');
     celebrate();
-    saveNow();
-    Goals.check();
-    markDirty();
   },
   tick() {
     const chip = $('#boost-chip');
@@ -5538,21 +5200,11 @@ const Malus = {
     const s = Math.ceil(Math.max(0, (S.malus[id] ? S.malus[id].until : 0) - Date.now()) / 1000);
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   },
-  receive(d) {
+  receive(d) { // le handicap est appliqué par le serveur
     const t = SABOTAGES.find(x => x.id === (d && d.type));
     if (!t || !user) return;
-    const from = String((d && d.from) || 'Un joueur').slice(0, 24), now = Date.now();
-    if (t.id === 'halve') {
-      const cur = S.malus.halve ? S.malus.halve.games : 0;
-      S.malus.halve = { games: Math.min(cur + 2, MALUS_MAX_GAMES), from };
-    } else {
-      const cur = Math.max(now, S.malus[t.id] ? S.malus[t.id].until : 0);
-      S.malus[t.id] = { until: Math.min(cur + MALUS_MS, now + MALUS_MAX_MS), from };
-    }
-    saveNow();
-    this.render();
-    markDirty();
-    toast(`${from} vous a envoyé le handicap « ${t.name} ».`, 'error');
+    if (d.st) Srv.apply(d.st);
+    toast(`${String(d.from || 'Un joueur').slice(0, 24)} vous a envoyé le handicap « ${t.name} ».`, 'error');
   },
   async send(type) {
     if (!user) return showAuth();
@@ -5563,13 +5215,8 @@ const Malus = {
     if (!target) { toast('Choisissez d’abord le joueur à handicaper.', 'error'); return $('#sab-target').focus(); }
     if (!Wallet.canPay(t.price)) return toast(`Il vous manque ${money(r2(t.price - S.balance))}.`, 'error');
     if (!confirm(`Envoyer « ${t.name} » à ${target} pour ${money(t.price)} ?`)) return;
-    Net.pushBalanceNow();
-    const res = await Net.request('sabotage', { type, targetUser: target });
-    if (!res.ok) return toast(res.msg || 'Handicap refusé.', 'error');
-    Wallet.debit(t.price);
-    S.c.sabotages = (S.c.sabotages || 0) + 1;
-    saveNow();
-    toast(`« ${t.name} » envoyé à ${res.to || target}.`, 'success');
+    const res = await Srv.act('sabotage', { type, targetUser: target });
+    if (res) toast(`« ${t.name} » envoyé à ${res.to || target}.`, 'success');
   },
   render() {
     const chip = $('#malus-chip');
@@ -5713,24 +5360,8 @@ const Goals = {
     }
     return out;
   },
-  ensureDay() {
-    const k = this.dayKey();
-    if (S.daily.day !== k) {
-      const isNewDay = !!S.daily.day;
-      S.daily = { day: k, ids: this.pick(k), prog: {}, claimed: {} };
-      if (isNewDay && user) { toast('Nouveaux objectifs du jour disponibles.', 'info'); markDirty(); }
-    } else if (S.daily.ids.length < DAILY_COUNT) {
-      const used = new Set(S.daily.ids.map(id => DAILY_POOL.find(d => d.id === id).key));
-      const extra = this.pick(k).filter(id => !S.daily.ids.includes(id) && !used.has(DAILY_POOL.find(d => d.id === id).key));
-      S.daily.ids = S.daily.ids.concat(extra).slice(0, DAILY_COUNT);
-    }
-  },
-  bump(key, n) {
-    if (!user) return;
-    this.ensureDay();
-    S.daily.prog[key] = r2((S.daily.prog[key] || 0) + n);
-    this.check();
-  },
+  ensureDay() {}, // les objectifs du jour sont tirés et suivis par le serveur
+  bump() {},
   dailyReward(g) { return r2(g.reward + Math.round(autoRate() * DAILY_BONUS_S)); },
   dailyItems() { return S.daily.ids.map(id => DAILY_POOL.find(d => d.id === id)).filter(Boolean); },
   readyList() {
@@ -5756,38 +5387,32 @@ const Goals = {
     this.badge(ready.length);
   },
   badge(n) { $$('[data-count="objectifs"]').forEach(el => { el.textContent = n || ''; el.hidden = !n; }); this.readyN = n || 0; hubCounts(); },
-  claim(id) {
-    const g = GOALS.find(x => x.id === id);
-    if (!g || S.goals[id] || g.val() < g.goal) return;
-    S.goals[id] = true;
-    XP.add(XP_GOAL);
-    Wallet.credit(g.reward);
-    toast(`${g.title} : +${money(g.reward)}`, 'success');
-    celebrate(); saveNow(); this.check(); this.render();
+  async claim(id) { // vérifié et payé par le serveur
+    if (this.busy) return;
+    this.busy = true;
+    const res = await Srv.act('goal_claim', { id });
+    this.busy = false;
+    if (!res) return;
+    toast(`${res.title} : +${money(res.reward)}`, 'success');
+    celebrate(); this.render();
   },
-  claimDaily(id) {
-    const g = DAILY_POOL.find(x => x.id === id);
-    if (!g || S.daily.claimed[id] || (S.daily.prog[g.key] || 0) < g.goal) return;
-    const rew = this.dailyReward(g);
-    S.daily.claimed[id] = true;
-    XP.add(XP_DAILY_GOAL);
-    S.c.dailyClaimed++;
-    Wallet.credit(rew);
-    toast(`${g.title} : +${money(rew)}`, 'success');
-    celebrate(); saveNow(); this.check(); this.render();
+  async claimDaily(id) {
+    if (this.busy) return;
+    this.busy = true;
+    const res = await Srv.act('daily_claim', { id });
+    this.busy = false;
+    if (!res) return;
+    toast(`${res.title} : +${money(res.reward)}`, 'success');
+    celebrate(); this.render();
   },
-  claimAll() {
-    let total = 0, n = 0;
-    let xp = 0;
-    GOALS.forEach(g => { if (!S.goals[g.id] && g.val() >= g.goal) { S.goals[g.id] = true; total += g.reward; n++; xp += XP_GOAL; } });
-    this.dailyItems().forEach(g => {
-      if (!S.daily.claimed[g.id] && (S.daily.prog[g.key] || 0) >= g.goal) { total += this.dailyReward(g); S.daily.claimed[g.id] = true; S.c.dailyClaimed++; n++; xp += XP_DAILY_GOAL; }
-    });
-    if (!n) return;
-    XP.add(xp);
-    Wallet.credit(r2(total));
-    toast(`${n} objectif${n > 1 ? 's' : ''} récupéré${n > 1 ? 's' : ''} : +${money(r2(total))}`, 'success');
-    celebrate(); saveNow(); this.check(); this.render();
+  async claimAll() {
+    if (this.busy) return;
+    this.busy = true;
+    const res = await Srv.act('goals_claim_all');
+    this.busy = false;
+    if (!res || !res.n) return;
+    toast(`${res.n} objectif${res.n > 1 ? 's' : ''} récupéré${res.n > 1 ? 's' : ''} : +${money(res.total)}`, 'success');
+    celebrate(); this.render();
   },
   row(title, desc, v, goal, fmt, reward, claimed, attr) {
     const done = v >= goal;
@@ -5877,10 +5502,6 @@ const Net = {
       this.setStatus('on');
       if (Cloud.token && !Cloud.replaced) await Cloud.resume(); // un appareil remplacé attend que son joueur se reconnecte
       this.join();
-      Crash.resume();
-      Race.resume();
-      Loto.claimAll();
-      Duel.resume();
       await this.syncClock();
     });
     s.on('disconnect', () => { if (!this.manual) this.setStatus('connecting'); Crash.onDisconnect(); Race.onDisconnect(); });
@@ -5896,10 +5517,15 @@ const Net = {
         : [];
       renderOnline(); renderBoard(); this.setStatus(s.connected ? 'on' : this.state);
     });
+    // progression envoyée par le serveur : règlement d'une mise en direct, revenus automatiques
+    s.on('eco_state', d => Srv.apply(d && d.st));
+    s.on('eco_patch', d => Srv.apply(d, false, true));
+    s.on('race_mine', d => Race.onMine(d));
+    s.on('loto_win', d => Loto.onWin(d));
     s.on('receive_money', d => {
       const amt = r2(parseFloat(d && d.amount));
       if (!(amt > 0) || !user) return;
-      Wallet.credit(amt); saveNow();
+      Srv.apply(d.st);
       toast(`Vous avez reçu ${money(amt)} de ${String((d && d.from) || 'un joueur').slice(0, 24)}.`, 'success');
       celebrate();
     });
@@ -5948,25 +5574,12 @@ const Net = {
     }
     if (best) this.offset = best.offset;
   },
-  join() { if (user) this.emit('user_join', { username: user, balance: S.balance, badge: S.equippedBadge }); },
+  join() { if (user) this.emit('user_join', {}); }, // le serveur connaît déjà le compte, le solde et le titre
   leave() {
     if (!this.socket) return;
     this.manual = true;
     this.socket.disconnect();
     setTimeout(() => { this.manual = false; this.socket.connect(); }, 60);
-  },
-  pushBalance() { // au plus 1 envoi toutes les 400 ms
-    if (this.balTimer) { this.balQueued = true; return; }
-    if (user) this.emit('update_balance', { username: user, balance: S.balance, badge: S.equippedBadge });
-    this.balTimer = setTimeout(() => { this.balTimer = 0; if (this.balQueued) { this.balQueued = false; this.pushBalance(); } }, 400);
-  },
-  pushBalanceSlow() { // revenus automatiques : un envoi toutes les 3 s suffit au classement
-    if (this.balTimer || this.slowTimer) return;
-    this.slowTimer = setTimeout(() => { this.slowTimer = 0; this.pushBalance(); }, 3000);
-  },
-  pushBalanceNow() {
-    clearTimeout(this.balTimer); this.balTimer = 0; this.balQueued = false;
-    if (user) this.emit('update_balance', { username: user, balance: S.balance, badge: S.equippedBadge });
   },
   setStatus(st) {
     this.state = st;
@@ -6056,8 +5669,8 @@ function initSocial() {
     const now = Date.now();
     if (now - lastChat < 800) return toast('Un message par seconde au maximum.', 'error');
     lastChat = now;
-    Net.socket.emit('send_message', { text: text.slice(0, 200), badge: S.equippedBadge });
-    S.c.chats++; scheduleSave();
+    Net.socket.emit('send_message', { text: text.slice(0, 200) }); // le titre affiché est lu sur le serveur
+    S.c.chats++;
     inp.value = '';
   });
   $('#transfer-form').addEventListener('submit', async e => {
@@ -6072,12 +5685,9 @@ function initSocial() {
     if (!Wallet.canPay(amt)) return toast(`Solde insuffisant : il vous reste ${money(S.balance)}.`, 'error');
     const btn = $('#transfer-form button[type=submit]');
     btn.disabled = true;
-    Net.pushBalanceNow();
-    const res = await Net.request('send_money', { targetUser: name, amount: amt });
+    const res = await Srv.act('send_money', { targetUser: name, amount: amt });
     btn.disabled = false;
-    if (!res.ok) return toast(res.msg || 'Transfert refusé.', 'error');
-    Wallet.debit(amt);
-    saveNow();
+    if (!res) return;
     toast(`${money(amt)} envoyés à ${res.to || name}.`, 'success');
     $('#tr-target').value = '';
   });
