@@ -1025,6 +1025,52 @@ button.cf-slot{cursor:pointer;transition:border-color var(--t-ui) ease,transform
 }
 
 /* =====================================================================
+   ADMINISTRATION
+   ===================================================================== */
+.tag.admin{color:#fff;background:linear-gradient(180deg,#E9505F,#B8202F);border-color:#F06B7A;font-weight:800;letter-spacing:.04em;box-shadow:0 0 0 1px rgba(0,0,0,.25),0 2px 8px -2px rgba(226,64,80,.7)}
+.msg b.is-admin,.who.is-admin{color:#FF6B78}
+.adm-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:20px;align-items:start}
+.adm-search,.adm-row{display:flex;gap:8px}
+.adm-search .input,.adm-row .input{flex:1;min-width:0}
+.adm-list,.adm-log,.adm-mini{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.adm-list{max-height:420px;overflow:auto}
+.adm-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:10px 12px;border-radius:var(--r-ctl);cursor:pointer;border:1px solid transparent;transition:background-color var(--t-ui) ease,border-color var(--t-ui) ease}
+.adm-list li:hover{background:var(--panel-2)}
+.adm-list li.on{border-color:color-mix(in srgb,var(--brass) 55%,transparent);background:var(--panel-2)}
+.adm-list .who{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;gap:6px;align-items:center}
+.adm-list small{grid-column:1/-1;color:var(--faint);font-size:12px}
+.adm-list .amt{color:var(--brass);font-weight:600;font-size:13px}
+.adm-list .empty{cursor:default;color:var(--faint);font-size:13px}
+.adm-dot{width:7px;height:7px;border-radius:50%;background:var(--faint);flex:none}
+.adm-dot.on{background:var(--jade);box-shadow:0 0 0 3px color-mix(in srgb,var(--jade) 18%,transparent)}
+.adm-flag{font-size:11px;font-weight:700;border-radius:5px;padding:1px 6px;white-space:nowrap}
+.adm-flag.ban{background:color-mix(in srgb,var(--red) 20%,transparent);color:var(--red-hi)}
+.adm-flag.mute{background:color-mix(in srgb,var(--brass) 18%,transparent);color:var(--brass)}
+.adm-flag.guest{background:var(--panel-2);color:var(--muted)}
+.adm-detail{display:flex;flex-direction:column;gap:18px}
+.adm-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.adm-name{font-family:var(--display);font-size:24px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.adm-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border:1px solid var(--line-soft);border-radius:var(--r-ctl);overflow:hidden;margin:0}
+.adm-facts div{padding:10px 12px;border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);margin:0 -1px -1px 0}
+.adm-facts dt{font-size:12px;color:var(--muted)} .adm-facts dd{margin:2px 0 0;font-weight:600}
+.adm-box{border:1px solid var(--line-soft);border-radius:var(--r-ctl);padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.adm-box h4{margin:0;font-size:13px;font-weight:700;color:var(--ink)}
+.adm-box.danger{border-color:color-mix(in srgb,var(--red) 40%,transparent)}
+.adm-sanction{padding:8px 10px;border-radius:8px;font-size:13px;background:color-mix(in srgb,var(--red) 10%,transparent);color:var(--red-hi)}
+.adm-tags{display:flex;flex-wrap:wrap;gap:6px}
+.adm-log li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px;padding:8px 0;border-top:1px solid var(--hair);font-size:13px}
+.adm-log li:first-child{border-top:0}
+.adm-log time{color:var(--faint);font-size:12px;font-family:var(--mono)}
+.adm-log b{font-weight:600}
+.adm-log span{grid-column:2;color:var(--muted)}
+.adm-log{max-height:360px;overflow:auto}
+.adm-mini li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;font-size:13px;padding:6px 0;border-top:1px solid var(--hair)}
+.adm-mini li:first-child{border-top:0}
+.online .who[data-adm-open]{cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+@media (max-width:1060px){ .adm-grid{grid-template-columns:minmax(0,1fr)} }
+@media (max-width:620px){ .adm-facts{grid-template-columns:repeat(2,minmax(0,1fr))} .adm-search,.adm-row{flex-wrap:wrap} }
+
+/* =====================================================================
    AMBIANCE SALLE DE JEUX
    Le même ordre, plus d'énergie : polices d'origine, laiton en relief,
    lumière chaude, cartes qui se soulèvent, billets qui tombent.
@@ -1813,6 +1859,32 @@ svg .d{fill:currentColor;stroke:none;opacity:.22}
       </form>
     </section>
 
+    <!-- ===== Administration (visible seulement pour les administrateurs) ===== -->
+    <section class="view" id="view-admin" aria-labelledby="h-admin">
+      <header class="view-head">
+        <h2 id="h-admin">Administration</h2>
+        <p>Gérez les comptes des joueurs : solde, sanctions, objets et remises à zéro. Chaque action est vérifiée par le serveur, prévient le joueur concerné et s’inscrit dans le journal.</p>
+      </header>
+      <div class="adm-grid">
+        <div class="stack">
+          <div class="panel">
+            <h3 class="panel-title">Joueurs</h3>
+            <form class="adm-search" id="adm-search"><input class="input" id="adm-q" placeholder="Rechercher un pseudo" autocomplete="off" spellcheck="false"><button class="btn btn-brass" type="submit">Rechercher</button></form>
+            <div class="filters" style="margin:12px 0 8px"><button type="button" class="filter" data-adm-list="online">En ligne</button><button type="button" class="filter" data-adm-list="top">Plus gros soldes</button><button type="button" class="filter" data-adm-list="level">Plus hauts niveaux</button><button type="button" class="filter" data-adm-list="banned">Sanctionnés</button></div>
+            <ul class="adm-list" id="adm-results"><li class="empty">Recherchez un joueur ou choisissez une liste.</li></ul>
+          </div>
+          <div class="panel stack">
+            <h3 class="panel-title" style="margin:0">Outils du serveur</h3>
+            <div class="field"><label for="adm-announce">Annonce à tous les joueurs</label><div class="adm-row"><input class="input" id="adm-announce" maxlength="300" placeholder="Message affiché à tout le monde"><button class="btn btn-brass" type="button" data-adm-tool="announce">Envoyer</button></div></div>
+            <div class="field"><label for="adm-gift">Cadeau à tous les joueurs connectés ($)</label><div class="adm-row"><input class="input" id="adm-gift" type="number" min="1" step="any" value="1000"><button class="btn btn-go" type="button" data-adm-tool="gift">Donner</button></div></div>
+            <div class="btn-row"><button class="btn btn-ghost" type="button" data-adm-tool="clearchat">Vider le tchat</button><button class="btn btn-red" type="button" data-adm-tool="endseason">Terminer la saison maintenant</button></div>
+          </div>
+          <div class="panel"><div class="panel-head"><h3 class="panel-title">Journal des actions</h3><button class="link-more" type="button" data-adm-tool="logs">Actualiser</button></div><ul class="adm-log" id="adm-log"><li><span>Chargement…</span></li></ul></div>
+        </div>
+        <div class="panel adm-detail" id="adm-detail"><p class="muted-sm">Choisissez un joueur pour voir et gérer son compte.</p></div>
+      </div>
+    </section>
+
     <!-- ===== Social ===== -->
     <section class="view" id="view-social" aria-labelledby="h-social">
       <header class="view-head">
@@ -2210,7 +2282,7 @@ function initAuthUI() {
     $('#login-pass').value = '';
     Cloud.adopt(res);
     startSession(res.username, res.state, false, res);
-    toast(`Bon retour, ${res.username}.`, 'success');
+    toast(res.admin ? `Bon retour, ${res.username}. Vous êtes administrateur.` : `Bon retour, ${res.username}.`, 'success');
   });
   $('#form-register').addEventListener('submit', async e => {
     e.preventDefault();
@@ -2257,14 +2329,15 @@ const Cloud = {
   token: store.get(KEYS.token), username: store.get(KEYS.tokenUser),
   active: false, replaced: false, pushTimer: 0, resuming: false,
   heritage: [],
+  admin: false, blocked: false,
   adopt(res) {
-    this.token = res.token; this.username = res.username; this.guest = !!res.guest;
+    this.token = res.token; this.username = res.username; this.guest = !!res.guest; this.admin = !!res.admin; this.blocked = false;
     this.heritage = Array.isArray(res.heritage) ? res.heritage : [];
     store.set(KEYS.token, res.token); store.set(KEYS.tokenUser, res.username);
     this.active = true; this.replaced = false;
   },
   clear() {
-    this.token = null; this.username = null; this.active = false;
+    this.token = null; this.username = null; this.active = false; this.admin = false;
     store.del(KEYS.token); store.del(KEYS.tokenUser);
   },
   waitServer(ms = 75000) { // le serveur gratuit peut mettre une minute à se réveiller
@@ -2287,11 +2360,17 @@ const Cloud = {
     return Net.request('account_register', { username: name, password: pw }, 20000);
   },
   async resume() { // reconnexion automatique avec le jeton enregistré sur l'appareil
-    if (!this.token || !this.username || !Net.ready() || this.resuming || this.replaced) return false;
+    if (!this.token || !this.username || !Net.ready() || this.resuming || this.replaced || this.blocked) return false;
     this.resuming = true;
     const res = await Net.request('account_resume', { username: this.username, token: this.token }, 20000);
     this.resuming = false;
     if (!res.ok) {
+      if (res.code === 'banned') { // compte suspendu : on n'insiste pas
+        this.blocked = true;
+        Splash.hide(); endSession(); showAuth(); authTab('login'); $('#login-name').value = this.username || '';
+        authError(res.msg);
+        return false;
+      }
       if (res.code === 'invalid') {
         const name = this.username;
         Splash.hide();
@@ -2302,7 +2381,7 @@ const Cloud = {
       }
       return false;
     }
-    this.active = true; this.replaced = false;
+    this.active = true; this.replaced = false; this.admin = !!res.admin;
     this.heritage = Array.isArray(res.heritage) ? res.heritage : [];
     const same = user && user.toLowerCase() === res.username.toLowerCase();
     startSession(res.username, res.state, !!res.guest, res); // la partie du serveur fait toujours foi
@@ -4316,7 +4395,7 @@ const Jump = {
   list() {
     const hubName = id => { const h = hubOf(id); return h.id === 'profil' ? 'Profil' : h.label; };
     const extra = { pass: 'xp niveau récompenses saison', objectifs: 'missions défis', pantheon: 'classement saisons héritage titres', boutique: 'thèmes titres boosts handicaps', social: 'tchat transferts envoyer argent', stats: 'statistiques compte mot de passe historique', clicker: 'diamant cliquer revenus', jeux: 'tous les jeux casino' };
-    return VIEWS.filter(v => !['arcade', 'secours'].includes(v.id) && !(LOBBY.find(g => g.id === v.id && g.seasonal) && !Season.has(v.id)))
+    return VIEWS.filter(v => !['arcade', 'secours'].includes(v.id) && (v.id !== 'admin' || Cloud.admin) && !(LOBBY.find(g => g.id === v.id && g.seasonal) && !Season.has(v.id)))
       .map(v => ({ id: v.id, label: v.label, where: v.id === 'salle' ? 'Tableau de bord' : hubName(v.id), icon: v.icon, keys: `${v.label} ${hubName(v.id)} ${extra[v.id] || ''}`.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') }));
   },
   open() {
@@ -5512,7 +5591,8 @@ const Net = {
         ? users.filter(u => u && typeof u.username === 'string').map(u => ({
             username: u.username.slice(0, 24),
             balance: Number(u.balance) || 0,
-            badge: typeof u.badge === 'string' ? u.badge.slice(0, 20) : ''
+            badge: typeof u.badge === 'string' ? u.badge.slice(0, 20) : '',
+            admin: u.admin === true
           }))
         : [];
       renderOnline(); renderBoard(); this.setStatus(s.connected ? 'on' : this.state);
@@ -5522,6 +5602,19 @@ const Net = {
     s.on('eco_patch', d => Srv.apply(d, false, true));
     s.on('race_mine', d => Race.onMine(d));
     s.on('loto_win', d => Loto.onWin(d));
+    // administration : messages, annonces, expulsion
+    s.on('admin_notice', d => d && toast(String(d.text || '').slice(0, 300), 'info'));
+    s.on('announce', d => d && toast(`Annonce : ${String(d.text || '').slice(0, 300)}`, 'success'));
+    s.on('chat_clear', () => { $('#chat-box').innerHTML = '<p class="empty">Le tchat a été vidé par un administrateur.</p>'; });
+    s.on('heritage', d => { Cloud.heritage = Array.isArray(d && d.heritage) ? d.heritage : []; renderShop(); Pantheon.render(); });
+    s.on('kicked', d => {
+      if (!user) return;
+      const name = user;
+      Cloud.replaced = true; Cloud.active = false; Cloud.blocked = d && d.reason === 'ban';
+      if (d && (d.reason === 'delete' || d.reason === 'password')) Cloud.clear();
+      endSession(); showAuth(); authTab('login'); $('#login-name').value = name;
+      authError((d && d.msg) || 'Vous avez été déconnecté par un administrateur.');
+    });
     s.on('receive_money', d => {
       const amt = r2(parseFloat(d && d.amount));
       if (!(amt > 0) || !user) return;
@@ -5594,6 +5687,179 @@ const Net = {
   }
 };
 
+/* =====================================================================
+   ADMINISTRATION : page réservée aux comptes listés dans ADMIN_USERS sur
+   le serveur. Le site ne fait qu'envoyer des demandes ; c'est le serveur
+   qui vérifie le statut d'administrateur à chaque action.
+   ===================================================================== */
+const ADMIN_TAG = '<span class="tag sm admin" title="Administrateur">ADMIN</span>';
+const AdminUI = {
+  cur: null, list: [], listKind: '',
+  async req(op, data = {}) {
+    if (!Cloud.admin) return null;
+    const r = await Net.request('admin', { op, ...data }, 20000);
+    if (!r || !r.ok) { toast((r && r.msg) || 'Action refusée.', 'error'); return null; }
+    return r;
+  },
+  init() {
+    $('#adm-search').addEventListener('submit', e => { e.preventDefault(); this.search($('#adm-q').value.trim()); });
+    $('#view-admin').addEventListener('click', e => {
+      const l = e.target.closest('[data-adm-list]'); if (l) return this.load(l.dataset.admList);
+      const r = e.target.closest('[data-adm-pick]'); if (r) return this.open(r.dataset.admPick);
+      const t = e.target.closest('[data-adm-tool]'); if (t) return this.tool(t.dataset.admTool, t);
+      const a = e.target.closest('[data-adm]'); if (a) return this.act(a.dataset.adm, a);
+    });
+    $('#view-admin').addEventListener('change', e => { if (e.target.id === 'adm-kind') this.renderItemField(); });
+  },
+  show() { if (!this.shown) { this.shown = true; this.load('online'); this.tool('logs'); } },
+  fmtDate(ts) { return ts ? new Date(ts).toLocaleString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'; },
+  flags(a) {
+    return `${a.admin ? ADMIN_TAG : ''}${a.guest ? '<span class="adm-flag guest">Invité</span>' : ''}${a.ban ? '<span class="adm-flag ban">Banni</span>' : ''}${a.mute ? '<span class="adm-flag mute">Muet</span>' : ''}`;
+  },
+  renderList() {
+    const box = $('#adm-results');
+    $$('[data-adm-list]').forEach(b => b.classList.toggle('on', b.dataset.admList === this.listKind));
+    box.innerHTML = this.list.length ? this.list.map(a => `<li data-adm-pick="${esc(a.key)}" class="${this.cur && this.cur.key === a.key ? 'on' : ''}">
+      <span class="who"><i class="adm-dot${a.online ? ' on' : ''}" title="${a.online ? 'En ligne' : 'Hors ligne'}"></i>${esc(a.username)}${this.flags(a)}</span><span class="amt">${money(a.balance)}</span>
+      <small>Niveau ${a.level} · ${a.games} partie${a.games > 1 ? 's' : ''} · vu le ${this.fmtDate(a.lastSeen)}</small></li>`).join('')
+      : '<li class="empty">Aucun joueur trouvé.</li>';
+  },
+  async search(q) { const r = await this.req('search', { q }); if (r) { this.list = r.list; this.listKind = ''; this.renderList(); } },
+  async load(kind) {
+    const r = kind === 'online' ? await this.req('online') : kind === 'banned' ? await this.req('banned') : await this.req('top', { by: kind === 'level' ? 'level' : 'balance' });
+    if (r) { this.list = r.list; this.listKind = kind; this.renderList(); }
+  },
+  async open(target) { const r = await this.req('get', { target }); if (r) { this.cur = r.account; this.render(); this.renderList(); } },
+  async tool(name, btn) {
+    if (name === 'logs') {
+      const r = await this.req('logs'); if (!r) return;
+      $('#adm-log').innerHTML = r.log.length ? r.log.map(l => `<li><time>${this.fmtDate(l.at)}</time><b>${esc(l.action)}${l.target ? ` : ${esc(l.target)}` : ''}</b><span>par ${esc(l.admin)}${l.detail ? ` · ${esc(l.detail)}` : ''}</span></li>`).join('') : '<li><span>Aucune action pour l’instant.</span></li>';
+      return;
+    }
+    let data = {};
+    if (name === 'announce') { data.text = $('#adm-announce').value.trim(); if (!data.text) return toast('Écrivez d’abord le message.', 'error'); }
+    if (name === 'gift') { data.amount = Number($('#adm-gift').value); if (!confirm(`Donner ${money(data.amount)} à chaque joueur connecté ?`)) return; }
+    if (name === 'clearchat' && !confirm('Vider le tchat pour tous les joueurs ?')) return;
+    if (name === 'endseason') {
+      const c = prompt('Terminer la saison maintenant ? Le classement est archivé dans le Panthéon et TOUS les comptes repartent de zéro. Tapez TERMINER pour confirmer.');
+      if (c !== 'TERMINER') return;
+      data.confirm = c;
+    }
+    if (btn) btn.disabled = true;
+    const r = await this.req(name, data);
+    if (btn) btn.disabled = false;
+    if (!r) return;
+    if (name === 'announce') { $('#adm-announce').value = ''; toast('Annonce envoyée.', 'success'); }
+    if (name === 'gift') toast(`Cadeau envoyé à ${r.n} joueur${r.n > 1 ? 's' : ''}.`, 'success');
+    if (name === 'clearchat') toast('Tchat vidé.', 'success');
+    this.tool('logs');
+  },
+  itemOptions(kind) {
+    if (kind === 'title') return SHOP_ALL().map(i => [i.id, `${i.tag} (${money(i.price)})`]);
+    if (kind === 'theme') return THEMES.filter(t => t.id !== 'tapis' && t.price !== 0).map(t => [t.id, t.name]);
+    if (kind === 'coin') return [['argent', 'Gemme saphir'], ['onyx', 'Gemme d’onyx'], ['emeraude', 'Gemme émeraude']];
+    if (kind === 'boost') return BOOSTS.map(b => [String(b.mult), `Boost ×${b.mult} (en réserve)`]);
+    return [];
+  },
+  renderItemField() {
+    const kind = $('#adm-kind').value, box = $('#adm-item');
+    if (kind === 'xp') box.innerHTML = '<input class="input" id="adm-item-v" type="number" min="1" value="1000" placeholder="Quantité d’XP">';
+    else if (kind === 'heritage') box.innerHTML = '<input class="input" id="adm-item-v" maxlength="20" placeholder="Texte du titre (ex. TESTEUR)"><input class="input" id="adm-item-l" maxlength="60" placeholder="Description (facultatif)">';
+    else box.innerHTML = `<select class="input" id="adm-item-v">${this.itemOptions(kind).map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join('')}</select>`;
+  },
+  render() {
+    const a = this.cur, box = $('#adm-detail');
+    if (!a) { box.innerHTML = '<p class="muted-sm">Choisissez un joueur pour voir et gérer son compte.</p>'; return; }
+    const st = a.state || {}, c = st.c || {}, inv = st.inventory || {};
+    const owned = [
+      ...SHOP_ALL().filter(i => inv[i.id]).map(i => `<span class="tag sm">${esc(i.tag)}</span>`),
+      ...(st.passTitles || []).map(t => `<span class="tag sm">${esc(t)}</span>`),
+      ...(a.heritage || []).map(h => `<span class="tag sm" title="Héritage : ${esc(h.label)}">${esc(h.tag)}</span>`),
+      ...THEMES.filter(t => inv['theme_' + t.id]).map(t => `<span class="adm-flag guest">Thème ${esc(t.name)}</span>`),
+      ...['argent', 'onyx', 'emeraude'].filter(k => inv['coin_' + k]).map(k => `<span class="adm-flag guest">Gemme ${k}</span>`),
+      ...Object.entries(st.boostItems || {}).map(([m, n]) => `<span class="adm-flag guest">Boost ×${m} (${n})</span>`)
+    ];
+    const sanction = (s, what) => s ? `<p class="adm-sanction">${what} ${s.until ? `jusqu’au ${this.fmtDate(s.until)}` : 'définitivement'}${s.reason ? ` : ${esc(s.reason)}` : ''} (par ${esc(s.by || '?')})</p>` : '';
+    const isMe = a.key === (user || '').toLowerCase();
+    box.innerHTML = `<div class="adm-head"><div><p class="adm-name">${esc(a.username)} ${this.flags(a)}</p>
+        <p class="muted-sm">${a.online ? '<span class="pos">En ligne</span>' : 'Hors ligne'} · créé le ${this.fmtDate(a.created)} · vu le ${this.fmtDate(a.lastSeen)} · ${a.devices} appareil${a.devices > 1 ? 's' : ''} connecté${a.devices > 1 ? 's' : ''}</p></div>
+        <button class="btn btn-ghost" type="button" data-adm="refresh">Actualiser</button></div>
+      ${sanction(a.ban, 'Banni')}${sanction(a.mute, 'Muet dans le tchat')}
+      <dl class="adm-facts">
+        <div><dt>Solde</dt><dd>${money(st.balance)}</dd></div><div><dt>Niveau</dt><dd>${a.level} (${Math.floor(st.xp || 0).toLocaleString('fr-FR')} XP)</dd></div>
+        <div><dt>Parties</dt><dd>${st.gamesPlayed || 0} (${st.gamesWon || 0} gagnées)</dd></div><div><dt>Gains / pertes</dt><dd><span class="pos">${money(st.totalWon)}</span> / <span class="neg">${money(st.totalLost)}</span></dd></div>
+        <div><dt>Clics</dt><dd>${(st.totalClicks || 0).toLocaleString('fr-FR')}</dd></div><div><dt>Total misé</dt><dd>${money(c.wagered)}</dd></div>
+        <div><dt>Gagné au clicker</dt><dd>${money(((st.clicker || {}).clickEarned || 0) + ((st.clicker || {}).autoEarned || 0))}</dd></div><div><dt>Plus gros gain</dt><dd>${money(c.bestWin)}</dd></div>
+        <div><dt>Objectifs récupérés</dt><dd>${Object.keys(st.goals || {}).length} / ${GOALS.length}</dd></div>
+      </dl>
+      <div class="adm-box"><h4>Solde</h4><div class="adm-row"><input class="input" id="adm-amount" type="number" min="0" step="any" placeholder="Montant en $"><button class="btn btn-ghost" type="button" data-adm="balance" data-mode="set">Fixer à</button><button class="btn btn-go" type="button" data-adm="balance" data-mode="add">Ajouter</button><button class="btn btn-red" type="button" data-adm="balance" data-mode="remove">Retirer</button></div></div>
+      ${isMe ? '' : `<div class="adm-box danger"><h4>Sanctions</h4>
+        <div class="adm-row"><select class="input" id="adm-dur"><option value="60">1 heure</option><option value="1440">24 heures</option><option value="10080">7 jours</option><option value="43200">30 jours</option><option value="0">Définitivement</option></select><input class="input" id="adm-reason" maxlength="200" placeholder="Motif, affiché au joueur"></div>
+        <div class="btn-row">${a.ban ? '<button class="btn btn-go" type="button" data-adm="unban">Débannir</button>' : '<button class="btn btn-red" type="button" data-adm="ban">Bannir</button>'}
+        ${a.mute ? '<button class="btn btn-go" type="button" data-adm="unmute">Rendre la parole</button>' : '<button class="btn btn-ghost" type="button" data-adm="mute">Rendre muet</button>'}
+        <button class="btn btn-ghost" type="button" data-adm="kick" ${a.online ? '' : 'disabled'}>Déconnecter</button></div></div>`}
+      <div class="adm-box"><h4>Donner ou retirer</h4>
+        <div class="adm-row"><select class="input" id="adm-kind"><option value="title">Titre de la boutique</option><option value="heritage">Titre d’Héritage personnalisé</option><option value="theme">Thème</option><option value="coin">Gemme du clicker</option><option value="boost">Boost</option><option value="xp">XP</option></select></div>
+        <div class="adm-row" id="adm-item"></div>
+        <div class="btn-row"><button class="btn btn-go" type="button" data-adm="give">Donner</button><button class="btn btn-ghost" type="button" data-adm="take">Retirer</button></div>
+        ${owned.length ? `<div class="adm-tags">${owned.join('')}</div>` : '<p class="muted-sm">Ne possède encore aucun objet.</p>'}</div>
+      <div class="adm-box danger"><h4>Remise à zéro</h4><div class="adm-row"><select class="input" id="adm-reset">
+        <option value="goals">Objectifs permanents</option><option value="daily">Objectifs du jour</option><option value="pass">Pass de saison (XP, paliers, objets du pass)</option><option value="xp">XP et niveau seulement</option>
+        <option value="clicker">Clicker et boosts</option><option value="arcade">Mini-jeux du jour</option><option value="stats">Statistiques et historique</option><option value="inventory">Titres, thèmes et gemmes</option><option value="malus">Handicaps reçus</option><option value="all">Toute la progression (solde compris)</option>
+        </select><button class="btn btn-red" type="button" data-adm="reset">Remettre à zéro</button></div></div>
+      ${a.guest || isMe ? '' : `<div class="adm-box danger"><h4>Compte</h4>
+        <div class="adm-row"><input class="input" id="adm-pw" type="text" minlength="6" placeholder="Nouveau mot de passe" autocomplete="off"><button class="btn btn-ghost" type="button" data-adm="password">Changer le mot de passe</button></div>
+        <div class="btn-row"><button class="btn btn-red" type="button" data-adm="delete">Supprimer le compte</button></div></div>`}
+      <div class="adm-box"><h4>Dernières parties</h4><ul class="adm-mini">${(st.history || []).slice(0, 12).map(h => { const n = r2(h.win - h.bet); return `<li><span>${esc(h.g)} · ${this.fmtDate(h.t)}</span><span class="muted-sm">mise ${money(h.bet)}</span><span class="${n > 0 ? 'pos' : n < 0 ? 'neg' : ''}">${n > 0 ? '+' : ''}${money(n)}</span></li>`; }).join('') || '<li><span class="muted-sm">Aucune partie.</span></li>'}</ul></div>`;
+    this.renderItemField();
+  },
+  async act(op, btn) {
+    const a = this.cur; if (!a) return;
+    const target = a.key, reason = ($('#adm-reason') || {}).value || '', minutes = Number(($('#adm-dur') || {}).value || 0);
+    const durTxt = minutes ? $('#adm-dur').selectedOptions[0].textContent.toLowerCase() : 'définitivement';
+    let data = { target };
+    if (op === 'refresh') return this.open(target);
+    if (op === 'balance') {
+      const amount = Number($('#adm-amount').value);
+      if (!(amount >= 0) || $('#adm-amount').value === '') return toast('Indiquez un montant.', 'error');
+      data = { target, mode: btn.dataset.mode, amount };
+    }
+    if (op === 'ban') { if (!confirm(`Bannir ${a.username} ${minutes ? 'pendant ' + durTxt : 'définitivement'} ?`)) return; data = { target, minutes, reason }; }
+    if (op === 'mute') data = { target, minutes, reason };
+    if (op === 'kick') data = { target, reason };
+    if (op === 'give' || op === 'take') {
+      const kind = $('#adm-kind').value, v = ($('#adm-item-v') || {}).value || '';
+      data = { target, kind, id: v, amount: Number(v), tag: v, label: ($('#adm-item-l') || {}).value || '', take: op === 'take' };
+      op = 'give';
+    }
+    if (op === 'reset') {
+      const sel = $('#adm-reset'), what = sel.value;
+      if (!confirm(`Remettre à zéro « ${sel.selectedOptions[0].textContent} » pour ${a.username} ? C’est définitif.`)) return;
+      data = { target, what };
+    }
+    if (op === 'password') {
+      const pw = $('#adm-pw').value;
+      if (pw.length < 6) return toast('Mot de passe : 6 caractères minimum.', 'error');
+      if (!confirm(`Changer le mot de passe de ${a.username} ? Il sera déconnecté de tous ses appareils.`)) return;
+      data = { target, password: pw };
+    }
+    if (op === 'delete') {
+      const c = prompt(`Supprimer définitivement le compte ${a.username} ? Recopiez son pseudo pour confirmer.`);
+      if (!c) return;
+      data = { target, confirm: c };
+    }
+    if (btn) btn.disabled = true;
+    const r = await this.req(op, data);
+    if (btn) btn.disabled = false;
+    if (!r) return;
+    const done = { balance: 'Solde modifié.', ban: 'Joueur banni.', unban: 'Joueur débanni.', mute: 'Joueur rendu muet.', unmute: 'Parole rendue.', kick: 'Joueur déconnecté.', give: data.take ? 'Objet retiré.' : 'Objet donné.', reset: 'Remise à zéro effectuée.', password: 'Mot de passe changé.', delete: 'Compte supprimé.' };
+    toast(done[op] || 'C’est fait.', 'success');
+    if (op === 'delete') { this.cur = null; this.list = this.list.filter(x => x.key !== target); this.render(); this.renderList(); }
+    else if (r.account) { this.cur = r.account; this.render(); this.list = this.list.map(x => x.key === target ? { ...x, ...r.account } : x); this.renderList(); }
+    this.tool('logs');
+  }
+};
+
 function addChat(d) {
   const box = $('#chat-box');
   const empty = box.querySelector('.empty'); if (empty) empty.remove();
@@ -5605,7 +5871,7 @@ function addChat(d) {
   } else {
     const text = typeof (d && d.text) === 'string' ? d.text : (d && d.text && d.text.text) || '';
     row.className = 'msg';
-    row.innerHTML = `${d && d.badge ? `<span class="tag sm">${esc(String(d.badge).slice(0, 20))}</span> ` : ''}<b>${esc(String((d && d.username) || 'Joueur').slice(0, 24))}</b> <span></span>`;
+    row.innerHTML = `${d && d.admin ? ADMIN_TAG + ' ' : ''}${d && d.badge ? `<span class="tag sm">${esc(String(d.badge).slice(0, 20))}</span> ` : ''}<b${d && d.admin ? ' class="is-admin"' : ''}>${esc(String((d && d.username) || 'Joueur').slice(0, 24))}</b> <span></span>`;
     row.lastElementChild.textContent = String(text).slice(0, 500);
   }
   box.appendChild(row);
@@ -5624,10 +5890,10 @@ function renderOnline() {
   const on = Net.online;
   $('#online-count').textContent = on.length ? `(${on.length})` : '';
   $('#online-list').innerHTML = on.length
-    ? on.map(u => `<li>${u.badge ? `<span class="tag sm">${esc(u.badge)}</span>` : ''}<span class="who">${esc(u.username)}</span><span class="amt">${money(u.balance)}</span></li>`).join('')
+    ? on.map(u => `<li>${u.admin ? ADMIN_TAG : ''}${u.badge ? `<span class="tag sm">${esc(u.badge)}</span>` : ''}<span class="who${u.admin ? ' is-admin' : ''}"${Cloud.admin ? ` data-adm-open="${esc(u.username)}" title="Gérer ce compte"` : ''}>${esc(u.username)}</span><span class="amt">${money(u.balance)}</span></li>`).join('')
     : '<li class="empty">Personne n’est connecté pour l’instant.</li>';
   $('#bj-players').innerHTML = on.length
-    ? on.map(u => `<span class="p">${u.badge ? `<span class="tag sm">${esc(u.badge)}</span> ` : ''}${esc(u.username)}</span>`).join('')
+    ? on.map(u => `<span class="p">${u.admin ? ADMIN_TAG + ' ' : ''}${u.badge ? `<span class="tag sm">${esc(u.badge)}</span> ` : ''}${esc(u.username)}</span>`).join('')
     : '<span class="empty">Aucun autre joueur en ligne.</span>';
   $('#tr-list').innerHTML = on.filter(u => u.username !== user).map(u => `<option value="${esc(u.username)}"></option>`).join('');
   const dsel = $('#duel-target');
@@ -5648,9 +5914,9 @@ function renderOnline() {
 }
 function renderBoard() {
   const list = Net.online.filter(u => u.username !== user).map(u => ({ ...u }));
-  if (user) list.push({ username: user, balance: S.balance, badge: S.equippedBadge, me: true });
+  if (user) list.push({ username: user, balance: S.balance, badge: S.equippedBadge, admin: !!Cloud.admin, me: true });
   list.sort((a, b) => b.balance - a.balance);
-  const row = (p, i) => `<li class="${p.me ? 'me' : ''}"><span class="rank">${i + 1}</span><span class="who" title="${esc(p.username)}">${p.badge ? `<span class="tag sm">${esc(p.badge)}</span> ` : ''}${esc(p.username)}</span><span class="amt">${COMPACT.format(p.balance)}\u00a0$</span></li>`;
+  const row = (p, i) => `<li class="${p.me ? 'me' : ''}"><span class="rank">${i + 1}</span><span class="who${p.admin ? ' is-admin' : ''}" title="${esc(p.username)}">${p.admin ? ADMIN_TAG + ' ' : ''}${p.badge ? `<span class="tag sm">${esc(p.badge)}</span> ` : ''}${esc(p.username)}</span><span class="amt">${COMPACT.format(p.balance)}\u00a0$</span></li>`;
   const myIdx = list.findIndex(p => p.me);
   let html = list.slice(0, 8).map(row).join('');
   if (myIdx >= 8) html += `<li class="lb-gap" aria-hidden="true">…</li>` + row(list[myIdx], myIdx);
@@ -5673,6 +5939,7 @@ function initSocial() {
     S.c.chats++;
     inp.value = '';
   });
+  $('#online-list').addEventListener('click', e => { const w = e.target.closest('[data-adm-open]'); if (w && Cloud.admin) { go('admin'); AdminUI.open(w.dataset.admOpen); } });
   $('#transfer-form').addEventListener('submit', async e => {
     e.preventDefault();
     if (!user) return showAuth();
@@ -5697,6 +5964,7 @@ function initSocial() {
    INTERFACE
    ===================================================================== */
 const ICONS = {
+  shield: '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="d" d="M12 3 4.5 6v5.5c0 4.6 3.2 8.3 7.5 9.5 4.3-1.2 7.5-4.9 7.5-9.5V6z"/><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.3 7.5 9.5 4.3-1.2 7.5-4.9 7.5-9.5V6z"/><path d="m9 12 2 2 4-4"/></svg>',
   crash: '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="d" d="M3 20c6 0 10-3 13-9v9z"/><path d="M3 20c6 0 10-3 13-9"/><path d="m14.5 5.5 6-2-2 6-2.2-1.2-2.6 2.6-1.4-1.4 2.6-2.6z"/></svg>',
   mines: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect class="d" x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><circle class="d" cx="17" cy="17" r="3.2"/><circle cx="17" cy="17" r="3.2"/><path d="M19.4 14.6 21 13"/></svg>',
   wheel: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path class="d" d="M12 12V3.5A8.5 8.5 0 0 1 20.5 12z"/><circle cx="12" cy="12" r="2.2"/></svg>',
@@ -5751,7 +6019,8 @@ const VIEWS = [
   { id: 'grattage', label: 'Grattage', group: 'Jeux', icon: 'ticket' },
   { id: 'boutique', label: 'Boutique', group: 'Compte', icon: 'bag' },
   { id: 'stats', label: 'Statistiques et compte', group: 'Profil', icon: 'bars' },
-  { id: 'social', label: 'Tchat et transferts', group: 'Communauté', icon: 'chat' }
+  { id: 'social', label: 'Tchat et transferts', group: 'Communauté', icon: 'chat' },
+  { id: 'admin', label: 'Administration', group: 'Admin', icon: 'shield' }
 ];
 // Rubriques du site : chaque rubrique regroupe une ou plusieurs pages (sous-onglets)
 // Six rubriques, chacune avec un rôle clair. Les jeux du casino ont leur propre page, rattachée à « Casino ».
@@ -5762,6 +6031,7 @@ const HUBS = [
   { id: 'progression', label: 'Progression', short: 'Progrès', icon: 'star', views: ['pass', 'objectifs', 'pantheon'] },
   { id: 'boutique', label: 'Boutique', icon: 'bag', views: ['boutique'] },
   { id: 'communaute', label: 'Communauté', short: 'Social', icon: 'chat', views: ['social'] },
+  { id: 'admin', label: 'Admin', icon: 'shield', views: ['admin'], adminOnly: true }, // visible seulement pour les administrateurs
   { id: 'profil', label: 'Profil', icon: 'user', views: ['stats'], noTab: true } // accessible par l'avatar
 ];
 const GAME_GROUPS = ['Jeux', 'Tables'];
@@ -5774,7 +6044,7 @@ const NavMemory = {
   set(hub, view) { this.data[hub] = view; try { localStorage.setItem('carat_nav', JSON.stringify(this.data)); } catch {} }
 };
 function buildNav() {
-  const tab = (h, cls, short) => `<button type="button" class="${cls}" data-hub="${h.id}">${ICONS[h.icon]}<span>${esc(short && h.short ? h.short : h.label)}</span>${HUB_COUNT[h.id] ? `<span class="nav-count" data-count="${HUB_COUNT[h.id]}" hidden></span>` : ''}</button>`;
+  const tab = (h, cls, short) => `<button type="button" class="${cls}" data-hub="${h.id}"${h.adminOnly ? ' data-admin-only hidden' : ''}>${ICONS[h.icon]}<span>${esc(short && h.short ? h.short : h.label)}</span>${HUB_COUNT[h.id] ? `<span class="nav-count" data-count="${HUB_COUNT[h.id]}" hidden></span>` : ''}</button>`;
   const tabs = HUBS.filter(h => !h.noTab);
   $('#topnav').innerHTML = tabs.map(h => tab(h, 'tn-btn')).join('') + '<span class="tn-ind" id="tn-ind"></span>';
   $('#bottomnav').innerHTML = tabs.map(h => tab(h, 'bn-btn', true)).join('');
@@ -5818,7 +6088,7 @@ function placeIndicators() { // soulignements qui glissent sous l'onglet actif
     ind.style.transform = `translateX(${b.offsetLeft}px)`;
   });
 }
-const HUB_ORDER = ['accueil', 'jeux', 'gagner', 'progression', 'boutique', 'communaute', 'profil'];
+const HUB_ORDER = ['accueil', 'jeux', 'gagner', 'progression', 'boutique', 'communaute', 'admin', 'profil'];
 function go(id) { // transition orientée : vers la droite quand on avance dans les rubriques, vers la gauche quand on revient
   const from = currentView;
   const hubA = hubOf(from), hubB = hubOf(VIEWS.some(v => v.id === id) ? id : 'salle');
@@ -5839,6 +6109,7 @@ function goNow(id) {
   if (id === 'arcade') id = 'tir';       // les mini-jeux ont maintenant chacun leur onglet
   if (LOBBY.some(g => g.id === id && g.seasonal) && SEASON_INFO && !Season.has(id)) { toast('Ce jeu de saison n’est pas disponible ce mois-ci.', 'info'); id = 'salle'; }
   if (!VIEWS.some(v => v.id === id)) id = 'salle';
+  if (id === 'admin' && !Cloud.admin) id = 'salle'; // page réservée (le serveur vérifie de toute façon chaque action)
   currentView = id;
   $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + id));
   const hub = hubOf(id);
@@ -5866,6 +6137,7 @@ function goNow(id) {
   if (id === 'taquin') Taquin.render();
   if (id !== 'tir') Tir.abandon();
   if (id === 'pantheon') Pantheon.render();
+  if (id === 'admin') AdminUI.show();
   if (id === 'salle') { renderSeasonUI(); renderHome(); }
   if (id === 'plinko') Plinko.resize();
   window.scrollTo(0, 0);
@@ -5934,7 +6206,9 @@ function renderUser() {
   $('#me-av').textContent = ini; $('#me-av2').textContent = ini;
   $('#me-claim').hidden = !(user && isGuest);
   $('#guest-btn').textContent = user && isGuest ? 'Continuer en invité' : 'Essayer en invité, sans créer de compte';
-  $('#user-name').innerHTML = user ? `${S.equippedBadge ? `<span class="tag sm">${esc(S.equippedBadge)}</span>` : ''}${esc(user)}` : 'Non connecté';
+  $('#user-name').innerHTML = user ? `${Cloud.admin ? ADMIN_TAG : ''}${S.equippedBadge ? `<span class="tag sm">${esc(S.equippedBadge)}</span>` : ''}${esc(user)}` : 'Non connecté';
+  $$('[data-admin-only]').forEach(el => { el.hidden = !Cloud.admin; });
+  requestAnimationFrame(placeIndicators);
   $('#user-kind').textContent = !user ? '' : isGuest ? 'Invité, partie sur cet appareil' : 'Compte en ligne';
   $('#logout-btn').setAttribute('aria-label', !user ? 'Se connecter' : isGuest ? 'Créer un compte ou se connecter' : 'Se déconnecter');
   $('#logout-btn').title = !user ? 'Se connecter' : isGuest ? 'Créer un compte ou se connecter' : 'Se déconnecter';
@@ -6008,7 +6282,7 @@ document.addEventListener('DOMContentLoaded', () => {
   BJ.init();
   Coin.init();
   Clicker.init();
-  Plinko.init(); Hilo.init(); WheelF.init(); Slots.init(); Race.init(); Loto.init(); LB.init(); FastMode.init(); TopHour.init(); Duel.init(); Scratch.init(); Tir.init(); Coffre.init(); Taquin.init(); Jump.init();
+  Plinko.init(); Hilo.init(); WheelF.init(); Slots.init(); Race.init(); Loto.init(); LB.init(); FastMode.init(); TopHour.init(); Duel.init(); Scratch.init(); Tir.init(); Coffre.init(); Taquin.init(); Jump.init(); AdminUI.init();
   $('#arcade-cards').addEventListener('click', e => { const b = e.target.closest('[data-go-view]'); if (b) go(b.dataset.goView); });
   $('#view-pass').addEventListener('click', e => { const b = e.target.closest('[data-pass-claim]'); if (b) { const [tr, l] = b.dataset.passClaim.split(':'); Pass.claim(tr, Number(l)); } if (e.target.closest('#pass-claim-all')) Pass.claimAll(); });
   setInterval(() => { if (currentView === 'salle') { renderSeasonUI(); renderHome(); } if (currentView === 'jeux') filterGames(); }, 30000);
